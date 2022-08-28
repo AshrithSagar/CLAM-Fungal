@@ -103,10 +103,11 @@ if __name__ == '__main__':
 		output_path = os.path.join(args.feat_dir, 'h5_files', bag_name)
 		file_path = bag_candidate
 		time_start = time.time()
-		output_file_path = compute_w_loader(file_path, output_path, 
-											model = model, batch_size = args.batch_size, 
-											verbose = 1, print_every = 20,
-											target_patch_size=args.target_patch_size)
+		output_file_path = file_path
+		# output_file_path = compute_w_loader(file_path, output_path, 
+		# 									model = model, batch_size = args.batch_size, 
+		# 									verbose = 1, print_every = 20,
+		# 									target_patch_size=args.target_patch_size)
 		time_elapsed = time.time() - time_start
 		print('\ncomputing features for {} took {} s'.format(output_file_path, time_elapsed))
 		file = h5py.File(output_file_path, "r")
