@@ -93,7 +93,7 @@ if __name__ == '__main__':
 	for bag_candidate_idx in range(total):
 		# slide_id = bags_dataset[bag_candidate_idx].split(args.slide_ext)[0]
 		slide_id = bag_candidate_idx
-		bag_name = slide_id + '.h5'
+		bag_name = str(slide_id) + '.h5'
 		bag_candidate = os.path.join(args.data_dir, 'patches', bag_name)
 
 		print('\nprogress: {}/{}'.format(bag_candidate_idx, total))
