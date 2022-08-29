@@ -14,10 +14,22 @@ def tile(filename, dir_in, dir_out, d):
         out = os.path.join(dir_out, f'{name}_{i}_{j}{ext}')
         img.crop(box).save(out)
 
-def main():
-	patch_size = 256
-	input_dir = '/home/ashrith/Documents/DL-Fungal/Repos/CLAM_model/CLAM_1/image_sets/original'
-	output_dir = '/home/ashrith/Documents/DL-Fungal/Repos/CLAM_model/CLAM_1/image_sets/patches'
+
+parser = argparse.ArgumentParser(description='Patchify images')
+parser.add_argument('--source', type = str,
+					help='Path to folder containing the image files')
+parser.add_argument('--dest', type = str,
+					help='Path to folder for storing the patches')
+parser.add_argument('--patch_size', type = int, default=256,
+					help='patch_size')
+
+
+if __name__ == '__main__':
+	args = parser.parse_args()
+
+	input_dir = args.source
+	output_dir = args.dest
+	patch_size = args.patch_size
 
 	if not os.path.isdir(output_dir):
 		os.mkdir(output_dir)
@@ -30,6 +42,3 @@ def main():
 			os.mkdir(output_patches_dir)
 
 		tile(filename, input_dir, output_patches_dir, patch_size)
-
-
-main()
