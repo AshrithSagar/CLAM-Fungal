@@ -72,9 +72,9 @@ class Whole_Slide_Bag(Dataset):
 
 	def summary(self):
 		hdf5_file = h5py.File(self.file_path, "r")
-		dset = hdf5_file['imgs']
-		for name, value in dset.attrs.items():
-			print(name, value)
+		# dset = hdf5_file['imgs']
+		# for name, value in dset.attrs.items():
+		# 	print(name, value)
 
 		print('pretrained:', self.pretrained)
 		print('transformations:', self.roi_transforms)
