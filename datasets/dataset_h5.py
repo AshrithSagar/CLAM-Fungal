@@ -82,15 +82,16 @@ class Whole_Slide_Bag(Dataset):
 			print('target_size: ', self.target_patch_size)
 
 	def __getitem__(self, idx):
-		with h5py.File(self.file_path,'r') as hdf5_file:
-			img = hdf5_file['imgs'][idx]
-			coord = hdf5_file['coords'][idx]
+		# with h5py.File(self.file_path,'r') as hdf5_file:
+		# 	img = hdf5_file['imgs'][idx]
+		# 	coord = hdf5_file['coords'][idx]
 		
-		img = Image.fromarray(img)
-		if self.target_patch_size is not None:
-			img = img.resize(self.target_patch_size)
-		img = self.roi_transforms(img).unsqueeze(0)
-		return img, coord
+		# img = Image.fromarray(img)
+		# if self.target_patch_size is not None:
+		# 	img = img.resize(self.target_patch_size)
+		# img = self.roi_transforms(img).unsqueeze(0)
+		# return img, coord
+		return None, None
 
 class Whole_Slide_Bag_FP(Dataset):
 	def __init__(self,
