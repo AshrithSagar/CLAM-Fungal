@@ -10,8 +10,11 @@ parser.add_argument('--source', type = str,
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    for folder in os.listdir(args.source):
-        for patch in os.listdir(folder):
+    patch_dir = args.source
+
+    for folder in os.listdir(patch_dir):
+        patch_folder = os.path.join(patch_dir, folder)
+        for patch in os.listdir(patch_folder):
             name = patch
             file_path = os.path.join(save_path, name)+'.h5'
             file = h5py.File(file_path, "w")
