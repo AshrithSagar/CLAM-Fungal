@@ -1,6 +1,9 @@
 # To glue between create_patches.py and extract_features.py
 
-parser = argparse.ArgumentParser(description='Patchify images')
+import os
+import argparse
+
+parser = argparse.ArgumentParser(description='Initialize .h5 files')
 parser.add_argument('--source', type = str,
                     help='Path to folder containing the image folders of patches')
 
