@@ -92,8 +92,10 @@ if __name__ == '__main__':
 
 	for bag_candidate_file in os.listdir(args.data_dir):
 		# slide_id = bags_dataset[bag_candidate_idx].split(args.slide_ext)[0]
-		slide_id = bag_candidate_file
-		bag_name = str(slide_id) + '.h5'
+		name, ext = os.path.splitext(bag_candidate_file)
+		slide_id = name
+
+		bag_name = bag_candidate_file
 		bag_candidate = os.path.join(args.data_dir, 'patches', bag_name)
 
 		print('\nprogress: {}/{}'.format(bag_candidate_file, total))
