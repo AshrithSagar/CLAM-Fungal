@@ -10,10 +10,7 @@ parser.add_argument('--source', type = str,
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    patch_save_dir = os.path.join(args.source, 'patches')
-    save_path = patch_save_dir
-
-    for folder in os.listdir(save_path):
+    for folder in os.listdir(args.source):
         for patch in os.listdir(folder):
             name = patch
             file_path = os.path.join(save_path, name)+'.h5'
