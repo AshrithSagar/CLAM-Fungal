@@ -90,13 +90,13 @@ if __name__ == '__main__':
 	# total = len(bags_dataset)
 	total = 140
 
-	for bag_candidate_idx in range(total):
+	for bag_candidate_file in os.listdir(args.data_dir):
 		# slide_id = bags_dataset[bag_candidate_idx].split(args.slide_ext)[0]
-		slide_id = bag_candidate_idx
+		slide_id = bag_candidate_file
 		bag_name = str(slide_id) + '.h5'
 		bag_candidate = os.path.join(args.data_dir, 'patches', bag_name)
 
-		print('\nprogress: {}/{}'.format(bag_candidate_idx, total))
+		print('\nprogress: {}/{}'.format(bag_candidate_file, total))
 		print(bag_name)
 		if not args.no_auto_skip and str(slide_id)+'.pt' in dest_files:
 			print('skipped {}'.format(slide_id))
