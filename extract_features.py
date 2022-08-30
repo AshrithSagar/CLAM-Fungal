@@ -96,7 +96,7 @@ if __name__ == '__main__':
 		slide_id = name
 
 		bag_name = bag_candidate_file
-		bag_candidate = os.path.join(args.data_dir, 'patches', bag_name)
+		bag_candidate = os.path.join(args.data_dir, bag_name)
 
 		print('\nprogress: {}/{}'.format(bag_candidate_file, total))
 		print(bag_name)
