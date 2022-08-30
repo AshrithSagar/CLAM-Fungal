@@ -64,6 +64,7 @@ class Whole_Slide_Bag(Dataset):
 		# with h5py.File(self.file_path, "r") as f:
 		# 	dset = f['imgs']
 		# 	self.length = len(dset)
+		self.length = 256
 
 		self.summary()
 			
