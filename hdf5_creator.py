@@ -19,8 +19,8 @@ if __name__ == '__main__':
     patch_dir = args.source
     store_dir = args.dest
 
-    for folder in os.listdir(patch_dir):
-        file_path = os.path.join(store_dir, folder)+'.h5'
+    for name in os.listdir(patch_dir):
+        file_path = os.path.join(store_dir, name)+'.h5'
         file = h5py.File(file_path, "w")
         
         file.close()
