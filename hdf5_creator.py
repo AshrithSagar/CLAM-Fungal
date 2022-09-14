@@ -23,7 +23,7 @@ if __name__ == '__main__':
         patch_folder = os.path.join(patch_dir, folder)
         name, ext = os.path.splitext(patch_folder)
 
-            file_path = os.path.join(store_dir, name)+'.h5'
-            file = h5py.File(file_path, "w")
-            
-            file.close()
+        file_path = os.path.join(store_dir, name)+'.h5'
+        file = h5py.File(file_path, "w")
+        
+        file.close()
