@@ -67,7 +67,7 @@ class Whole_Slide_Bag(Dataset):
 		self.length = 256
 
 		self.summary()
-			
+
 	def __len__(self):
 		return self.length
 
@@ -86,7 +86,7 @@ class Whole_Slide_Bag(Dataset):
 		# with h5py.File(self.file_path,'r') as hdf5_file:
 		# 	img = hdf5_file['imgs'][idx]
 		# 	coord = hdf5_file['coords'][idx]
-		
+
 		# img = Image.fromarray(img)
 		# if self.target_patch_size is not None:
 		# 	img = img.resize(self.target_patch_size)
@@ -132,7 +132,7 @@ class Whole_Slide_Bag_FP(Dataset):
 			else:
 				self.target_patch_size = None
 		self.summary()
-			
+
 	def __len__(self):
 		return self.length
 
@@ -161,7 +161,7 @@ class Dataset_All_Bags(Dataset):
 
 	def __init__(self, csv_path):
 		self.df = pd.read_csv(csv_path)
-	
+
 	def __len__(self):
 		return len(self.df)
 

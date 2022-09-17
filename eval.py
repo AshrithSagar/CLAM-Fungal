@@ -28,17 +28,17 @@ parser.add_argument('--models_exp_code', type=str, default=None,
                     help='experiment code to load trained models (directory under results_dir containing model checkpoints')
 parser.add_argument('--splits_dir', type=str, default=None,
                     help='splits directory, if using custom splits other than what matches the task (default: None)')
-parser.add_argument('--model_size', type=str, choices=['small', 'big'], default='small', 
+parser.add_argument('--model_size', type=str, choices=['small', 'big'], default='small',
                     help='size of model (default: small)')
-parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mil'], default='clam_sb', 
+parser.add_argument('--model_type', type=str, choices=['clam_sb', 'clam_mb', 'mil'], default='clam_sb',
                     help='type of model (default: clam_sb)')
-parser.add_argument('--drop_out', action='store_true', default=False, 
+parser.add_argument('--drop_out', action='store_true', default=False,
                     help='whether model uses dropout')
 parser.add_argument('--k', type=int, default=10, help='number of folds (default: 10)')
 parser.add_argument('--k_start', type=int, default=-1, help='start fold (default: -1, last fold)')
 parser.add_argument('--k_end', type=int, default=-1, help='end fold (default: -1, first fold)')
 parser.add_argument('--fold', type=int, default=-1, help='single fold to evaluate')
-parser.add_argument('--micro_average', action='store_true', default=False, 
+parser.add_argument('--micro_average', action='store_true', default=False,
                     help='use micro_average instead of macro_avearge for multiclass AUC')
 parser.add_argument('--split', type=str, choices=['train', 'val', 'test', 'all'], default='test')
 parser.add_argument('--task', type=str, choices=['task_1_tumor_vs_normal',  'task_2_tumor_subtyping'])
@@ -59,7 +59,7 @@ assert os.path.isdir(args.splits_dir)
 
 settings = {'task': args.task,
             'split': args.split,
-            'save_dir': args.save_dir, 
+            'save_dir': args.save_dir,
             'models_dir': args.models_dir,
             'model_type': args.model_type,
             'drop_out': args.drop_out,
@@ -74,7 +74,7 @@ if args.task == 'task_1_tumor_vs_normal':
     args.n_classes=2
     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/tumor_vs_normal_dummy_clean.csv',
                             data_dir= os.path.join(args.data_root_dir, 'tumor_vs_normal_resnet_features'),
-                            shuffle = False, 
+                            shuffle = False,
                             print_info = True,
                             label_dict = {'normal_tissue':0, 'tumor_tissue':1},
                             patient_strat=False,
@@ -84,7 +84,7 @@ elif args.task == 'task_2_tumor_subtyping':
     args.n_classes=3
     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/tumor_subtyping_dummy_clean.csv',
                             data_dir= os.path.join(args.data_root_dir, 'tumor_subtyping_resnet_features'),
-                            shuffle = False, 
+                            shuffle = False,
                             print_info = True,
                             label_dict = {'subtype_1':0, 'subtype_2':1, 'subtype_3':2},
                             patient_strat= False,
@@ -94,7 +94,7 @@ elif args.task == 'task_2_tumor_subtyping':
 #     args.n_classes=3
 #     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/tcga_kidney_clean.csv',
 #                             data_dir= os.path.join(args.data_root_dir, 'tcga_kidney_20x_features'),
-#                             shuffle = False, 
+#                             shuffle = False,
 #                             print_info = True,
 #                             label_dict = {'TCGA-KICH':0, 'TCGA-KIRC':1, 'TCGA-KIRP':2},
 #                             patient_strat= False,
