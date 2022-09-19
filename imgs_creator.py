@@ -17,15 +17,17 @@ if __name__ == '__main__':
 
 	patch_dir = args.source
 
-	for name in os.listdir(patch_dir):
-		img_path = os.path.join(patch_dir, name)
-		img = Image.open(img_path)
+	for folder in os.listdir(patch_dir):
+	    patch_folder = os.path.join(patch_dir, folder)
+	    for patch_file in os.listdir(patch_folder):
+			img_path = os.path.join(patch_folder, patch_file)
+			img = Image.open(img_path)
 
-		img_arr = np.asarray(img)
-		img_PIL = Image.fromarray(img_arr)
+			img_arr = np.asarray(img)
+			img_PIL = Image.fromarray(img_arr)
 
-		print(img_PIL)
+			print(img_PIL)
 
-		print("="*50)
+			print("="*50)
 
-		img.close()
+			img.close()
