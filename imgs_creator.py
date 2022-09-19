@@ -20,12 +20,12 @@ if __name__ == '__main__':
     for name in os.listdir(patch_dir):
     	img_path = os.path.join(patch_dir, name)
         img = PIL.Image.open(img_path)
-		
+
 		img_arr = np.asarray(img)
 		img_PIL = PIL.Image.fromarray(img_arr)
 
 		print(img_PIL)
 
 		print("="*50)
-        
+
         img.close()
