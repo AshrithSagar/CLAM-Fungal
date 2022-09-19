@@ -26,8 +26,4 @@ if __name__ == '__main__':
             img_arr = np.asarray(img)
             img_PIL = Image.fromarray(img_arr)
 
-            print(dir(img_PIL))
-
-            print("="*50)
-
             img.close()
