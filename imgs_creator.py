@@ -4,7 +4,7 @@ import os
 import argparse
 import h5py
 import numpy as np
-import PIL
+from PIL import Image
 
 
 parser = argparse.ArgumentParser(description='Image patches to numpy')
@@ -19,10 +19,10 @@ if __name__ == '__main__':
 
 	for name in os.listdir(patch_dir):
 		img_path = os.path.join(patch_dir, name)
-		img = PIL.Image.open(img_path)
+		img = Image.open(img_path)
 
 		img_arr = np.asarray(img)
-		img_PIL = PIL.Image.fromarray(img_arr)
+		img_PIL = Image.fromarray(img_arr)
 
 		print(img_PIL)
 
