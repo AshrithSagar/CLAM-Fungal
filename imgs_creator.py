@@ -25,5 +25,6 @@ if __name__ == '__main__':
 
             img_arr = np.asarray(img)
             img_PIL = Image.fromarray(img_arr)
+            print(folder, img_PIL.shape)
 
             img.close()
