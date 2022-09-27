@@ -21,7 +21,8 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 model = ResNet50(weights = 'imagenet', include_top = False)
 
 # Read image
-orig = cv.imread('/image_sets/patches/F005a02/F005a02.tif')
+img_path = os.path.join(os.getcwd(), '/image_sets/patches/F005a02/F005a02.tif')
+orig = cv.imread(img_path)
 
 # Convert image to RGB from BGR (another way is to use "image = image[:, :, ::-1]" code)
 orig = cv.cvtColor(orig, cv.COLOR_BGR2RGB)
