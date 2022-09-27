@@ -43,10 +43,10 @@ if __name__ == '__main__':
             orig = cv.cvtColor(orig, cv.COLOR_BGR2RGB)
 
             # Resize image to 224x224 size
-            # image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
+            image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
 
             # We need to preprocess imageto fulfill ResNet50 requirements
-            image = preprocess_input(orig)
+            image = preprocess_input(image)
 
             # Extracting our features
             features = model.predict(image)
