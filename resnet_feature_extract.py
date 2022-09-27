@@ -11,7 +11,9 @@ from keras.layers import Dense
 from keras.utils.np_utils import to_categorical
 
 # from keras.applications import ResNet50
-from keras.applications.resnet50 import ResNet50
+# from keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.resnet50 import ResNet50
+
 
 from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import img_to_array
