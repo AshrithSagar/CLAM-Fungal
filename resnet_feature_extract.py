@@ -20,20 +20,24 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 # Loading ResNet50 wit imagenet weights, include_top means that we loading model without last fully connected layers
 model = ResNet50(weights = 'imagenet', include_top = False)
 
-# Read image
-print(os.get_cwd())
-orig = cv.imread('/image_sets/patches/F005a02/F005a02.tif')
+for folder in os.listdir(patch_dir):
+    patch_folder = os.path.join(patch_dir, folder)
+    for patch_file in os.listdir(patch_folder):
+        img_path = os.path.join(patch_folder, patch_file)
 
-# Convert image to RGB from BGR (another way is to use "image = image[:, :, ::-1]" code)
-orig = cv.cvtColor(orig, cv.COLOR_BGR2RGB)
+        # Read image
+        orig = cv.imread(img_path)
 
-# Resize image to 224x224 size
-image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
+        # Convert image to RGB from BGR (another way is to use "image = image[:, :, ::-1]" code)
+        orig = cv.cvtColor(orig, cv.COLOR_BGR2RGB)
 
-# We need to preprocess imageto fulfill ResNet50 requirements
-image = preprocess_input(image)
+        # Resize image to 224x224 size
+        image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
 
-# Extracting our features
-features = model.predict(image)
+        # We need to preprocess imageto fulfill ResNet50 requirements
+        image = preprocess_input(image)
 
-print(features.shape)
+        # Extracting our features
+        features = model.predict(image)
+
+        print(features.shape)
