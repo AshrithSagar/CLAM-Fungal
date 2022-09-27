@@ -52,3 +52,6 @@ if __name__ == '__main__':
             features = model.predict(image)
 
             print(features.shape)
+
+            break
+        break
