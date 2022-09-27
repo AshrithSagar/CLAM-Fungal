@@ -10,8 +10,8 @@ from keras.utils.np_utils import to_categorical
 from tensorflow.keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.resnet50 import preprocess_input
 
-from keras.preprocessing.image import img_to_array
-from keras.preprocessing.image import load_img
+from tensorflow.keras.utils import img_to_array
+from tensorflow.keras.preprocessing.image import load_img
 from keras.callbacks import ModelCheckpoint
 
 from sklearn.utils import shuffle
