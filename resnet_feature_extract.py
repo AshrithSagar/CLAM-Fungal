@@ -3,19 +3,13 @@ import os
 import numpy as np
 import cv2 as cv
 
-# import tensorflow.keras
-# from tensorflow import keras
-
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.utils.np_utils import to_categorical
 
-# from keras.applications import ResNet50
-# from keras.applications.resnet50 import ResNet50
 from tensorflow.keras.applications.resnet50 import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input
 
-
-from keras.applications.resnet50 import preprocess_input
 from keras.preprocessing.image import img_to_array
 from keras.preprocessing.image import load_img
 from keras.callbacks import ModelCheckpoint
