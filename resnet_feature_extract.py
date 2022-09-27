@@ -46,7 +46,7 @@ if __name__ == '__main__':
             # image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
 
             # We need to preprocess imageto fulfill ResNet50 requirements
-            image = preprocess_input(image)
+            image = preprocess_input(orig)
 
             # Extracting our features
             features = model.predict(image)
