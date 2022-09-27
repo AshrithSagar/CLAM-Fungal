@@ -53,7 +53,5 @@ if __name__ == '__main__':
 
             print(features.shape)
 
-            print(features)
-
             break
         break
