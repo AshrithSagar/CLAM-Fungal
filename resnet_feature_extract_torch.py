@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2 as cv
 import argparse
+import torch
 
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')
