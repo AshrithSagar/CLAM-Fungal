@@ -15,6 +15,7 @@ if __name__ == '__main__':
 
     patch_dir = args.source
 
+    print(os.path('image_sets/resnet50-19c8e357.pth'))
     model = torch.load(os.path('image_sets/resnet50-19c8e357.pth'))
     print(model)
 
