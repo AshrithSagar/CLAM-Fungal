@@ -3,22 +3,8 @@ import numpy as np
 import cv2 as cv
 import argparse
 
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.utils.np_utils import to_categorical
 
-from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
-
-from tensorflow.keras.utils import img_to_array
-from tensorflow.keras.preprocessing.image import load_img
-from keras.callbacks import ModelCheckpoint
-
-from sklearn.utils import shuffle
-from sklearn.metrics import accuracy_score, confusion_matrix
-
-
-parser = argparse.ArgumentParser(description='Image patches to numpy')
+parser = argparse.ArgumentParser(description='Extract features using RESNET')
 parser.add_argument('--source', type = str,
                     help='Path to folder containing the image folders of patches')
 
@@ -28,8 +14,7 @@ if __name__ == '__main__':
 
     patch_dir = args.source
 
-    # Loading ResNet50 wit imagenet weights, include_top means that we loading model without last fully connected layers
-    model = ResNet50(weights = 'imagenet', include_top = False)
+    
 
     for folder in os.listdir(patch_dir):
         patch_folder = os.path.join(patch_dir, folder)

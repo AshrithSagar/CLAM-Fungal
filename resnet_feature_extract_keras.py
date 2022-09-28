@@ -18,7 +18,7 @@ from sklearn.utils import shuffle
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 
-parser = argparse.ArgumentParser(description='Image patches to numpy')
+parser = argparse.ArgumentParser(description='Extract features using RESNET')
 parser.add_argument('--source', type = str,
                     help='Path to folder containing the image folders of patches')
 
