@@ -14,7 +14,8 @@ if __name__ == '__main__':
 
     patch_dir = args.source
 
-    
+    model = torch.load(os.path('image_sets/resnet50-19c8e357.pth'))
+    print(model)
 
     for folder in os.listdir(patch_dir):
         patch_folder = os.path.join(patch_dir, folder)
