@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     model_path = os.path.join(os.getcwd(), 'image_sets/resnet50-19c8e357.pth')
     model = torch.load(model_path)
-    model = model.to(device)
+    # model = model.to(device)
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
     model.eval()
