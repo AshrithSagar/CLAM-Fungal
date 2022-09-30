@@ -3,6 +3,10 @@ import numpy as np
 import cv2 as cv
 import argparse
 import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+
+from models.resnet_custom import resnet50_baseline
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -29,7 +33,7 @@ if __name__ == '__main__':
             img_path = os.path.join(patch_folder, patch_file)
             with torch.no_grad():
                 features = model(model)
-
+                
 
             break
         break
