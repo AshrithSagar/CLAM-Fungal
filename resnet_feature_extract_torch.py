@@ -12,7 +12,7 @@ from models.resnet_custom import resnet50_baseline
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')
-parser.add_argument('--source', type = str, 
+parser.add_argument('--source', type = str,
     help='Path to folder containing the image folders of patches')
 args = parser.parse_args()
 
@@ -33,7 +33,5 @@ if __name__ == '__main__':
             img_path = os.path.join(patch_folder, patch_file)
             with torch.no_grad():
                 features = model(model)
-                
-
             break
         break
