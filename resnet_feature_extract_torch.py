@@ -32,6 +32,7 @@ def extract(img_path):
     coord = [coord[-2], coord[-1]]
     print("Coord:", coord)
 
+    imgs = np.concatenate([imgs, imgs, imgs], 0)
     dataset = [imgs, coord]
 
     loader = DataLoader(dataset=dataset, batch_size=1, collate_fn=collate_features)
@@ -39,6 +40,7 @@ def extract(img_path):
     for count, (batch, coords) in enumerate(loader):
         with torch.no_grad():
             batch = batch.to(device, non_blocking=True)
+
             features = model(batch[None, ...])
             print(features)
 
