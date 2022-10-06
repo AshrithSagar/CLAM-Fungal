@@ -22,6 +22,8 @@ def extract(img_path):
 
     # Create the dataset loader
     imgs = torch.tensor(img_arr)
+    imgs = np.concatenate([imgs, imgs, imgs], 0)
+    imgs = torch.tensor(imgs)
     imgs = imgs.unsqueeze(1)
 
     # Get coord in [x, y] format
@@ -32,7 +34,6 @@ def extract(img_path):
     coord = [coord[-2], coord[-1]]
     print("Coord:", coord)
 
-    imgs = np.concatenate([imgs, imgs, imgs], 0)
     dataset = [imgs, coord]
 
     loader = DataLoader(dataset=dataset, batch_size=1, collate_fn=collate_features)
