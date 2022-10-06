@@ -5,6 +5,7 @@ import argparse
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from PIL import Image
 
 from models.resnet_custom import resnet50_baseline
 from utils.utils import print_network, collate_features
@@ -13,10 +14,22 @@ from utils.utils import print_network, collate_features
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-def extract(path):
+def extract(img_path):
+    img = Image.open(img_path)
+
+    img_arr = np.asarray(img)
+    # img_PIL = Image.fromarray(img_arr)
+
+    # Create the dataset loader
+    imgs = img_arr
+
+    coord = img_path.split("/")[-1]
     
-    loader = DataLoader(dataset=dataset, batch_size=128, **kwargs, collate_fn=collate_features)
-    
+
+    dataset = [imgs, coord]
+
+    loader = DataLoader(dataset=dataset, batch_size=1, **kwargs, collate_fn=collate_features)
+
     for count, (batch, coords) in enumerate(loader):
         with torch.no_grad():
             batch = batch.to(device, non_blocking=True)
