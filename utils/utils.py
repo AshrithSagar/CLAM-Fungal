@@ -46,23 +46,23 @@ def collate_features(batch):
 def get_simple_loader(dataset, batch_size=1, num_workers=1):
 	kwargs = {'num_workers': 4, 'pin_memory': False, 'num_workers': num_workers} if device.type == "cuda" else {}
 	loader = DataLoader(dataset, batch_size=batch_size, sampler = sampler.SequentialSampler(dataset), collate_fn = collate_MIL, **kwargs)
-	return loader 
+	return loader
 
 def get_split_loader(split_dataset, training = False, testing = False, weighted = False):
 	"""
-		return either the validation loader or training loader 
+		return either the validation loader or training loader
 	"""
 	kwargs = {'num_workers': 4} if device.type == "cuda" else {}
 	if not testing:
 		if training:
 			if weighted:
 				weights = make_weights_for_balanced_classes_split(split_dataset)
-				loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate_MIL, **kwargs)	
+				loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate_MIL, **kwargs)
 			else:
 				loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate_MIL, **kwargs)
 		else:
 			loader = DataLoader(split_dataset, batch_size=1, sampler = SequentialSampler(split_dataset), collate_fn = collate_MIL, **kwargs)
-	
+
 	else:
 		ids = np.random.choice(np.arange(len(split_dataset), int(len(split_dataset)*0.1)), replace = False)
 		loader = DataLoader(split_dataset, batch_size=1, sampler = SubsetSequentialSampler(ids), collate_fn = collate_MIL, **kwargs )
@@ -82,13 +82,13 @@ def print_network(net):
 	num_params = 0
 	num_params_train = 0
 	print(net)
-	
+
 	for param in net.parameters():
 		n = param.numel()
 		num_params += n
 		if param.requires_grad:
 			num_params_train += n
-	
+
 	print('Total number of parameters: %d' % num_params)
 	print('Total number of trainable parameters: %d' % num_params_train)
 
@@ -96,7 +96,7 @@ def print_network(net):
 def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 	seed = 7, label_frac = 1.0, custom_test_ids = None):
 	indices = np.arange(samples).astype(int)
-	
+
 	if custom_test_ids is not None:
 		indices = np.setdiff1d(indices, custom_test_ids)
 
@@ -105,7 +105,7 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 		all_val_ids = []
 		all_test_ids = []
 		sampled_train_ids = []
-		
+
 		if custom_test_ids is not None: # pre-built test split, do not need to sample
 			all_test_ids.extend(custom_test_ids)
 
@@ -124,7 +124,7 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 
 			if label_frac == 1:
 				sampled_train_ids.extend(remaining_ids)
-			
+
 			else:
 				sample_num  = math.ceil(len(remaining_ids) * label_frac)
 				slice_ids = np.arange(sample_num)
@@ -145,12 +145,12 @@ def calculate_error(Y_hat, Y):
 	return error
 
 def make_weights_for_balanced_classes_split(dataset):
-	N = float(len(dataset))                                           
-	weight_per_class = [N/len(dataset.slide_cls_ids[c]) for c in range(len(dataset.slide_cls_ids))]                                                                                                     
-	weight = [0] * int(N)                                           
-	for idx in range(len(dataset)):   
-		y = dataset.getlabel(idx)                        
-		weight[idx] = weight_per_class[y]                                  
+	N = float(len(dataset))
+	weight_per_class = [N/len(dataset.slide_cls_ids[c]) for c in range(len(dataset.slide_cls_ids))]
+	weight = [0] * int(N)
+	for idx in range(len(dataset)):
+		y = dataset.getlabel(idx)
+		weight[idx] = weight_per_class[y]
 
 	return torch.DoubleTensor(weight)
 
@@ -159,7 +159,7 @@ def initialize_weights(module):
 		if isinstance(m, nn.Linear):
 			nn.init.xavier_normal_(m.weight)
 			m.bias.data.zero_()
-		
+
 		elif isinstance(m, nn.BatchNorm1d):
 			nn.init.constant_(m.weight, 1)
 			nn.init.constant_(m.bias, 0)

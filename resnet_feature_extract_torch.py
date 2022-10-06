@@ -7,15 +7,21 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from models.resnet_custom import resnet50_baseline
+from utils.utils import print_network, collate_features
 
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
 def extract(path):
-    with torch.no_grad():
-        features = model()
-        print(features)
+    
+    loader = DataLoader(dataset=dataset, batch_size=128, **kwargs, collate_fn=collate_features)
+    
+    for count, (batch, coords) in enumerate(loader):
+        with torch.no_grad():
+            batch = batch.to(device, non_blocking=True)
+            features = model(batch)
+            print(features)
 
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')

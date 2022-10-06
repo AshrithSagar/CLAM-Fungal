@@ -18,7 +18,7 @@ import h5py
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-def compute_w_loader(file_path, output_path, model, batch_size = 256, verbose = 0, 
+def compute_w_loader(file_path, output_path, model, batch_size = 256, verbose = 0,
 	  				 print_every=20, pretrained=True, target_patch_size=-1):
 	"""
 	args:
@@ -29,7 +29,7 @@ def compute_w_loader(file_path, output_path, model, batch_size = 256, verbose = 
 		verbose: level of feedback
 		pretrained: use weights pretrained on imagenet
 	"""
-	dataset = Whole_Slide_Bag(file_path=file_path, pretrained=pretrained, 
+	dataset = Whole_Slide_Bag(file_path=file_path, pretrained=pretrained,
 							  target_patch_size=target_patch_size)
 	x, y = dataset[0]
 	kwargs = {'num_workers': 4, 'pin_memory': True} if device.type == "cuda" else {}
@@ -40,20 +40,20 @@ def compute_w_loader(file_path, output_path, model, batch_size = 256, verbose = 
 
 	mode = 'w'
 	for count, (batch, coords) in enumerate(loader):
-		with torch.no_grad():	
+		with torch.no_grad():
 			if count % print_every == 0:
 				print('batch {}/{}, {} files processed'.format(count, len(loader), count * batch_size))
 			batch = batch.to(device, non_blocking=True)
 			mini_bs = coords.shape[0]
-			
+
 			features = model(batch)
-			
+
 			features = features.cpu().numpy()
 
 			asset_dict = {'features': features, 'coords': coords}
 			save_hdf5(output_path, asset_dict, attr_dict= None, mode=mode)
 			mode = 'a'
-	
+
 	return output_path
 
 
@@ -74,18 +74,18 @@ if __name__ == '__main__':
 	print('initializing dataset')
 	# csv_path = args.csv_path
 	# bags_dataset = Dataset_All_Bags(csv_path)
-	
+
 	os.makedirs(args.feat_dir, exist_ok=True)
 	dest_files = os.listdir(args.feat_dir)
 
 	print('loading model checkpoint')
 	model = resnet50_baseline(pretrained=True)
 	model = model.to(device)
-	
+
 	# print_network(model)
 	if torch.cuda.device_count() > 1:
 		model = nn.DataParallel(model)
-		
+
 	model.eval()
 	# total = len(bags_dataset)
 	total = 140
@@ -102,13 +102,13 @@ if __name__ == '__main__':
 		print(bag_name)
 		if not args.no_auto_skip and str(slide_id)+'.pt' in dest_files:
 			print('skipped {}'.format(slide_id))
-			continue 
+			continue
 
 		output_path = os.path.join(args.feat_dir, 'h5_files', bag_name)
 		file_path = bag_candidate
 		time_start = time.time()
-		output_file_path = compute_w_loader(file_path, output_path, 
-											model = model, batch_size = args.batch_size, 
+		output_file_path = compute_w_loader(file_path, output_path,
+											model = model, batch_size = args.batch_size,
 											verbose = 1, print_every = 20,
 											target_patch_size=args.target_patch_size)
 		# output_file_path = file_path
