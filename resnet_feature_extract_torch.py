@@ -23,8 +23,12 @@ def extract(img_path):
     # Create the dataset loader
     imgs = img_arr
 
-    coord = img_path.split("/")[-1]
-    
+    coord = img_path.split("/")
+    coord = coord[-1]
+    coord = coord.split(".")[-2]
+    coord = coord.split("_")
+    coord = [coord[-2], coord[-1]]
+    print("Coord", coord)
 
     dataset = [imgs, coord]
 
