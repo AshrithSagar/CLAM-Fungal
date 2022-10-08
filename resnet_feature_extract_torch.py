@@ -22,6 +22,7 @@ def extract(img_path):
 
     # Create the dataset loader
     imgs = torch.tensor(img_arr)
+    print(imgs)
 
     # Get coord in [x, y] format
     coord = img_path.split("/")
