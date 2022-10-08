@@ -29,7 +29,7 @@ if __name__ == '__main__':
     patch_dir = args.source
 
     # Loading ResNet50 wit imagenet weights, include_top means that we loading model without last fully connected layers
-    model = ResNet50(weights = 'imagenet', include_top = True)
+    model = ResNet50(weights = 'imagenet', include_top = True, classes = 2)
 
     for folder in os.listdir(patch_dir):
         patch_folder = os.path.join(patch_dir, folder)
