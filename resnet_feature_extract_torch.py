@@ -20,21 +20,18 @@ def extract(img_paths):
         img = Image.open(img_path)
 
         img_arr = np.asarray(img)
-        print(img_arr.shape)
         # img_arr = np.expand_dims(img_arr, 0)
         # img_PIL = Image.fromarray(img_arr)
 
         # Create the dataset loader
         imgs = torch.tensor(img_arr)
-        print(imgs.shape)
-        print("-"*15)
 
         # Get coord in [x, y] format
         coord = img_path.split("/")
         coord = coord[-1]
         coord = coord.split(".")[-2]
         coord = coord.split("_")
-        coord = [coord[-2], coord[-1]]
+        coord = [coord[-2]/256, coord[-1]/256]
         print("Coord", coord)
         print("-"*15)
 
@@ -45,15 +42,13 @@ def extract(img_paths):
     for count, data in enumerate(loader):
         with torch.no_grad():
             batch = data[0]
-            print(batch.shape)
             batch = torch.unsqueeze(batch, 0)
-            print(batch.shape)
             batch = batch.reshape([1, 3, 256, 256])
-            print(batch.shape)
             batch = batch.to(device, non_blocking=True)
             batch = batch.float()
             features = model(batch)
             print(features)
+            print("="*15)
 
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')
