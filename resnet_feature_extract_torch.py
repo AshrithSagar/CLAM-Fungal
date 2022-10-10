@@ -46,6 +46,7 @@ def extract(img_paths):
             batch = batch.float()
             features = model(batch)
             coord = data[1]
+            print(count)
             print("Coord", coord)
             print(features)
             print("="*15)
