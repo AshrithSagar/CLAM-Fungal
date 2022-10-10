@@ -18,7 +18,8 @@ def extract(img_path):
     img = Image.open(img_path)
 
     img_arr = np.asarray(img)
-    img_arr = np.expand_dims(img_arr, 0)
+    print(img_arr.shape)
+    # img_arr = np.expand_dims(img_arr, 0)
     # img_PIL = Image.fromarray(img_arr)
 
     # Create the dataset loader
