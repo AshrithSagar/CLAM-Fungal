@@ -35,7 +35,7 @@ def extract(img_paths):
 
         dataset.append([imgs, coord])
 
-    loader = DataLoader(dataset=dataset, batch_size=1)
+    loader = DataLoader(dataset=dataset, batch_size=8)
 
     for count, data in enumerate(loader):
         with torch.no_grad():
