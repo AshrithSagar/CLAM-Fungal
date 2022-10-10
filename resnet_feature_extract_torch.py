@@ -42,6 +42,7 @@ def extract(img_path):
 
     for count, (batch, coords) in enumerate(loader):
         with torch.no_grad():
+            print(batch.shape)
             batch = batch.to(device, non_blocking=True)
             features = model(batch)
             print(features)
