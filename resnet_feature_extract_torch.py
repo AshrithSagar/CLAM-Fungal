@@ -46,7 +46,7 @@ def extract(img_path):
             print(batch.shape)
             batch = torch.unsqueeze(batch, 0)
             print(batch.shape)
-            batch = batch.reshape([0, 3, 2, 1])
+            batch = batch.reshape([1, 3, 256, 256])
             print(batch.shape)
             batch = batch.to(device, non_blocking=True)
             features = model(batch)
