@@ -14,29 +14,31 @@ from utils.utils import print_network, collate_features
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
-def extract(img_path):
-    img = Image.open(img_path)
+def extract(img_paths):
+    dataset = []
+    for img_path in img_paths:
+        img = Image.open(img_path)
 
-    img_arr = np.asarray(img)
-    print(img_arr.shape)
-    # img_arr = np.expand_dims(img_arr, 0)
-    # img_PIL = Image.fromarray(img_arr)
+        img_arr = np.asarray(img)
+        print(img_arr.shape)
+        # img_arr = np.expand_dims(img_arr, 0)
+        # img_PIL = Image.fromarray(img_arr)
 
-    # Create the dataset loader
-    imgs = torch.tensor(img_arr)
-    print(imgs.shape)
-    print("-"*15)
+        # Create the dataset loader
+        imgs = torch.tensor(img_arr)
+        print(imgs.shape)
+        print("-"*15)
 
-    # Get coord in [x, y] format
-    coord = img_path.split("/")
-    coord = coord[-1]
-    coord = coord.split(".")[-2]
-    coord = coord.split("_")
-    coord = [coord[-2], coord[-1]]
-    print("Coord", coord)
-    print("-"*15)
+        # Get coord in [x, y] format
+        coord = img_path.split("/")
+        coord = coord[-1]
+        coord = coord.split(".")[-2]
+        coord = coord.split("_")
+        coord = [coord[-2], coord[-1]]
+        print("Coord", coord)
+        print("-"*15)
 
-    dataset = [imgs, coord]
+        dataset.append([imgs, coord])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
 
@@ -52,7 +54,6 @@ def extract(img_path):
             batch = batch.float()
             features = model(batch)
             print(features)
-            print("="*15)
 
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')
@@ -75,12 +76,11 @@ if __name__ == '__main__':
 
     model.eval()
 
+    img_paths = []
     for folder in os.listdir(patch_dir):
         patch_folder = os.path.join(patch_dir, folder)
         for patch_file in os.listdir(patch_folder):
             img_path = os.path.join(patch_folder, patch_file)
+            img_paths.append(img_path)
 
-            features = extract(img_path)
-
-            break
-        break
+    features = extract(img_paths)
