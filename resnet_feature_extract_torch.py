@@ -42,7 +42,7 @@ def extract(img_path):
 
     for count, data in enumerate(loader):
         with torch.no_grad():
-            batch = data[imgs]
+            batch = data["imgs"]
             print(batch.shape)
             batch = torch.unsqueeze(batch, 0)
             print(batch.shape)
