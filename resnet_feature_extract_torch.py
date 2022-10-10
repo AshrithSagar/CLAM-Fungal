@@ -25,7 +25,7 @@ def extract(img_path):
     # Create the dataset loader
     imgs = torch.tensor(img_arr)
     print(imgs.shape)
-    imgs = imgs.unsqueeze(1)
+    imgs = imgs.expand_dims(0)
     print("-"*15)
 
     # Get coord in [x, y] format
