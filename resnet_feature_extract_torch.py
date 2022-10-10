@@ -32,8 +32,6 @@ def extract(img_paths):
         coord = coord.split(".")[-2]
         coord = coord.split("_")
         coord = [int(coord[-2])/256, int(coord[-1])/256]
-        print("Coord", coord)
-        print("-"*15)
 
         dataset.append([imgs, coord])
 
@@ -47,6 +45,8 @@ def extract(img_paths):
             batch = batch.to(device, non_blocking=True)
             batch = batch.float()
             features = model(batch)
+            coord = data[1]
+            print("Coord", coord)
             print(features)
             print("="*15)
 
