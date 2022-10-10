@@ -49,6 +49,7 @@ def extract(img_path):
             batch = batch.reshape([1, 3, 256, 256])
             print(batch.shape)
             batch = batch.to(device, non_blocking=True)
+            batch = batch.float()
             features = model(batch)
             print(features)
 
