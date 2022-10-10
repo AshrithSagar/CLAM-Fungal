@@ -52,6 +52,7 @@ def extract(img_path):
             batch = batch.float()
             features = model(batch)
             print(features)
+            print("="*15)
 
 
 parser = argparse.ArgumentParser(description='Extract features using RESNET')
