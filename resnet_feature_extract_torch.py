@@ -40,8 +40,9 @@ def extract(img_path):
 
     loader = DataLoader(dataset=dataset, batch_size=1)
 
-    for count, (batch, coords) in enumerate(loader):
+    for count, data in enumerate(loader):
         with torch.no_grad():
+            batch = data[imgs]
             print(batch.shape)
             batch = batch.to(device, non_blocking=True)
             features = model(batch)
