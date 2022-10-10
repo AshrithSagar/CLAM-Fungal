@@ -18,14 +18,12 @@ def extract(img_path):
     img = Image.open(img_path)
 
     img_arr = np.asarray(img)
-    print(img_arr.shape)
-    print("-"*15)
+    img_arr = img_arr.expand_dims(0)
     # img_PIL = Image.fromarray(img_arr)
 
     # Create the dataset loader
     imgs = torch.tensor(img_arr)
     print(imgs.shape)
-    imgs = imgs.expand_dims(0)
     print("-"*15)
 
     # Get coord in [x, y] format
