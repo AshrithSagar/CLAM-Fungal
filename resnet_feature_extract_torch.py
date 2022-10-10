@@ -31,7 +31,7 @@ def extract(img_paths):
         coord = coord[-1]
         coord = coord.split(".")[-2]
         coord = coord.split("_")
-        coord = [coord[-2]/256, coord[-1]/256]
+        coord = [int(coord[-2])/256, int(coord[-1])/256]
         print("Coord", coord)
         print("-"*15)
 
