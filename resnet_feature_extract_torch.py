@@ -18,11 +18,14 @@ def extract(img_path):
     img = Image.open(img_path)
 
     img_arr = np.asarray(img)
+    print(size(img_arr))
+    print("-"*15)
     # img_PIL = Image.fromarray(img_arr)
 
     # Create the dataset loader
     imgs = torch.tensor(img_arr)
     print(imgs)
+    print("-"*15)
 
     # Get coord in [x, y] format
     coord = img_path.split("/")
@@ -31,9 +34,11 @@ def extract(img_path):
     coord = coord.split("_")
     coord = [coord[-2], coord[-1]]
     print("Coord", coord)
+    print("-"*15)
 
     dataset = [imgs, coord]
-    print(size(imgs))
+    print(size(dataset))
+    print("-"*15)
 
     loader = DataLoader(dataset=dataset, batch_size=1, collate_fn=collate_features)
 
