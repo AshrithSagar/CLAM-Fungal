@@ -33,6 +33,7 @@ def extract(img_path):
     print("Coord", coord)
 
     dataset = [imgs, coord]
+    print(size(imgs))
 
     loader = DataLoader(dataset=dataset, batch_size=1, collate_fn=collate_features)
 
