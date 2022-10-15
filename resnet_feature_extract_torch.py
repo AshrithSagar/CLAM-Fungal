@@ -71,5 +71,5 @@ if __name__ == '__main__':
 
             features = model(batch)
 
-            print(count, " | ", coord, " | ", features)
+            print(count, " || ", coord, " || ", features)
             print("="*15)
