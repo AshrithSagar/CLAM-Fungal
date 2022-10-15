@@ -19,7 +19,7 @@ parser.add_argument('--test_frac', type=float, default= 0.1,
 args = parser.parse_args()
 
 # task_1_fungal_vs_nonfungal
-args.n_classes=2
+n_classes=2
 dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/fungal_vs_nonfungal.csv',
                         shuffle = False,
                         seed = args.seed,

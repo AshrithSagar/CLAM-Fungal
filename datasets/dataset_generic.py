@@ -65,6 +65,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 		slide_data = pd.read_csv(csv_path)
 		slide_data = self.filter_df(slide_data, filter_dict)
 		slide_data = self.df_prep(slide_data, self.label_dict, ignore, self.label_col)
+		print(slide_data)
 
 		###shuffle data
 		if shuffle:
