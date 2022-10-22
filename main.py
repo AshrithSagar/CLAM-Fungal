@@ -151,7 +151,19 @@ if args.model_type in ['clam_sb', 'clam_mb']:
 
 print('\nLoad Dataset')
 
-if args.task == 'task_1_tumor_vs_normal':
+
+if args.task == 'task_fungal_vs_nonfungal':
+    args.n_classes=2
+    dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/fungal_vs_nonfungal.csv',
+                            data_dir= os.path.join(args.data_root_dir, 'fungal_vs_nonfungal_resnet_features'),
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dict = {'nonfungal':0, 'fungal':1},
+                            patient_strat=False,
+                            ignore=[])
+
+elif args.task == 'task_1_tumor_vs_normal':
     args.n_classes=2
     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/tumor_vs_normal_dummy_clean.csv',
                             data_dir= os.path.join(args.data_root_dir, 'tumor_vs_normal_resnet_features'),
