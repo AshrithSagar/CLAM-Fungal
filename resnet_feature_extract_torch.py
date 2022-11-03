@@ -74,7 +74,8 @@ if __name__ == '__main__':
             print(count, " || ", coord, " || ", features)
             print("-"*15)
 
-            print('features size: ', features.shape)
+            print("Features size: ", features.shape)
             # features = torch.from_numpy(features)
+            print("FilePath: ", os.path.join(feat_dir, 'pt_files', count, '.pt'))
             torch.save(features, os.path.join(feat_dir, 'pt_files', count, '.pt'))
             print("="*15)
