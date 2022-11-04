@@ -70,12 +70,13 @@ if __name__ == '__main__':
             batch = batch.float()
 
             features = model(batch)
+            features = features.cpu().numpy()
+            features = torch.from_numpy(features)
 
             print(count, " || ", coord, " || ", features)
             print("-"*15)
 
-            print("Features size: ", features.shape)
-            # features = torch.from_numpy(features)
+            # print("Features size: ", features.shape)
             print("FilePath: ", os.path.join(feat_dir, str(count)+'.pt'))
             torch.save(features, os.path.join(feat_dir, str(count)+'.pt'))
             print("="*15)
