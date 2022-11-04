@@ -28,6 +28,7 @@ if __name__ == '__main__':
     # Create feat_dir if not exists
     if not os.path.exists(feat_dir):
         try:
+            print("Features directory doesn't exist. Creating ...")
             os.mkdir(feat_dir)
         except:
             print("ERROR: Cannot create the Features directory")
