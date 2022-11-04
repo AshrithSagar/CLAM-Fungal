@@ -81,10 +81,9 @@ if __name__ == '__main__':
             features = features.cpu().numpy()
             features = torch.from_numpy(features)
 
-            print(count, " || ", coord, " || ", features)
-            print("-"*15)
-
+            filePath = os.path.join(feat_dir, str(count)+'.pt')
+            print(count, " || ", coord, " || ", features. " || ", filePath)
             # print("Features size: ", features.shape)
-            print("FilePath: ", os.path.join(feat_dir, str(count)+'.pt'))
-            torch.save(features, os.path.join(feat_dir, str(count)+'.pt'))
+
+            torch.save(features, filePath)
             print("="*15)
