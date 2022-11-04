@@ -82,7 +82,7 @@ if __name__ == '__main__':
             features = torch.from_numpy(features)
 
             filePath = os.path.join(feat_dir, str(count)+'.pt')
-            print(count, " || ", coord, " || ", features. " || ", filePath)
+            print(count, " || ", coord, " || ", features, " || ", filePath)
             # print("Features size: ", features.shape)
 
             torch.save(features, filePath)
