@@ -64,12 +64,15 @@ if __name__ == '__main__':
             coord = coord.split("_")
             coord = [int(coord[-2])/256, int(coord[-1])/256]
 
-            dataset.append([imgs, coord])
+            name = patch_file
+
+            dataset.append([imgs, coord, name])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
 
     for count, data in enumerate(loader):
         with torch.no_grad():
+            filename = data[2]
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
@@ -81,7 +84,7 @@ if __name__ == '__main__':
             features = features.cpu().numpy()
             features = torch.from_numpy(features)
 
-            filePath = os.path.join(feat_dir, str(count)+'.pt')
+            filePath = os.path.join(feat_dir, filename+'.pt')
             print(count, " || ", coord, " || ", features, " || ", filePath)
             # print("Features size: ", features.shape)
 
