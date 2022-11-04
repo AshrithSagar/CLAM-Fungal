@@ -72,9 +72,7 @@ if __name__ == '__main__':
 
     for count, data in enumerate(loader):
         with torch.no_grad():
-            print(data[2])
-            print(type(data[2]))
-            filename = str(data[2])
+            filename = str(data[2][:])
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
