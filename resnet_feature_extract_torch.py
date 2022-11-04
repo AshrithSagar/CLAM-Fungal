@@ -25,6 +25,13 @@ if __name__ == '__main__':
     patch_dir = args.source
     feat_dir = args.output
 
+    # Create feat_dir if not exists
+    if not os.path.exists(feat_dir):
+        try:
+            os.mkdir(feat_dir)
+        except:
+            print("ERROR: Cannot create the Features directory")
+
     model = resnet50_baseline(pretrained=True)
     model = model.to(device)
 
