@@ -64,7 +64,7 @@ if __name__ == '__main__':
             coord = coord.split("_")
             coord = [int(coord[-2])/256, int(coord[-1])/256]
 
-            name = patch_file
+            name = str(patch_file)
 
             dataset.append([imgs, coord, name])
 
