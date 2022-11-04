@@ -64,9 +64,7 @@ if __name__ == '__main__':
             coord = coord.split("_")
             coord = [int(coord[-2])/256, int(coord[-1])/256]
 
-            print(patch_file)
-            name = str(patch_file[0])
-            print(name)
+            name = str(patch_file)
 
             dataset.append([imgs, coord, name])
 
@@ -74,7 +72,7 @@ if __name__ == '__main__':
 
     for count, data in enumerate(loader):
         with torch.no_grad():
-            filename = data[2]
+            filename = str(data[2])
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
