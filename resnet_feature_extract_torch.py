@@ -84,6 +84,7 @@ if __name__ == '__main__':
             features = features.cpu().numpy()
             features = torch.from_numpy(features)
 
+            print(filename)
             filePath = os.path.join(feat_dir, filename+'.pt')
             print(count, " || ", coord, " || ", features, " || ", filePath)
             # print("Features size: ", features.shape)
