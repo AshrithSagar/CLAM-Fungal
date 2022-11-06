@@ -64,15 +64,18 @@ if __name__ == '__main__':
             coord = coord.split("_")
             coord = [int(coord[-2])/256, int(coord[-1])/256]
 
-            name = str(patch_file)
-
-            dataset.append([imgs, coord, name])
+            dataset.append([imgs, coord])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
 
+    patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
+    print(patch_folders)
+    patches_per_image = len(patch_folders[0])
+    print(patches_per_image)
+
     for count, data in enumerate(loader):
         with torch.no_grad():
-            filename = str(data[2][:])
+            filename = str(patch_folders[count//patches_per_image])
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
