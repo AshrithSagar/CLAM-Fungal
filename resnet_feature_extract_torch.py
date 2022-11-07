@@ -43,9 +43,9 @@ if __name__ == '__main__':
 
     # Create dataset from the image patches
     dataset = []
-    for folder in sorted([ f for f in os.listdir(patch_dir)]):
+    for folder in sorted(os.listdir(patch_dir)):
         patch_folder = os.path.join(patch_dir, folder)
-        for patch_file in sorted([ f for f in os.listdir(patch_folder)]):
+        for patch_file in sorted(os.listdir(patch_folder)):
             img_path = os.path.join(patch_folder, patch_file)
 
             img = Image.open(img_path)
