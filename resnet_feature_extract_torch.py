@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from PIL import Image
+import h5py
 
 from models.resnet_custom import resnet50_baseline
 from utils.utils import print_network, collate_features
@@ -92,6 +93,5 @@ if __name__ == '__main__':
             filePath = os.path.join(feat_dir, filename+'.pt')
             print(count, " || ", coord, " || ", features, " || ", filePath)
             # print("Features size: ", features.shape)
-
             torch.save(features, filePath)
             print("="*15)
