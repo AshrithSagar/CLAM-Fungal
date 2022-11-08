@@ -94,3 +94,4 @@ if __name__ == '__main__':
 
             torch.save(features, filePath)
             print("="*15)
+    print(feat_dir)
