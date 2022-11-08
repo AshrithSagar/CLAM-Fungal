@@ -45,6 +45,7 @@ if __name__ == '__main__':
     dataset = []
     for folder in sorted(os.listdir(patch_dir)):
         patch_folder = os.path.join(patch_dir, folder)
+        print(patch_folder)
         for patch_file in sorted(os.listdir(patch_folder)):
             img_path = os.path.join(patch_folder, patch_file)
 
