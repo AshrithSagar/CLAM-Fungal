@@ -4,6 +4,10 @@ from PIL import Image
 from itertools import product
 
 
+from sklearn.datasets import load_sample_image
+from sklearn.feature_extraction import image
+
+
 def tile(filename, dir_in, dir_out, d):
     name, ext = os.path.splitext(filename)
     img = Image.open(os.path.join(dir_in, filename))
@@ -16,6 +20,17 @@ def tile(filename, dir_in, dir_out, d):
         j /= 256
         out = os.path.join(dir_out, f'{name}_{i}_{j}{ext}')
         img.crop(box).save(out)
+
+
+def tile_scikit(filename, dir_in, dir_out, d):
+    name, ext = os.path.splitext(filename)
+    img = load_sample_image(os.path.join(dir_in, filename))
+    print('Image shape: {}'.format(img.shape))
+
+    patches = image.extract_patches_2d(img, (256, 256))
+    print('Patches shape: {}'.format(patches.shape))
+
+    print(patches)
 
 
 parser = argparse.ArgumentParser(description='Patchify images')
@@ -44,4 +59,4 @@ if __name__ == '__main__':
 		if not os.path.isdir(output_patches_dir):
 			os.mkdir(output_patches_dir)
 
-		tile(filename, input_dir, output_patches_dir, patch_size)
+		tile_scikit(filename, input_dir, output_patches_dir, patch_size)
