@@ -76,6 +76,7 @@ if __name__ == '__main__':
     for count, data in enumerate(loader):
         with torch.no_grad():
             filename = str(patch_folders[count//patches_per_image])
+            filename = filename.split("/")[-1]
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
