@@ -47,7 +47,7 @@ if __name__ == '__main__':
             dataset.set_splits()
             descriptor_df = dataset.test_split_gen(return_descriptor=True)
             splits = dataset.return_splits(from_id=True)
-            print(splits[0])
+            print(splits())
             save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
             save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
             descriptor_df.to_csv(os.path.join(split_dir, 'splits_{}_descriptor.csv'.format(i)))
