@@ -24,7 +24,8 @@ dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/fungal_vs_n
                         shuffle = False,
                         seed = args.seed,
                         print_info = True,
-                        label_dict = {'normal_tissue':0, 'tumor_tissue':1},
+                        # label_dict = {'normal_tissue':0, 'tumor_tissue':1},
+                        label_dict = {'nonfungal':0, 'fungal':1},
                         patient_strat=True,
                         ignore=[])
 
