@@ -40,7 +40,7 @@ if __name__ == '__main__':
         label_fracs = [0.1, 0.25, 0.5, 0.75, 1.0]
 
     for lf in label_fracs:
-        split_dir = 'splits/fungal_vs_nonfungal/' + '_{}'.format(int(lf * 100))
+        split_dir = 'splits/fungal_vs_nonfungal' + '_{}'.format(int(lf * 100))
         os.makedirs(split_dir, exist_ok=True)
         dataset.create_splits(k = args.k, val_num = val_num, test_num = test_num, label_frac=lf)
         for i in range(args.k):
