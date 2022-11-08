@@ -94,4 +94,8 @@ if __name__ == '__main__':
             print(count, " || ", coord, " || ", features, " || ", filePath)
             # print("Features size: ", features.shape)
             torch.save(features, filePath)
+
+            # Save the .hdf5
+            # hf = h5py.File('data.h5', 'w')
+
             print("="*15)
