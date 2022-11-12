@@ -87,16 +87,17 @@ class EarlyStopping:
         torch.save(model.state_dict(), ckpt_name)
         self.val_loss_min = val_loss
 
-def train(datasets, cur, results_dir, settings):
+def train(datasets, cur, settings):
     """   
         train for a single fold
     """
+    print("Settings:", settings)
     print('\nTraining Fold {}!'.format(cur))
-    writer_dir = os.path.join(results_dir, str(cur))
+    writer_dir = os.path.join(settings['results_dir'], str(cur))
     if not os.path.isdir(writer_dir):
         os.mkdir(writer_dir)
 
-    if settings.log_data:
+    if settings['log_data']:
         from tensorboardX import SummaryWriter
         writer = SummaryWriter(writer_dir, flush_secs=15)
 
