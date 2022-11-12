@@ -87,12 +87,12 @@ class EarlyStopping:
         torch.save(model.state_dict(), ckpt_name)
         self.val_loss_min = val_loss
 
-def train(datasets, cur, settings):
+def train(datasets, cur, results_dir, settings):
     """   
         train for a single fold
     """
     print('\nTraining Fold {}!'.format(cur))
-    writer_dir = os.path.join(settings.results_dir, str(cur))
+    writer_dir = os.path.join(results_dir, str(cur))
     if not os.path.isdir(writer_dir):
         os.mkdir(writer_dir)
 
@@ -105,7 +105,7 @@ def train(datasets, cur, settings):
 
     print('\nInit train/val/test splits...', end=' ')
     train_split, val_split, test_split = datasets
-    save_splits(datasets, ['train', 'val', 'test'], os.path.join(settings.results_dir, 'splits_{}.csv'.format(cur)))
+    save_splits(datasets, ['train', 'val', 'test'], os.path.join(results_dir, 'splits_{}.csv'.format(cur)))
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
     print("Validating on {} samples".format(len(val_split)))
@@ -183,20 +183,20 @@ def train(datasets, cur, settings):
         if settings.model_type in ['clam_sb', 'clam_mb'] and not settings.no_inst_cluster:     
             train_loop_clam(epoch, model, train_loader, optimizer, settings.n_classes, settings.bag_weight, writer, loss_fn)
             stop = validate_clam(cur, epoch, model, val_loader, settings.n_classes, 
-                early_stopping, writer, loss_fn, settings.results_dir)
+                early_stopping, writer, loss_fn, results_dir)
         
         else:
             train_loop(epoch, model, train_loader, optimizer, settings.n_classes, writer, loss_fn)
             stop = validate(cur, epoch, model, val_loader, settings.n_classes, 
-                early_stopping, writer, loss_fn, settings.results_dir)
+                early_stopping, writer, loss_fn, results_dir)
         
         if stop: 
             break
 
     if settings.early_stopping:
-        model.load_state_dict(torch.load(os.path.join(settings.results_dir, "s_{}_checkpoint.pt".format(cur))))
+        model.load_state_dict(torch.load(os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur))))
     else:
-        torch.save(model.state_dict(), os.path.join(settings.results_dir, "s_{}_checkpoint.pt".format(cur)))
+        torch.save(model.state_dict(), os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur)))
 
     _, val_error, val_auc, _= summary(model, val_loader, settings.n_classes)
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
