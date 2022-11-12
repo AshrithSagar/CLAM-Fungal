@@ -106,16 +106,16 @@ def train(datasets, cur, settings):
 
     print('\nInit train/val/test splits...', end=' ')
     train_split, val_split, test_split = datasets
-    save_splits(datasets, ['train', 'val', 'test'], os.path.join(results_dir, 'splits_{}.csv'.format(cur)))
+    save_splits(datasets, ['train', 'val', 'test'], os.path.join(settings['results_dir'], 'splits_{}.csv'.format(cur)))
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
     print("Validating on {} samples".format(len(val_split)))
     print("Testing on {} samples".format(len(test_split)))
 
     print('\nInit loss function...', end=' ')
-    if settings.bag_loss == 'svm':
+    if settings['bag_loss'] == 'svm':
         from topk.svm import SmoothTop1SVM
-        loss_fn = SmoothTop1SVM(n_classes = settings.n_classes)
+        loss_fn = SmoothTop1SVM(n_classes = settings['n_classes'])
         if device.type == 'cuda':
             loss_fn = loss_fn.cuda()
     else:
@@ -123,21 +123,21 @@ def train(datasets, cur, settings):
     print('Done!')
     
     print('\nInit Model...', end=' ')
-    model_dict = {"dropout": settings.drop_out, 'n_classes': settings.n_classes}
-    if settings.model_type == 'clam' and settings.subtyping:
+    model_dict = {"dropout": settings['drop_out'], 'n_classes': settings['n_classes']}
+    if settings['model_type'] == 'clam' and settings['subtyping']:
         model_dict.update({'subtyping': True})
     
-    if settings.model_size is not None and settings.model_type != 'mil':
-        model_dict.update({"size_arg": settings.model_size})
+    if settings['model_size'] is not None and settings['model_type'] != 'mil':
+        model_dict.update({"size_arg": settings['model_size']})
     
-    if settings.model_type in ['clam_sb', 'clam_mb']:
-        if settings.subtyping:
+    if settings['model_type'] in ['clam_sb', 'clam_mb']:
+        if settings['subtyping']:
             model_dict.update({'subtyping': True})
         
-        if settings.B > 0:
-            model_dict.update({'k_sample': settings.B})
+        if settings['B'] > 0:
+            model_dict.update({'k_sample': settings['B']})
         
-        if settings.inst_loss == 'svm':
+        if settings['inst_loss'] == 'svm':
             from topk.svm import SmoothTop1SVM
             instance_loss_fn = SmoothTop1SVM(n_classes = 2)
             if device.type == 'cuda':
@@ -145,15 +145,15 @@ def train(datasets, cur, settings):
         else:
             instance_loss_fn = nn.CrossEntropyLoss()
         
-        if settings.model_type =='clam_sb':
+        if settings['model_type'] =='clam_sb':
             model = CLAM_SB(**model_dict, instance_loss_fn=instance_loss_fn)
-        elif settings.model_type == 'clam_mb':
+        elif settings['model_type'] == 'clam_mb':
             model = CLAM_MB(**model_dict, instance_loss_fn=instance_loss_fn)
         else:
             raise NotImplementedError
     
-    else: # settings.model_type == 'mil'
-        if settings.n_classes > 2:
+    else: # settings['model_type == 'mil'
+        if settings['n_classes'] > 2:
             model = MIL_fc_mc(**model_dict)
         else:
             model = MIL_fc(**model_dict)
@@ -167,45 +167,45 @@ def train(datasets, cur, settings):
     print('Done!')
     
     print('\nInit Loaders...', end=' ')
-    train_loader = get_split_loader(train_split, training=True, testing = settings.testing, weighted = settings.weighted_sample)
-    val_loader = get_split_loader(val_split,  testing = settings.testing)
-    test_loader = get_split_loader(test_split, testing = settings.testing)
+    train_loader = get_split_loader(train_split, training=True, testing = settings['testing'], weighted = settings['weighted_sample'])
+    val_loader = get_split_loader(val_split,  testing = settings['testing'])
+    test_loader = get_split_loader(test_split, testing = settings['testing'])
     print('Done!')
 
     print('\nSetup EarlyStopping...', end=' ')
-    if settings.early_stopping:
+    if settings['early_stopping']:
         early_stopping = EarlyStopping(patience = 20, stop_epoch=50, verbose = True)
 
     else:
         early_stopping = None
     print('Done!')
 
-    for epoch in range(settings.max_epochs):
-        if settings.model_type in ['clam_sb', 'clam_mb'] and not settings.no_inst_cluster:     
-            train_loop_clam(epoch, model, train_loader, optimizer, settings.n_classes, settings.bag_weight, writer, loss_fn)
-            stop = validate_clam(cur, epoch, model, val_loader, settings.n_classes, 
-                early_stopping, writer, loss_fn, results_dir)
+    for epoch in range(settings['max_epochs']):
+        if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:     
+            train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'], settings['bag_weight'], writer, loss_fn)
+            stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'], 
+                early_stopping, writer, loss_fn, settings['results_dir'])
         
         else:
-            train_loop(epoch, model, train_loader, optimizer, settings.n_classes, writer, loss_fn)
-            stop = validate(cur, epoch, model, val_loader, settings.n_classes, 
-                early_stopping, writer, loss_fn, results_dir)
+            train_loop(epoch, model, train_loader, optimizer, settings['n_classes'], writer, loss_fn)
+            stop = validate(cur, epoch, model, val_loader, settings['n_classes'], 
+                early_stopping, writer, loss_fn, settings['results_dir'])
         
         if stop: 
             break
 
-    if settings.early_stopping:
-        model.load_state_dict(torch.load(os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur))))
+    if settings['early_stopping']:
+        model.load_state_dict(torch.load(os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur))))
     else:
-        torch.save(model.state_dict(), os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur)))
+        torch.save(model.state_dict(), os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
 
-    _, val_error, val_auc, _= summary(model, val_loader, settings.n_classes)
+    _, val_error, val_auc, _= summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger = summary(model, test_loader, settings.n_classes)
+    results_dict, test_error, test_auc, acc_logger = summary(model, test_loader, settings['n_classes'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
-    for i in range(settings.n_classes):
+    for i in range(settings['n_classes']):
         acc, correct, count = acc_logger.get_summary(i)
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
 
@@ -385,8 +385,8 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))     
 
     if early_stopping:
-        assert results_dir
-        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur)))
+        assert settings['results_dir']
+        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
         
         if early_stopping.early_stop:
             print("Early stopping")
@@ -476,8 +476,8 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
      
 
     if early_stopping:
-        assert results_dir
-        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur)))
+        assert settings['results_dir']
+        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
         
         if early_stopping.early_stop:
             print("Early stopping")
