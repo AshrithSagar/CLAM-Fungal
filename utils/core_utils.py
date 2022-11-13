@@ -123,7 +123,7 @@ def train(datasets, cur, settings):
     print('Done!')
     
     print('\nInit Model...', end=' ')
-    model_dict = {"dropout": settings['drop_out'], 'n_classes': settings['n_classes']}
+    model_dict = {"dropout": settings['dropout'], 'n_classes': settings['n_classes']}
     if settings['model_type'] == 'clam' and settings['subtyping']:
         model_dict.update({'subtyping': True})
     
