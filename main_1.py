@@ -50,6 +50,7 @@ opt = 'adam'
 drop_out = False
 bag_loss = 'ce'
 model_type = 'mil'
+# model_type = 'clam_sb'
 weighted_sample = False
 model_size = 'small'
 task = 'task_fungal_vs_nonfungal'
@@ -58,7 +59,7 @@ no_inst_cluster = False
 inst_loss = None
 subtyping = False
 bag_weight = 0.7
-B = 2
+B = 8
 
 exp_code = "exp-0"
 dropout = False

@@ -181,7 +181,9 @@ class CLAM_SB(nn.Module):
         M = torch.mm(A, h) 
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
-        Y_prob = F.softmax(logits, dim = 1)
+        print("Y_hat:", Y_hat)
+        Y_prob = F.softmax(logits, dim = 3)
+        print("Y_prob:", Y_prob)
         if instance_eval:
             results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
             'inst_preds': np.array(all_preds)}

@@ -20,8 +20,11 @@ class Accuracy_Logger(object):
         self.data = [{"count": 0, "correct": 0} for i in range(self.n_classes)]
     
     def log(self, Y_hat, Y):
-        Y_hat = int(Y_hat)
-        Y = int(Y)
+#         print(Y_hat)
+#         Y_hat = [int(x) for x in Y_hat]
+#         print(Y_hat)
+#         Y = [int(x) for x in Y]
+#         print(Y)
         self.data[Y]["count"] += 1
         self.data[Y]["correct"] += (Y_hat == Y)
     
@@ -303,9 +306,14 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         logits, Y_prob, Y_hat, _, _ = model(data)
+        print("MIL:", "="*50)
+        print(logits)
+        print(Y_prob)
+        print(Y_hat)
+        print(label)
         
         acc_logger.log(Y_hat, label)
-        loss = loss_fn(logits, label)
+        loss = loss_fn(logits.squeeze(), label)
         loss_value = loss.item()
         
         train_loss += loss_value
