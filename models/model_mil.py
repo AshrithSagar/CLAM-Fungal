@@ -24,23 +24,30 @@ class MIL_fc(nn.Module):
         self.classifier.to(device)
 
     def forward(self, h, return_features=False):
+        print("1")
         if return_features:
             h = self.classifier.module[:3](h)
             logits = self.classifier.module[3](h)
         else:
             logits  = self.classifier(h) # K x 1
         
-        y_probs = F.softmax(logits, dim = 1)
-        top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
-        top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
-        Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
-        Y_prob = F.softmax(top_instance, dim = 1) 
-        results_dict = {}
+        print(logits)
+        print("-"*50)
+#         y_probs = F.softmax(logits, dim = 1)
+        
+        
+#         print(y_probs.shape)
+#         top_instance_idx = torch.topk(y_probs[:, 1], self.top_k, dim=0)[1].view(1,)
+#         top_instance = torch.index_select(logits, dim=0, index=top_instance_idx)
+#         Y_hat = torch.topk(top_instance, 1, dim = 1)[1]
+#         Y_prob = F.softmax(top_instance, dim = 1) 
+#         results_dict = {}
 
-        if return_features:
-            top_features = torch.index_select(h, dim=0, index=top_instance_idx)
-            results_dict.update({'features': top_features})
-        return top_instance, Y_prob, Y_hat, y_probs, results_dict
+#         if return_features:
+#             top_features = torch.index_select(h, dim=0, index=top_instance_idx)
+#             results_dict.update({'features': top_features})
+#         return top_instance, Y_prob, Y_hat, y_probs, results_dict
+        return None, None, None, y_probs, None
 
 
 class MIL_fc_mc(nn.Module):
