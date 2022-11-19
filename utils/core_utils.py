@@ -20,20 +20,24 @@ class Accuracy_Logger(object):
         self.data = [{"count": 0, "correct": 0} for i in range(self.n_classes)]
     
     def log(self, Y_hat, Y):
-        print("Log Y_hat:", Y_hat)
-        print("Log Y:", Y)
         self.data[Y]["count"] += 1
-        self.data[Y]["correct"] += int((Y_hat.squeeze() == Y.squeeze()))
+        self.data[Y]["correct"] += int((Y_hat.view(1) == Y))
+        
+#         print("S count:", self.data[Y]["count"])
+#         print("S correct:", self.data[Y]["correct"])
     
     def log_batch(self, Y_hat, Y):
-        print("Log_batch Y_hat:", Y_hat)
-        print("Log_batch Y:", Y)
         Y_hat = np.array(Y_hat).astype(int)
+        Y_hat = np.reshape(Y_hat, (16, 2))
+        Y_hat = Y_hat[:, 0]
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
             cls_mask = [Y == label_class]
             self.data[label_class]["count"] += sum(cls_mask)
             self.data[label_class]["correct"] += sum(tuple([(Y_hat[cls_mask] == Y[cls_mask]) ]) )
+        
+#             print("B count:", self.data[label_class]["count"])
+#             print("B correct:", self.data[label_class]["correct"])
     
     def get_summary(self, c):
         count = self.data[c]["count"] 
