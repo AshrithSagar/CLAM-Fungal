@@ -32,19 +32,28 @@ class Accuracy_Logger(object):
         Y_hat = np.array(Y_hat).astype(int)
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
-            cls_mask = Y == label_class
-            self.data[label_class]["count"] += cls_mask.sum()
-            self.data[label_class]["correct"] += (Y_hat[cls_mask] == Y[cls_mask]).sum()
+            cls_mask = [Y == label_class]
+            self.data[label_class]["count"] += sum(cls_mask)
+            self.data[label_class]["correct"] +=sum([(Y_hat[cls_mask] == Y[cls_mask]) ])
     
     def get_summary(self, c):
         count = self.data[c]["count"] 
         correct = self.data[c]["correct"]
         
-        if count == 0: 
-            acc = None
-        else:
-            acc = float(correct) / count
+        print(correct)
+        print(count)
         
+#         if isinstance(correct, list):
+#             acc = [float(x) for x in correct] / count
+#         elif isinstance(correct, int):
+            
+#             acc = float(correct / count)
+#         else:
+#             acc = float(correct.item() / count)
+        acc = 0.
+#         for coun in list(count):
+#             acc.append([float(x) for x in list(correct)] / coun)
+    
         return acc, correct, count
 
 class EarlyStopping:
@@ -243,7 +252,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
-        loss = loss_fn(logits, label)
+        loss = loss_fn(logits.view(1, 2), label)
         loss_value = loss.item()
 
         instance_loss = instance_dict['instance_loss']
@@ -306,14 +315,9 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
         data, label = data.to(device), label.to(device)
 
         logits, Y_prob, Y_hat, _, _ = model(data)
-        print("MIL:", "="*50)
-        print(logits)
-        print(Y_prob)
-        print(Y_hat)
-        print(label)
         
         acc_logger.log(Y_hat, label)
-        loss = loss_fn(logits.squeeze(), label)
+        loss = loss_fn(logits.view(1, 2), label)
         loss_value = loss.item()
         
         train_loss += loss_value
@@ -364,7 +368,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
             acc_logger.log(Y_hat, label)
             
-            loss = loss_fn(logits, label)
+            loss = loss_fn(logits.view(1, 2), label)
 
             prob[batch_idx] = Y_prob.cpu().numpy()
             labels[batch_idx] = label.item()

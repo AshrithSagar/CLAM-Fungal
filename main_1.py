@@ -49,8 +49,8 @@ early_stopping = False
 opt = 'adam'
 drop_out = False
 bag_loss = 'ce'
-model_type = 'mil'
-# model_type = 'clam_sb'
+# model_type = 'mil'
+model_type = 'clam_sb'
 weighted_sample = False
 model_size = 'small'
 task = 'task_fungal_vs_nonfungal'
@@ -61,7 +61,7 @@ subtyping = False
 bag_weight = 0.7
 B = 8
 
-exp_code = "exp-0"
+exp_code = "exp-1"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"
@@ -114,10 +114,10 @@ settings = {'num_splits': k,
             'early_stopping': early_stopping,
             'dropout': dropout,
             'no_inst_cluster': no_inst_cluster,
-            'inst_loss': inst_loss,
+#             'inst_loss': inst_loss,
             'subtyping': subtyping,
             'bag_weight': bag_weight,
-            'B': B,
+#             'B': B,
             }
 
 if model_type in ['clam_sb', 'clam_mb']:
