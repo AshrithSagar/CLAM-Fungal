@@ -20,28 +20,27 @@ class Accuracy_Logger(object):
         self.data = [{"count": 0, "correct": 0} for i in range(self.n_classes)]
     
     def log(self, Y_hat, Y):
-#         print(Y_hat)
-#         Y_hat = [int(x) for x in Y_hat]
-#         print(Y_hat)
-#         Y = [int(x) for x in Y]
-#         print(Y)
+        print("Log Y_hat:", Y_hat)
+        print("Log Y:", Y)
         self.data[Y]["count"] += 1
-        self.data[Y]["correct"] += (Y_hat == Y)
+        self.data[Y]["correct"] += int((Y_hat.squeeze() == Y.squeeze()))
     
     def log_batch(self, Y_hat, Y):
+        print("Log_batch Y_hat:", Y_hat)
+        print("Log_batch Y:", Y)
         Y_hat = np.array(Y_hat).astype(int)
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
             cls_mask = [Y == label_class]
             self.data[label_class]["count"] += sum(cls_mask)
-            self.data[label_class]["correct"] +=sum([(Y_hat[cls_mask] == Y[cls_mask]) ])
+            self.data[label_class]["correct"] += sum(tuple([(Y_hat[cls_mask] == Y[cls_mask]) ]) )
     
     def get_summary(self, c):
         count = self.data[c]["count"] 
         correct = self.data[c]["correct"]
         
-        print(correct)
-        print(count)
+        print("correct:", correct)
+        print("count:", count)
         
 #         if isinstance(correct, list):
 #             acc = [float(x) for x in correct] / count
@@ -50,10 +49,18 @@ class Accuracy_Logger(object):
 #             acc = float(correct / count)
 #         else:
 #             acc = float(correct.item() / count)
-        acc = 0.
+
 #         for coun in list(count):
 #             acc.append([float(x) for x in list(correct)] / coun)
-    
+
+        try:
+            acc = [float(correct/coun) if coun != 0 else 0. for coun in count]
+        except:
+            try:
+                acc = [float(x / count) for x in correct]
+            except:
+                acc = -1.
+            
         return acc, correct, count
 
 class EarlyStopping:
@@ -246,8 +253,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
 
     print('\n')
     for batch_idx, (data, label) in enumerate(loader):
-        data = data.double()
-        model = model.double()
+        data = data.float()
+        model = model.float()
         data, label = data.to(device), label.to(device)
         logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
 
@@ -429,7 +436,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
             logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
             acc_logger.log(Y_hat, label)
             
-            loss = loss_fn(logits, label)
+            loss = loss_fn(logits.view(1, 2), label)
 
             val_loss += loss.item()
 

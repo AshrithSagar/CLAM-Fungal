@@ -117,14 +117,9 @@ class CLAM_SB(nn.Module):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
-        print("A = ", A)
-        print("A.squeeze = ", A.squeeze())
         top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
-        print("self.k_sample", self.k_sample)
-        print("top p ids: ", top_p_ids)
         top_p = torch.index_select(h, dim=0, index=top_p_ids)
         top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
-        print("top n ids:, ", top_n_ids)
         top_n = torch.index_select(h, dim=0, index=top_n_ids)
         p_targets = self.create_positive_targets(self.k_sample, device)
         n_targets = self.create_negative_targets(self.k_sample, device)
@@ -133,8 +128,6 @@ class CLAM_SB(nn.Module):
         all_instances = torch.cat([top_p, top_n], dim=0)
         logits = classifier(all_instances)
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
-        print("logits : ", logits.shape)
-        print("all_targets:", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits.view(16, 2), all_targets)
         return instance_loss, all_preds, all_targets
     
@@ -184,16 +177,10 @@ class CLAM_SB(nn.Module):
             if self.subtyping:
                 total_inst_loss /= len(self.instance_classifiers)
         
-        print("="*5)
-        print("A.shape", A.shape)
-        print("h.shape", h.shape)
         M = torch.mm(A.view(1, 24), h.view(24, 512)) 
         logits = self.classifiers(M)
-        print("logits", logits.shape)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
-        print("Y_hat:", Y_hat)
         Y_prob = F.softmax(logits, dim = 1)
-        print("Y_prob:", Y_prob)
         if instance_eval:
             results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
             'inst_preds': np.array(all_preds)}
