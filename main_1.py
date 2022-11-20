@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[38]:
-
-
 from __future__ import print_function
 
 import pdb
@@ -24,9 +21,6 @@ import torch.nn.functional as F
 
 import pandas as pd
 import numpy as np
-
-
-# In[39]:
 
 
 # Generic training settings
@@ -61,16 +55,13 @@ subtyping = False
 bag_weight = 0.7
 B = 8
 
-exp_code = "exp-1"
+exp_code = "exp_2"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"
 feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
 
 device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-# In[40]:
 
 
 def seed_torch(seed=7):
@@ -202,9 +193,6 @@ for key, val in settings.items():
     print("{}:  {}".format(key, val))
 
 
-# In[41]:
-
-
 # main
 
 # create results directory if necessary
@@ -249,10 +237,4 @@ if len(folds) != k:
 else:
     save_name = 'summary.csv'
 final_df.to_csv(os.path.join(results_dir, save_name))
-
-
-# In[ ]:
-
-
-
 
