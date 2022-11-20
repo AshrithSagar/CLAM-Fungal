@@ -32,7 +32,7 @@ lr = 1e-4
 label_frac = 1.0
 reg = 1e-5
 seed = 1
-k = 10
+k = 3
 k_start = -1
 k_end = -1
 results_dir = "image_sets/results"
@@ -54,7 +54,7 @@ no_inst_cluster = False
 inst_loss = None
 subtyping = False
 bag_weight = 0.7
-B = 12
+B = 8
 
 exp_code = "exp_3"
 dropout = False
