@@ -20,21 +20,32 @@ class Accuracy_Logger(object):
         self.data = [{"count": 0, "correct": 0} for i in range(self.n_classes)]
     
     def log(self, Y_hat, Y):
+        Y_hat = int(Y_hat)
+        Y = int(Y)
         self.data[Y]["count"] += 1
-        self.data[Y]["correct"] += int((Y_hat.view(1) == Y))
-        
-#         print("S count:", self.data[Y]["count"])
-#         print("S correct:", self.data[Y]["correct"])
-    
+        self.data[Y]["correct"] += (Y_hat == Y)
+
     def log_batch(self, Y_hat, Y):
         Y_hat = np.array(Y_hat).astype(int)
-        Y_hat = np.reshape(Y_hat, (16, 2))
-        Y_hat = Y_hat[:, 0]
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
-            cls_mask = [Y == label_class]
+            cls_mask = Y == label_class
+#             print("B-Log Y_hat", Y_hat)
+#             print("B-Log Y_hat.shape", Y_hat.shape)
+#             print("B-Log Y.shape", Y.shape)
+#             print("B-0", sum(cls_mask))
+#             print("B-1", sum(Y_hat[cls_mask] == Y[cls_mask]))
             self.data[label_class]["count"] += sum(cls_mask)
-            self.data[label_class]["correct"] += sum(tuple([(Y_hat[cls_mask] == Y[cls_mask]) ]) )
+            self.data[label_class]["correct"] += sum(Y_hat[cls_mask] == Y[cls_mask])
+            
+#         Y_hat = np.array(Y_hat).astype(int)
+#         Y_hat = np.reshape(Y_hat, (16, 2))
+#         Y_hat = Y_hat[:, 0]
+#         Y = np.array(Y).astype(int)
+#         for label_class in np.unique(Y):
+#             cls_mask = [Y == label_class]
+#             self.data[label_class]["count"] += sum(cls_mask)
+#             self.data[label_class]["correct"] += sum(tuple([(Y_hat[cls_mask] == Y[cls_mask]) ]) )
         
 #             print("B count:", self.data[label_class]["count"])
 #             print("B correct:", self.data[label_class]["correct"])
@@ -43,27 +54,10 @@ class Accuracy_Logger(object):
         count = self.data[c]["count"] 
         correct = self.data[c]["correct"]
         
-        print("correct:", correct)
-        print("count:", count)
-        
-#         if isinstance(correct, list):
-#             acc = [float(x) for x in correct] / count
-#         elif isinstance(correct, int):
-            
-#             acc = float(correct / count)
-#         else:
-#             acc = float(correct.item() / count)
-
-#         for coun in list(count):
-#             acc.append([float(x) for x in list(correct)] / coun)
-
-        try:
-            acc = [float(correct/coun) if coun != 0 else 0. for coun in count]
-        except:
-            try:
-                acc = [float(x / count) for x in correct]
-            except:
-                acc = -1.
+        if count == 0: 
+            acc = None
+        else:
+            acc = float(correct) / count
             
         return acc, correct, count
 

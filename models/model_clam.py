@@ -127,7 +127,7 @@ class CLAM_SB(nn.Module):
         all_targets = torch.cat([p_targets, n_targets], dim=0)
         all_instances = torch.cat([top_p, top_n], dim=0)
         logits = classifier(all_instances)
-        all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
+        all_preds = torch.topk(logits.view(16, 2), 1, dim = 1)[1].squeeze(1)
         instance_loss = self.instance_loss_fn(logits.view(16, 2), all_targets)
         return instance_loss, all_preds, all_targets
     
@@ -180,6 +180,15 @@ class CLAM_SB(nn.Module):
         M = torch.mm(A.view(1, 24), h.view(24, 512)) 
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
+#         print("logits", logits)
+#         print("logits.shape", logits.shape)
+#         print("Y_hat", Y_hat)
+#         print("Y_hat.shape", Y_hat.shape)
+
+#         print("all_targets", all_targets)
+#         print("all_targets shape", len(all_targets))
+#         print("all_preds", all_preds)
+#         print("all_preds shape", len(all_preds))
         Y_prob = F.softmax(logits, dim = 1)
         if instance_eval:
             results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
