@@ -42,7 +42,7 @@ testing = False
 early_stopping = False
 opt = 'adam'
 drop_out = False
-bag_loss = 'ce'
+bag_loss = 'svm'
 # model_type = 'mil'
 model_type = 'clam_sb'
 # model_type = 'clam_mb'
@@ -56,7 +56,7 @@ subtyping = False
 bag_weight = 0.7
 B = 8
 
-exp_code = "exp_3"
+exp_code = "exp_4"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"
