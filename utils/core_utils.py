@@ -111,7 +111,8 @@ def train(datasets, cur, settings):
     """
     print("Settings:", settings)
     print('\nTraining Fold {}!'.format(cur))
-    writer_dir = os.path.join(settings['results_dir'], str(cur))
+    exp_dir = os.path.join(settings["results_dir"], str(settings["exp_code"]) + '_s{}'.format(settings["seed"]))
+    writer_dir = os.path.join(exp_dir, str(cur))
     if not os.path.isdir(writer_dir):
         os.mkdir(writer_dir)
 
@@ -124,7 +125,7 @@ def train(datasets, cur, settings):
 
     print('\nInit train/val/test splits...', end=' ')
     train_split, val_split, test_split = datasets
-    save_splits(datasets, ['train', 'val', 'test'], os.path.join(settings['results_dir'], 'splits_{}.csv'.format(cur)))
+    save_splits(datasets, ['train', 'val', 'test'], os.path.join(exp_dir, 'splits_{}.csv'.format(cur)))
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
     print("Validating on {} samples".format(len(val_split)))
@@ -211,11 +212,12 @@ def train(datasets, cur, settings):
         
         if stop: 
             break
-
+    
+    exp_dir = os.path.join(settings["results_dir"], str(settings["exp_code"]) + '_s{}'.format(settings["seed"]))
     if settings['early_stopping']:
-        model.load_state_dict(torch.load(os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur))))
+        model.load_state_dict(torch.load(os.path.join(exp_dir, "s_{}_checkpoint.pt".format(cur))))
     else:
-        torch.save(model.state_dict(), os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
+        torch.save(model.state_dict(), os.path.join(exp_dir, "s_{}_checkpoint.pt".format(cur)))
 
     _, val_error, val_auc, _= summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
@@ -407,8 +409,9 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))     
 
     if early_stopping:
-        assert settings['results_dir']
-        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
+        exp_dir = os.path.join(settings["results_dir"], str(settings["exp_code"]) + '_s{}'.format(settings["seed"]))
+        assert exp_dir
+        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(exp_dir, "s_{}_checkpoint.pt".format(cur)))
         
         if early_stopping.early_stop:
             print("Early stopping")
@@ -498,8 +501,9 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
      
 
     if early_stopping:
-        assert settings['results_dir']
-        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(settings['results_dir'], "s_{}_checkpoint.pt".format(cur)))
+        exp_dir = os.path.join(settings["results_dir"], str(settings["exp_code"]) + '_s{}'.format(settings["seed"]))
+        assert exp_dir
+        early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(exp_dir, "s_{}_checkpoint.pt".format(cur)))
         
         if early_stopping.early_stop:
             print("Early stopping")

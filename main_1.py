@@ -110,6 +110,7 @@ settings = {'num_splits': k,
             'subtyping': subtyping,
             'bag_weight': bag_weight,
 #             'B': B,
+            'exp_code': exp_code,
             }
 
 if model_type in ['clam_sb', 'clam_mb']:
@@ -118,6 +119,21 @@ if model_type in ['clam_sb', 'clam_mb']:
                      'B': B})
 
 print('\nLoad Dataset')
+
+
+results_dir = os.path.join(results_dir, str(exp_code) + '_s{}'.format(seed))
+if not os.path.isdir(results_dir):
+    os.mkdir(results_dir)
+
+if split_dir is None:
+    split_dir = os.path.join('splits', task+'_{}'.format(int(label_frac*100)))
+else:
+    split_dir = os.path.join('splits', split_dir)
+
+# print('split_dir: ', split_dir)
+# assert os.path.isdir(split_dir)
+
+# settings.update({'split_dir': split_dir})
 
 
 if task == 'task_fungal_vs_nonfungal':
@@ -167,24 +183,6 @@ elif task == 'task_2_tumor_subtyping':
 else:
     raise NotImplementedError
 
-if not os.path.isdir(results_dir):
-    os.mkdir(results_dir)
-
-results_dir = os.path.join(results_dir, str(exp_code) + '_s{}'.format(seed))
-if not os.path.isdir(results_dir):
-    os.mkdir(results_dir)
-
-if split_dir is None:
-    split_dir = os.path.join('splits', task+'_{}'.format(int(label_frac*100)))
-else:
-    split_dir = os.path.join('splits', split_dir)
-
-# print('split_dir: ', split_dir)
-# assert os.path.isdir(split_dir)
-
-# settings.update({'split_dir': split_dir})
-
-
 with open(results_dir + '/experiment_{}.txt'.format(exp_code), 'w') as f:
     print(settings, file=f)
 f.close()
@@ -194,20 +192,12 @@ for key, val in settings.items():
     print("{}:  {}".format(key, val))
 
 
+# ------------------------------------------------------
 # main
+# --------------------------
 
-# create results directory if necessary
-if not os.path.isdir(results_dir):
-    os.mkdir(results_dir)
-
-if k_start == -1:
-    start = 0
-else:
-    start = k_start
-if k_end == -1:
-    end = k
-else:
-    end = k_end
+start = 0 if k_start == -1 else k_start
+end = k if k_end == -1 else k_end
 
 all_test_auc = []
 all_val_auc = []
@@ -238,4 +228,3 @@ if len(folds) != k:
 else:
     save_name = 'summary.csv'
 final_df.to_csv(os.path.join(results_dir, save_name))
-
