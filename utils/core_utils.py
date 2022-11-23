@@ -26,6 +26,7 @@ class Accuracy_Logger(object):
         self.data[Y]["correct"] += (Y_hat == Y)
 
     def log_batch(self, Y_hat, Y):
+        print("Y_hat", Y_hat)
         Y_hat = np.array(Y_hat).astype(int)
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
@@ -269,6 +270,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
 
         inst_preds = instance_dict['inst_preds']
         inst_labels = instance_dict['inst_labels']
+        print("inst_preds", inst_preds.shape)
+        print("inst_labels", inst_labels.shape)
         inst_logger.log_batch(inst_preds, inst_labels)
 
         train_loss += loss_value
