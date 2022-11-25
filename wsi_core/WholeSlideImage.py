@@ -196,7 +196,7 @@ class WholeSlideImage(object):
         else:
             top_left = (0,0)
             region_size = self.level_dim[vis_level]
-
+    
         img = np.array(self.wsi.read_region(top_left, vis_level, region_size).convert("RGB"))
         
         if not view_slide_only:
@@ -661,7 +661,7 @@ class WholeSlideImage(object):
 
         if alpha < 1.0:
             img = self.block_blending(img, vis_level, top_left, bot_right, alpha=alpha, blank_canvas=blank_canvas, block_size=1024)
-        
+
         img = Image.fromarray(img)
         w, h = img.size
 
@@ -671,10 +671,10 @@ class WholeSlideImage(object):
         if max_size is not None and (w > max_size or h > max_size):
             resizeFactor = max_size/w if w > h else max_size/h
             img = img.resize((int(w*resizeFactor), int(h*resizeFactor)))
-       
+
         return img
 
-    
+
     def block_blending(self, img, vis_level, top_left, bot_right, alpha=0.5, blank_canvas=False, block_size=1024):
         print('\ncomputing blend')
         downsample = self.level_downsamples[vis_level]

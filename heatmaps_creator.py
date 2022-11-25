@@ -7,6 +7,7 @@ from models.resnet_custom import resnet50_baseline
 from models.model_clam import CLAM_MB, CLAM_SB
 from torch.utils.data import DataLoader
 from scipy.stats import percentileofscore
+import matplotlib.pyplot as plt
 
 
 drop_out = False
@@ -17,9 +18,17 @@ exp_code = "exp_6" + "_s1"
 ckpt_path = "s_0_checkpoint.pt"
 results_dir = "image_sets/results"
 
+data_dir = "image_sets/original/"
 patch_dir = "image_sets/patches/"
 feat_dir = "image_sets/features/"
 actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+
+
+# Heatmap Image options
+patch_size = (256, 256) # patch_size (tuple of int)
+overlap = 0
+blur = 0
+cmap='coolwarm'
 
 
 def score2percentile(score, ref):
@@ -28,7 +37,11 @@ def score2percentile(score, ref):
 
 
 def draw_heatmaps(heatmap_dict):
+    if isinstance(cmap, str):
+        cmap = plt.get_cmap(cmap)
+            
     Softmax_fn = torch.nn.Softmax(, dim=0)
+    threshold = 0.5
     
     for image_file in heatmap_dict:
         image_name = image_file['filename']
@@ -37,14 +50,74 @@ def draw_heatmaps(heatmap_dict):
 
         scores = Softmax_fn(attention_scores)
         
+        region_size = patch_size
+        overlay = np.full(np.flip(region_size), 0).astype(float)
+        counter = np.full(np.flip(region_size), 0).astype(np.uint16)      
+        count = 0
+        for index, score in enumerate(scores):
+            coord = coords[index]
+            if score >= threshold:
+                if binarize:
+                    score=1.0
+                    count+=1
+            else:
+                score=0.0
+            # accumulate attention
+            overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] += score
+            # accumulate counter
+            counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] += 1
+        
+#         img
+        
         for index, score in enumerate(scores):
             coord = coords_list[index]
             
-            img = Image.fromarray(img)
-            w, h = img.size
-        
-        image_name.
+#             if score >= threshold:
+#                 # attention block
+#                 raw_block = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
+                
+#                 # image block (either blank canvas or orig image)
+#                 img_block = img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]].copy()
+
+#                 # color block (cmap applied to attention block)
+#                 color_block = (cmap(raw_block) * 255)[:,:,:3].astype(np.uint8)
+
+#                 if segment:
+#                     # tissue mask block
+#                     mask_block = tissue_mask[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] 
+#                     # copy over only tissue masked portion of color block
+#                     img_block[mask_block] = color_block[mask_block]
+#                 else:
+#                     # copy over entire color block
+#                     img_block = color_block
+
+#                 # rewrite image block
+#                 img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = img_block.copy()
+
+            if score >= threshold:
+                # attention block
+                raw_block = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
+                
+                # image block (either blank canvas or orig image)
+                img_block = img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]].copy()
+
+                # color block (cmap applied to attention block)
+                color_block = (cmap(raw_block) * 255)[:,:,:3].astype(np.uint8)
+k
+                img_block = color_block
+
+                # rewrite image block
+                img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = img_block.copy()
+
             
+        
+        if blur:
+            img = cv2.GaussianBlur(img,tuple((patch_size * (1-overlap)).astype(int) * 2 +1),0)  
+
+        if alpha < 1.0:
+            img = self.block_blending(img, vis_level, top_left, bot_right, alpha=alpha, blank_canvas=blank_canvas, block_size=1024)
+        
+        img = Image.fromarray(img)
 
 
 def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
