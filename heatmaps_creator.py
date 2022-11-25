@@ -1,57 +1,137 @@
 from PIL import Image
+import torch
+import os
+import numpy as np
+from utils.utils import *
 from models.resnet_custom import resnet50_baseline
 from models.model_clam import CLAM_MB, CLAM_SB
+from torch.utils.data import DataLoader
+from scipy.stats import percentileofscore
+
+
+drop_out = False
+n_classes = 2
+model_type = "clam_sb"
+model_size = 'small'
+exp_code = "exp_6" + "_s1"
+ckpt_path = "s_0_checkpoint.pt"
+results_dir = "image_sets/results"
+
+patch_dir = "image_sets/patches/"
+feat_dir = "image_sets/features/"
+actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+
+
+def score2percentile(score, ref):
+    percentile = percentileofscore(ref, score)
+    return percentile
+
+
+def draw_heatmaps(heatmap_dict):
+    Softmax_fn = torch.nn.Softmax(, dim=0)
+    
+    for image_file in heatmap_dict:
+        image_name = image_file['filename']
+        attention_scores = image_file['attention_scores']
+        coords_list = image_file['coords_list']
+
+        scores = Softmax_fn(attention_scores)
+        
+        for index, score in enumerate(scores):
+            coord = coords_list[index]
+            
+            img = Image.fromarray(img)
+            w, h = img.size
+        
+        image_name.
+            
 
 
 def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
     attn_save_path=None, ref_scores=None, feat_save_path=None):
     
+    heatmap_dict = []
+    
     # Load the dataset
-    # TBD    
-    # roi_dataset = Wsi_Region(wsi_object, **wsi_kwargs)
-    # roi_loader = get_simple_loader(roi_dataset, batch_size=batch_size, num_workers=8)
-    print('total number of patches to process: ', len(roi_dataset))
-    num_batches = len(roi_loader)
-    print('number of batches: ', len(roi_loader))
-    mode = "w"
+    # Create dataset from the image patches
+    for folder in sorted(os.listdir(patch_dir)):
+        if str(folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
+            continue
+        patch_folder = os.path.join(patch_dir, folder)
+        dataset = []
+        for patch_file in sorted(os.listdir(patch_folder)):
+            if patch_file == "pt_files":
+                continue
+
+            img_path = os.path.join(patch_folder, patch_file)
+
+            img = Image.open(img_path)
+
+            img_arr = np.asarray(img)
+            # img_arr = np.expand_dims(img_arr, 0)
+            # img_PIL = Image.fromarray(img_arr)
+
+            # Create the dataset loader
+            imgs = torch.tensor(img_arr)
+
+            # Get coord in [x, y] format
+            coord = img_path.split("/")
+            coord = coord[-1]
+            coord = coord.split(".")[-2]
+            coord = coord.split("_")
+            coord = [int(coord[-2]), int(coord[-1])]
+
+            dataset.append([imgs, coord])
+
+        roi_loader = DataLoader(dataset=dataset, batch_size=1)    
+        filename = str(folder).split("/")[-1]
+        print("File:", filename)
+
+        num_batches = len(roi_loader)
+        print('number of batches: ', len(roi_loader))
+        mode = "w"
     
-    for idx, (roi, coords) in enumerate(roi_loader):
-        roi = roi.to(device)
-        coords = coords.numpy()
+        attention_scores = []
+        coords_list = []
         
-        with torch.no_grad():
-            features = feature_extractor(roi)
+        for idx, (roi, coords) in enumerate(roi_loader):
+            roi = roi.to(device)
+            coords = [coords[0].item(), coords[1].item()]
 
-            if attn_save_path is not None:
-                A = model(features, attention_only=True)
-           
-                if A.size(0) > 1: #CLAM multi-branch attention
-                    A = A[clam_pred]
+            with torch.no_grad():
+                roi = roi.reshape([1, 3, 256, 256])
+                roi = roi.float()
+                features = feature_extractor(roi)
 
-                A = A.view(-1, 1).cpu().numpy()
+                if attn_save_path is not None:
+                    A = model(features, attention_only=True)
 
-                if ref_scores is not None:
-                    for score_idx in range(len(A)):
-                        A[score_idx] = score2percentile(A[score_idx], ref_scores)
+                    if A.size(0) > 1: #CLAM multi-branch attention
+                        if clam_pred:
+                            A = A[clam_pred]
 
-                asset_dict = {'attention_scores': A, 'coords': coords}
-                
-                # Save
-                # TBD
-#                 save_path = save_hdf5(attn_save_path, asset_dict, mode=mode)
-    
-        if idx % math.ceil(num_batches * 0.05) == 0:
-            print('procssed {} / {}'.format(idx, num_batches))
+                    A = A.view(-1, 1).cpu().numpy()
 
-        if feat_save_path is not None:
-            asset_dict = {'features': features.cpu().numpy(), 'coords': coords}
-            # Save 
-            # TBD
-#           save_path = save_hdf5(attn_save_path, asset_dict, mode=mode)
-#             save_hdf5(feat_save_path, asset_dict, mode=mode)
+                    if ref_scores is not None:
+                        for score_idx in range(len(A)):
+                            A[score_idx] = score2percentile(A[score_idx], ref_scores)
 
-        mode = "a"
-    return attn_save_path, feat_save_path
+                    # Save
+                    attention_scores.append(A)
+                    coords_list.append(coords)  
+
+#             if idx % math.ceil(num_batches * 0.05) == 0:
+#                 print('procssed {} / {}'.format(idx, num_batches))
+
+            if feat_save_path is not None:
+                asset_dict = {'features': features.cpu().numpy(), 'coords': coords}
+                # Save # TBD. Not required
+            
+            heatmap_dict.append({"filename": filename, "attention_scores": attention_scores, "coords_list": coords_list})
+        
+            mode = "a"
+            
+    return heatmap_dict
 
 # ------------------------------------------------------
 # main
@@ -67,16 +147,44 @@ if torch.cuda.device_count() > 1:
 else:
     feature_extractor = feature_extractor.to(device)
 
-save_path = "image_sets/heatmaps"
-
-ref_scores = []
-# TBD
-
-Y_hats = []
-# TBD
+save_path = os.path.join(results_dir, exp_code, "heatmaps")
+if not os.isdir(save_path):
+    os.mkdir(save_path)
+ref_scores = None
+Y_hats = None
+ckpt_path = os.path.join(results_dir, exp_code, ckpt_path)
 
 # Load model
-# TBD
-model = None
+model_dict = {"dropout": drop_out, 'n_classes': n_classes}
 
-attn_save_path, feat_save_path = compute_from_patches(clam_pred=Y_hats[0], model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+if model_size is not None and model_type in ['clam_sb', 'clam_mb']:
+    model_dict.update({"size_arg": model_size})
+
+if model_type =='clam_sb':
+    model = CLAM_SB(**model_dict)
+elif model_type =='clam_mb':
+    model = CLAM_MB(**model_dict)
+else: # model_type == 'mil'
+    if n_classes > 2:
+        model = MIL_fc_mc(**model_dict)
+    else:
+        model = MIL_fc(**model_dict)
+
+print_network(model)
+
+ckpt = torch.load(ckpt_path)
+ckpt_clean = {}
+for key in ckpt.keys():
+    if 'instance_loss_fn' in key:
+        continue
+    ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
+model.load_state_dict(ckpt_clean, strict=True)
+
+model.relocate()
+model.eval()
+
+heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+
+draw_heatmaps(heatmap_dict)
+
+print("Done!")
