@@ -21,6 +21,7 @@ ckpt_path = "s_0_checkpoint.pt"
 results_dir = "image_sets/results"
 
 data_dir = "image_sets/original/"
+image_ext = ".tif"
 patch_dir = "image_sets/patches/"
 feat_dir = "image_sets/features/"
 actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
@@ -55,23 +56,38 @@ def draw_heatmaps(heatmap_dict, save_path):
         
         region_size = patch_size
         overlay = np.full(np.flip(region_size), 0).astype(float)
+#         print(overlay, overlay.shape)
         counter = np.full(np.flip(region_size), 0).astype(np.uint16)      
         count = 0
         for index, score in enumerate(scores):
             coord = coords_list[index]
+            coord = [256*x for x in coord]
+            print("coord", coord)
             if score >= threshold:
                 if binarize:
                     score=1.0
                     count+=1
-            else:
-                score=0.0
+                else:
+                    score=0.0
+            if torch.is_tensor(score):
+                score = score.item()
+            print(coord[1], coord[1]+patch_size[1], coord[0], coord[0]+patch_size[0])
             # accumulate attention
-            overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] += score
+            current_score = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
+            print(current_score, type(current_score))
+            print(score, type(score))
+            overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = current_score + score
             # accumulate counter
-            counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] += 1
+            current_counter = counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
+            counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = current_counter + 1
+        
+        print(overlay, overlay.shape)
         
         # Blank canvas
         img = np.array(Image.new(size=region_size, mode="RGB", color=(255,255,255)))
+        # Orignal image
+        print(os.path.join(data_dir, image_name+image_ext))
+        img = np.array(Image.open(os.path.join(data_dir, image_name+image_ext)))
         
         for index, score in enumerate(scores):
             coord = coords_list[index]
@@ -112,8 +128,12 @@ def draw_heatmaps(heatmap_dict, save_path):
 
                 # rewrite image block
                 img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = img_block.copy()
-
             
+            # [TEMP]
+            img = Image.fromarray(img)
+            image_savename = os.path.join(save_path, image_name + "_heatmap.jpeg")
+            img.save(image_savename)
+            print("Saved heatmap {}".format(image_savename))
         
         if blur:
             img = cv2.GaussianBlur(img,tuple((patch_size * (1-overlap)).astype(int) * 2 +1),0)  
@@ -124,6 +144,7 @@ def draw_heatmaps(heatmap_dict, save_path):
         img = Image.fromarray(img)
         image_savename = os.path.join(save_path, image_name + "_heatmap.jpeg")
         img.save(image_savename)
+        print("Saved heatmap {}".format(image_savename))
 
 
 def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
@@ -209,7 +230,7 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
             heatmap_dict.append({"filename": filename, "attention_scores": attention_scores, "coords_list": coords_list})
         
             mode = "a"
-            
+#         break # Just for testing one sample;
     return heatmap_dict
 
 # ------------------------------------------------------
