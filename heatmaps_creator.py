@@ -29,122 +29,7 @@ actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_fil
 
 def score2percentile(score, ref):
     percentile = percentileofscore(ref, score)
-    return percentile    
-
-def draw_heatmaps(heatmap_dict, save_path):
-    # ---------------------------
-    # Heatmap Image options
-    patch_size = (256, 256) # patch_size (tuple of int)
-    binarize = False
-    overlap = 0
-    blur = 0
-    cmap='coolwarm'
-    # ---------------------------
-
-    if isinstance(cmap, str):
-        cmap = plt.get_cmap(cmap)
-            
-    Softmax_fn = torch.nn.Softmax(dim=0)
-    threshold = 0.5
-    
-    for image_file in heatmap_dict:
-        image_name = image_file['filename']
-        attention_scores = image_file['attention_scores']
-        coords_list = image_file['coords_list']
-
-        scores = Softmax_fn(torch.Tensor(attention_scores)) 
-        
-        region_size = patch_size
-        overlay = np.full(np.flip(region_size), 0).astype(float)
-#         print(overlay, overlay.shape)
-        counter = np.full(np.flip(region_size), 0).astype(np.uint16)      
-        count = 0
-        for index, score in enumerate(scores):
-            coord = coords_list[index]
-            coord = [256*x for x in coord]
-            print("coord", coord)
-            if score >= threshold:
-                if binarize:
-                    score=1.0
-                    count+=1
-                else:
-                    score=0.0
-            if torch.is_tensor(score):
-                score = score.item()
-            print(coord[1], coord[1]+patch_size[1], coord[0], coord[0]+patch_size[0])
-            # accumulate attention
-            current_score = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
-            print(current_score, type(current_score))
-            print(score, type(score))
-            overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = current_score + score
-            # accumulate counter
-            current_counter = counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
-            counter[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = current_counter + 1
-        
-        print(overlay, overlay.shape)
-        
-        # Blank canvas
-        img = np.array(Image.new(size=region_size, mode="RGB", color=(255,255,255)))
-        # Orignal image
-        print(os.path.join(data_dir, image_name+image_ext))
-        img = np.array(Image.open(os.path.join(data_dir, image_name+image_ext)))
-        
-        for index, score in enumerate(scores):
-            coord = coords_list[index]
-            
-#             if score >= threshold:
-#                 # attention block
-#                 raw_block = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
-                
-#                 # image block (either blank canvas or orig image)
-#                 img_block = img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]].copy()
-
-#                 # color block (cmap applied to attention block)
-#                 color_block = (cmap(raw_block) * 255)[:,:,:3].astype(np.uint8)
-
-#                 if segment:
-#                     # tissue mask block
-#                     mask_block = tissue_mask[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] 
-#                     # copy over only tissue masked portion of color block
-#                     img_block[mask_block] = color_block[mask_block]
-#                 else:
-#                     # copy over entire color block
-#                     img_block = color_block
-
-#                 # rewrite image block
-#                 img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = img_block.copy()
-
-            if score >= threshold:
-                # attention block
-                raw_block = overlay[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]]
-                
-                # image block (either blank canvas or orig image)
-                img_block = img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]].copy()
-
-                # color block (cmap applied to attention block)
-                color_block = (cmap(raw_block) * 255)[:,:,:3].astype(np.uint8)
-
-                img_block = color_block
-
-                # rewrite image block
-                img[coord[1]:coord[1]+patch_size[1], coord[0]:coord[0]+patch_size[0]] = img_block.copy()
-            
-            # [TEMP]
-            img = Image.fromarray(img)
-            image_savename = os.path.join(save_path, image_name + "_heatmap.jpeg")
-            img.save(image_savename)
-            print("Saved heatmap {}".format(image_savename))
-        
-        if blur:
-            img = cv2.GaussianBlur(img,tuple((patch_size * (1-overlap)).astype(int) * 2 +1),0)  
-
-#         if alpha < 1.0:
-#             img = self.block_blending(img, vis_level, top_left, bot_right, alpha=alpha, blank_canvas=blank_canvas, block_size=1024)
-        
-        img = Image.fromarray(img)
-        image_savename = os.path.join(save_path, image_name + "_heatmap.jpeg")
-        img.save(image_savename)
-        print("Saved heatmap {}".format(image_savename))
+    return percentile
 
 
 def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
@@ -230,7 +115,6 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
             heatmap_dict.append({"filename": filename, "attention_scores": attention_scores, "coords_list": coords_list})
         
             mode = "a"
-#         break # Just for testing one sample;
     return heatmap_dict
 
 # ------------------------------------------------------
@@ -285,8 +169,7 @@ model.eval()
 
 heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
-save_pkl("heatmap_dict_"+str(exp_code), heatmap_dict)
-
-draw_heatmaps(heatmap_dict, save_path)
+heatmap_dict_save = os.path.join(results_dir, exp_code, "heatmap_dict.pkl")
+save_pkl(heatmap_dict_save, heatmap_dict)
 
 print("Done!")
