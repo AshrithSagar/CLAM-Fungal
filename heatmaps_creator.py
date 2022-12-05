@@ -8,6 +8,7 @@ from utils.file_utils import save_pkl, load_pkl
 from models.resnet_custom import resnet50_baseline
 from models.model_clam import CLAM_MB, CLAM_SB
 from torch.utils.data import DataLoader
+import torch.nn.functional as F
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 
@@ -90,6 +91,9 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
                 if attn_save_path is not None:
                     A = model(features, attention_only=True)
+                    A = F.softmax(A, dim=1)  # softmax over N
+                    print("A.shape", A.shape)
+                    print("A", A)
 
                     if A.size(0) > 1: #CLAM multi-branch attention
                         if clam_pred:
@@ -97,10 +101,11 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
                     A = A.view(-1, 1).cpu().numpy()
 
-                    if ref_scores is not None:
-                        for score_idx in range(len(A)):
-                            A[score_idx] = score2percentile(A[score_idx], ref_scores)
-
+#                     if ref_scores is not None:
+#                         for score_idx in range(len(A)):
+#                             A[score_idx] = score2percentile(A[score_idx], ref_scores)
+    
+#                     print("A", A)
                     # Save
                     attention_scores.append(A)
                     coords_list.append(coords)  

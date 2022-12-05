@@ -202,6 +202,8 @@ class CLAM_SB(nn.Module):
 #         print("all_preds", all_preds)
 #         print("all_preds shape", len(all_preds))
         Y_prob = F.softmax(logits, dim = 1)
+#         print("Y_prob.shape", Y_prob.shape)
+#         print("Y_prob", logits)
         if instance_eval:
             results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
             'inst_preds': np.array(all_preds)}
