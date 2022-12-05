@@ -33,7 +33,7 @@ def score2percentile(score, ref):
     return percentile
 
 
-def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=24,  
+def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
     attn_save_path=None, ref_scores=None, feat_save_path=None):
     
     heatmap_dict = []
@@ -69,12 +69,12 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
             dataset.append([imgs, coord])
 
-        roi_loader = DataLoader(dataset=dataset, batch_size=batch_size)    
+        roi_loader = DataLoader(dataset=dataset, batch_size=24)    
         filename = str(folder).split("/")[-1]
         print("File:", filename)
 
         num_batches = len(roi_loader)
-        print('number of batches: ', len(roi_loader))
+        print('number of batches: ', len(roi_loader)) # len(roi_loader) = 24 / (batch_size)
         mode = "w"
     
         attention_scores = []
@@ -84,16 +84,13 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
             roi = roi.to(device)
 
             with torch.no_grad():
-                roi = roi.reshape([batch_size, 3, 256, 256])
+                roi = roi.reshape([24, 3, 256, 256])
                 roi = roi.float()
                 features = feature_extractor(roi)
-                print("features.shape", features.shape)
 
                 if attn_save_path is not None:
                     A = model(features, attention_only=True)
                     A = F.softmax(A, dim=1)  # softmax over N
-                    print("A.shape", A.shape)
-                    print("A", A)
 
                     if A.size(0) > 1: #CLAM multi-branch attention
                         if clam_pred:
@@ -101,11 +98,10 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
                     A = A.view(-1, 1).cpu().numpy()
 
-#                     if ref_scores is not None:
-#                         for score_idx in range(len(A)):
-#                             A[score_idx] = score2percentile(A[score_idx], ref_scores)
-    
-                    print("new A", A)
+                    if ref_scores is not None:
+                        for score_idx in range(len(A)):
+                            A[score_idx] = score2percentile(A[score_idx], ref_scores)
+                    
                     # Save
                     attention_scores.append(A)
                     coords_list.append(coords)  
