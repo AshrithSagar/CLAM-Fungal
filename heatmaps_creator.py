@@ -33,7 +33,7 @@ def score2percentile(score, ref):
     return percentile
 
 
-def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=512,  
+def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, batch_size=24,  
     attn_save_path=None, ref_scores=None, feat_save_path=None):
     
     heatmap_dict = []
@@ -69,7 +69,7 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
             dataset.append([imgs, coord])
 
-        roi_loader = DataLoader(dataset=dataset, batch_size=1)    
+        roi_loader = DataLoader(dataset=dataset, batch_size=batch_size)    
         filename = str(folder).split("/")[-1]
         print("File:", filename)
 
@@ -82,12 +82,12 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
         
         for idx, (roi, coords) in enumerate(roi_loader):
             roi = roi.to(device)
-            coords = [coords[0].item(), coords[1].item()]
 
             with torch.no_grad():
-                roi = roi.reshape([1, 3, 256, 256])
+                roi = roi.reshape([batch_size, 3, 256, 256])
                 roi = roi.float()
                 features = feature_extractor(roi)
+                print("features.shape", features.shape)
 
                 if attn_save_path is not None:
                     A = model(features, attention_only=True)
@@ -105,7 +105,7 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 #                         for score_idx in range(len(A)):
 #                             A[score_idx] = score2percentile(A[score_idx], ref_scores)
     
-#                     print("A", A)
+                    print("new A", A)
                     # Save
                     attention_scores.append(A)
                     coords_list.append(coords)  
