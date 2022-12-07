@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 drop_out = False
 n_classes = 2
-split = 0
+split = 2
 model_type = "clam_sb"
 model_size = 'small'
 exp_code = "exp_6" + "_s1"

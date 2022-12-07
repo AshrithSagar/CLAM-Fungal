@@ -48,6 +48,8 @@ save_path = os.path.join(results_dir, exp_code, "heatmaps", "split_"+str(split))
 if not os.path.isdir(save_path):
     os.mkdir(save_path)
 
+heatmap_dict = "split_"+str(split)+"_heatmap_dict.pkl"
+heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, heatmap_dict))
 
 # In[89]:
 
@@ -59,16 +61,7 @@ gamma = 0.0
 cmap='coolwarm'
 
 
-# In[90]:
-
-
-heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "heatmap_dict.pkl"))
-
-
-# In[91]:
-
-
-image_file = heatmap_dict[0]
+image_file = heatmap_dict[100]
 
 image_name = image_file['filename']
 attention_scores = image_file['attention_scores']
