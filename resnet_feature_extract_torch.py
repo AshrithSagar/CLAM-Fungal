@@ -12,72 +12,88 @@ from models.resnet_custom import resnet50_baseline
 from utils.utils import print_network, collate_features
 
 
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-parser = argparse.ArgumentParser(description='Extract features using RESNET')
-parser.add_argument('--source', type = str,
-    help='Path to folder containing the image folders of patches')
-parser.add_argument('--output', type = str,
-    help='Path to folder for storing the feature vectors')
-args = parser.parse_args()
-
-
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Extract features using RESNET')
+    parser.add_argument('--source', type = str,
+        help='Path to folder containing the image folders of patches')
+    parser.add_argument('--output', type = str,
+        help='Path to folder for storing the feature vectors')
+
+    args = parser.parse_args()
     patch_dir = args.source
     feat_dir = args.output
 
-    # Create feat_dir if not exists
-    if not os.path.exists(feat_dir):
-        try:
-            print("Features directory doesn't exist. Creating ...")
-            os.mkdir(feat_dir)
-        except:
-            print("ERROR: Cannot create the Features directory")
+if not patch_dir:
+    patch_dir = "image_sets/patches/"
 
-    model = resnet50_baseline(pretrained=True)
-    model = model.to(device)
+if not feat_dir:
+    feat_dir = "image_sets/features/"
 
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
+if not actual_feat_dir:
+    actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
-    model.eval()
+# ----------------------------------------------------------------
+# main
+# --------------------------------
 
-    # Create dataset from the image patches
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+# Create feat_dir if not exists.
+# Not properly fixed
+if not os.path.exists(feat_dir):
+    try:
+        print("Features directory doesn't exist. Creating ...")
+        os.mkdir(feat_dir, exist_ok=True)
+    except:
+        print("ERROR: Cannot create the Features directory")
+
+model = resnet50_baseline(pretrained=True)
+model = model.to(device)
+
+if torch.cuda.device_count() > 1:
+    model = nn.DataParallel(model)
+
+model.eval()
+
+# patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
+# patches_per_image = len(os.listdir(patch_folders[0]))
+# print(patches_per_image)
+
+# Create dataset from the image patches
+for folder in sorted(os.listdir(patch_dir)):
+    patch_folder = os.path.join(patch_dir, folder)
     dataset = []
-    for folder in sorted(os.listdir(patch_dir)):
-        patch_folder = os.path.join(patch_dir, folder)
-        for patch_file in sorted(os.listdir(patch_folder)):
-            img_path = os.path.join(patch_folder, patch_file)
+    for patch_file in sorted(os.listdir(patch_folder)):
+        if patch_file == "pt_files":
+            continue
 
-            img = Image.open(img_path)
+        img_path = os.path.join(patch_folder, patch_file)
 
-            img_arr = np.asarray(img)
-            # img_arr = np.expand_dims(img_arr, 0)
-            # img_PIL = Image.fromarray(img_arr)
+        img = Image.open(img_path)
 
-            # Create the dataset loader
-            imgs = torch.tensor(img_arr)
+        img_arr = np.asarray(img)
+        # img_arr = np.expand_dims(img_arr, 0)
+        # img_PIL = Image.fromarray(img_arr)
 
-            # Get coord in [x, y] format
-            coord = img_path.split("/")
-            coord = coord[-1]
-            coord = coord.split(".")[-2]
-            coord = coord.split("_")
-            coord = [int(coord[-2])/256, int(coord[-1])/256]
+        # Create the dataset loader
+        imgs = torch.tensor(img_arr)
 
-            dataset.append([imgs, coord])
+        # Get coord in [x, y] format
+        coord = img_path.split("/")
+        coord = coord[-1]
+        coord = coord.split(".")[-2]
+        coord = coord.split("_")
+        coord = [int(coord[-2])/256, int(coord[-1])/256]
+
+        dataset.append([imgs, coord])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
+    filename = str(folder).split("/")[-1]
+    print("File:", filename)
 
-    patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
-    print(patch_folders)
-    patches_per_image = len(patch_folders[0])
-    print(patches_per_image)
-
+    features = []
     for count, data in enumerate(loader):
         with torch.no_grad():
-            filename = str(patch_folders[count//patches_per_image])
-            filename = filename.split("/")[-1]
             coord = data[1]
             batch = data[0]
             batch = torch.unsqueeze(batch, 0)
@@ -85,17 +101,31 @@ if __name__ == '__main__':
             batch = batch.to(device, non_blocking=True)
             batch = batch.float()
 
-            features = model(batch)
-            features = features.cpu().numpy()
-            features = torch.from_numpy(features)
+            feature = model(batch)
+            feature = feature.cpu().numpy()
+            feature = torch.from_numpy(feature)
+            feature = np.expand_dims(feature, 0)
 
-            print(filename)
-            filePath = os.path.join(feat_dir, filename+'.pt')
-            print(count, " || ", coord, " || ", features, " || ", filePath)
-            # print("Features size: ", features.shape)
-            torch.save(features, filePath)
+            # Group the features
+            features.append(feature)
 
-            # Save the .hdf5
-            # hf = h5py.File('data.h5', 'w')
+    # To Tensor
+    features = np.asarray(features, dtype="float32")
+    features = torch.tensor(features)
 
-            print("="*15)
+    print(filename)
+    filePath = os.path.join(feat_dir, filename+'.pt')
+    print(count, " || ", coord, " || ", features, " || ", filePath)
+    # print("Features size: ", features.shape)
+    torch.save(features, filePath)
+
+    # Save the .hdf5
+    # hf = h5py.File('data.h5', 'w')
+
+    print("="*15)
+
+
+# !mkdir -p $actual_feat_dir
+# !mv $feat_dir/* $actual_feat_dir
+
+# !rm -rf "${actual_feat_dir}fungal_vs_nonfungal_resnet_features.pt"
