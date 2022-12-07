@@ -15,10 +15,10 @@ import matplotlib.pyplot as plt
 
 drop_out = False
 n_classes = 2
+split = 0
 model_type = "clam_sb"
 model_size = 'small'
 exp_code = "exp_6" + "_s1"
-ckpt_path = "s_0_checkpoint.pt"
 results_dir = "image_sets/results"
 
 data_dir = "image_sets/original/"
@@ -137,6 +137,7 @@ if not os.path.isdir(save_path):
     os.mkdir(save_path)
 ref_scores = None
 Y_hats = None
+ckpt_path = "s_"+str(split)+"_checkpoint.pt"
 ckpt_path = os.path.join(results_dir, exp_code, ckpt_path)
 
 # Load model
@@ -170,7 +171,7 @@ model.eval()
 
 heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
-heatmap_dict_save = os.path.join(results_dir, exp_code, "heatmap_dict.pkl")
+heatmap_dict_save = os.path.join(results_dir, exp_code, "split_"+str(split)+"_heatmap_dict.pkl")
 save_pkl(heatmap_dict_save, heatmap_dict)
 
 print("Done!")

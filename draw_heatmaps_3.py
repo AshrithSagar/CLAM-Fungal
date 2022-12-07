@@ -31,10 +31,10 @@ import cv2 as cv
 
 drop_out = False
 n_classes = 2
+split = 2
 model_type = "clam_sb"
 model_size = 'small'
 exp_code = "exp_6" + "_s1"
-ckpt_path = "s_0_checkpoint.pt"
 results_dir = "image_sets/results"
 
 data_dir = "image_sets/original/"
@@ -43,7 +43,8 @@ patch_dir = "image_sets/patches/"
 feat_dir = "image_sets/features/"
 actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
-save_path = os.path.join(results_dir, exp_code, "heatmaps")
+ckpt_path = "s_"+str(split)+"_checkpoint.pt"
+save_path = os.path.join(results_dir, exp_code, "heatmaps", "split_"+str(split))
 if not os.path.isdir(save_path):
     os.mkdir(save_path)
 
