@@ -7,6 +7,33 @@ from sklearn.datasets import load_sample_image
 from sklearn.feature_extraction import image
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Patchify images')
+    parser.add_argument('--source', type = str,
+                        help='Path to folder containing the image files')
+    parser.add_argument('--dest', type = str,
+                        help='Path to folder for storing the patches')
+    parser.add_argument('--patch_size', type = int, default=256,
+                        help='patch_size')
+
+    args = parser.parse_args()
+	input_dir = args.source
+	output_dir = args.dest
+	patch_size = args.patch_size
+
+if not input_dir:
+    # Path to folder containing the image files
+    # input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/F_a/F_a_original/"
+    input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/NF_a/"
+
+if not output_dir:
+    # Path to folder for storing the patches
+    output_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/"
+
+if not patch_size:
+    patch_size = 256
+
+
 def tile(filename, dir_in, dir_out, d):
     name, ext = os.path.splitext(filename)
     img = Image.open(os.path.join(dir_in, filename))
@@ -31,37 +58,9 @@ def tile_scikit(filename, dir_in, dir_out, d):
 
     print(patches)
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Patchify images')
-    parser.add_argument('--source', type = str,
-                        help='Path to folder containing the image files')
-    parser.add_argument('--dest', type = str,
-                        help='Path to folder for storing the patches')
-    parser.add_argument('--patch_size', type = int, default=256,
-                        help='patch_size')
-
-	args = parser.parse_args()
-
-	input_dir = args.source
-	output_dir = args.dest
-	patch_size = args.patch_size
-
 # ----------------------------------------------------------------
 # main
 # --------------------------------
-
-if not input_dir:
-    # Path to folder containing the image files
-    # input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/F_a/F_a_original/"
-    input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/NF_a/"
-
-if not output_dir:
-    # Path to folder for storing the patches
-    output_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/"
-
-if not patch_size:
-    patch_size = 256
 
 if not os.path.isdir(output_dir):
     os.mkdir(output_dir)
