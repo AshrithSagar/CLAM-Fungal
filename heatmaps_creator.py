@@ -157,13 +157,13 @@ else: # model_type == 'mil'
 print_network(model)
 
 for split in splits:
-    save_path = os.path.join(results_dir, exp_code, "split_"+str(split), "heatmaps")
+    save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
     ref_scores = None
     Y_hats = None
     ckpt_path = "s_"+str(split)+"_checkpoint.pt"
-    ckpt_path = os.path.join(results_dir, exp_code, "split_"+str(split), ckpt_path)
+    ckpt_path = os.path.join(results_dir, exp_code, "splits_"+str(split), ckpt_path)
 
     ckpt = torch.load(ckpt_path)
     ckpt_clean = {}
@@ -178,7 +178,7 @@ for split in splits:
 
     heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
-    heatmap_dict_save = os.path.join(results_dir, exp_code, "split_"+str(split), "heatmap_dict.pkl")
+    heatmap_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl")
     save_pkl(heatmap_dict_save, heatmap_dict)
 
 print("Done!")
