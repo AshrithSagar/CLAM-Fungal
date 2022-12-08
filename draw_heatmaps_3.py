@@ -50,7 +50,7 @@ for split in splits:
 
     heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
 
-    for select_index in select_image:
+    for select_index in range(select_image):
         image_file = heatmap_dict[select_index]
         image_name = image_file['filename']
         attention_scores = image_file['attention_scores']
