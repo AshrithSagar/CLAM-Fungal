@@ -33,12 +33,12 @@ feat_dir = "image_sets/features/"
 actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
 ckpt_path = "s_"+str(split)+"_checkpoint.pt"
-save_path = os.path.join(results_dir, exp_code, "heatmaps", "split_"+str(split))
+save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
 if not os.path.isdir(save_path):
     os.mkdir(save_path)
 
-heatmap_dict = "split_"+str(split)+"_heatmap_dict.pkl"
-heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, heatmap_dict))
+heatmap_dict = "heatmap_dict.pkl"
+heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), heatmap_dict))
 
 
 patch_size = (256, 256)
