@@ -42,13 +42,14 @@ heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, heatmap_dict))
 
 
 patch_size = (256, 256)
+blur = (192, 192)
 alpha = 1
 beta = 0.5
 gamma = 0.0
 cmap='coolwarm'
 
 
-image_file = heatmap_dict[100]
+image_file = heatmap_dict[187]
 
 image_name = image_file['filename']
 attention_scores = image_file['attention_scores']
@@ -72,12 +73,13 @@ percentiles = []
 for score in scores:
     percentile = percentileofscore(scores, score)
     percentiles.append(percentile/100)
-print(scores)
-print()
-print(percentiles)
+# print(scores)
+# print()
+# print(percentiles)
 
 heatmap_mask = np.zeros([1024, 1536, 3])
 threshold = 0.5
+overlap = 0.25
 
 for index, score in enumerate(percentiles):
     x = 256 * coords_list[0][0][index].item() # Top left corner
@@ -85,10 +87,11 @@ for index, score in enumerate(percentiles):
 #     print("Score, x, y:", score, x, y)
 #     print(x, y, x+patch_size[0], y+patch_size[1])
     
-    if (score >= threshold):
-        heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], 0] = score
-    else:
-        heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], 2] = 1-score
+    raw_block = np.ones([256, 256])
+    color_block = (cmap(raw_block*score) * 255)[:,:,:3].astype(np.uint8)
+    heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()/255
+
+heatmap_mask = cv.blur(heatmap_mask, blur)
 
 img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
 
@@ -103,3 +106,4 @@ img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=c
 
 plt.imshow(img_heatmap)
 plt.savefig(img_heatmap_filename)
+print("Saved", img_heatmap_filename)
