@@ -157,6 +157,8 @@ else: # model_type == 'mil'
 print_network(model)
 
 for split in splits:
+    print("Evaluating attentions scores for split_{}".format(split))
+
     save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
