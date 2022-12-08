@@ -156,17 +156,6 @@ else: # model_type == 'mil'
 
 print_network(model)
 
-ckpt = torch.load(ckpt_path)
-ckpt_clean = {}
-for key in ckpt.keys():
-    if 'instance_loss_fn' in key:
-        continue
-    ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
-model.load_state_dict(ckpt_clean, strict=True)
-
-model.relocate()
-model.eval()
-
 for split in splits:
     save_path = os.path.join(results_dir, exp_code, "split_"+str(split), "heatmaps")
     if not os.path.isdir(save_path):
@@ -175,6 +164,17 @@ for split in splits:
     Y_hats = None
     ckpt_path = "s_"+str(split)+"_checkpoint.pt"
     ckpt_path = os.path.join(results_dir, exp_code, "split_"+str(split), ckpt_path)
+
+    ckpt = torch.load(ckpt_path)
+    ckpt_clean = {}
+    for key in ckpt.keys():
+        if 'instance_loss_fn' in key:
+            continue
+        ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
+    model.load_state_dict(ckpt_clean, strict=True)
+
+    model.relocate()
+    model.eval()
 
     heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
