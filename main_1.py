@@ -33,7 +33,7 @@ label_frac = 1.0
 reg = 1e-5
 seed = 1
 k = 5
-k_start = 3
+k_start = -1
 k_end = -1
 results_dir = "image_sets/results"
 split_dir = "fungal_vs_nonfungal_100"
@@ -52,13 +52,13 @@ model_size = 'small'
 task = 'task_fungal_vs_nonfungal'
 ### CLAM specific options
 no_inst_cluster = False
-inst_loss = None
-# inst_loss = 'svm'
+# inst_loss = None
+inst_loss = 'svm'
 subtyping = False
 bag_weight = 0.7
 B = 12
 
-exp_code = "exp_7"
+exp_code = "exp_8"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"

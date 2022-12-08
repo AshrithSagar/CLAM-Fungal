@@ -15,10 +15,10 @@ import matplotlib.pyplot as plt
 
 drop_out = False
 n_classes = 2
-splits = [3, 4]
+splits = range(5)
 model_type = "clam_sb"
 model_size = 'small'
-exp_code = "exp_7" + "_s1"
+exp_code = "exp_8" + "_s1"
 results_dir = "image_sets/results"
 
 data_dir = "image_sets/original/"
