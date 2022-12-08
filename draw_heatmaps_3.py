@@ -1,14 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[86]:
-
-
-# Using cv2 weighted overlay
-
-
-# In[87]:
-
+"""
+Using cv2 weighted overlay
+"""
 
 from PIL import Image
 import torch
@@ -24,9 +16,6 @@ from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 from skimage.color import label2rgb
 import cv2 as cv
-
-
-# In[88]:
 
 
 drop_out = False
@@ -51,8 +40,6 @@ if not os.path.isdir(save_path):
 heatmap_dict = "split_"+str(split)+"_heatmap_dict.pkl"
 heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, heatmap_dict))
 
-# In[89]:
-
 
 patch_size = (256, 256)
 alpha = 1
@@ -68,9 +55,6 @@ attention_scores = image_file['attention_scores']
 coords_list = image_file['coords_list']
 
 
-# In[92]:
-
-
 if isinstance(cmap, str):
     cmap = plt.get_cmap(cmap)
 
@@ -80,9 +64,6 @@ img_path = os.path.join(data_dir, image_name+image_ext)
 
 orig_img = cv.imread(img_path)
 orig_img = orig_img[0:1024, 0:1536] # No left-overs
-
-
-# In[93]:
 
 
 scores = attention_scores[0].copy()
@@ -96,22 +77,11 @@ print()
 print(percentiles)
 
 
-# In[94]:
-
-
 # heatmap_mask = Image.new("RGB", (1536, 1024), (0, 0, 0))
 # heatmap_mask = cv.cvtColor(np.array(heatmap_mask), cv.COLOR_RGB2BGR)
 
 
-# In[95]:
-
-
 heatmap_mask = np.zeros([1024, 1536, 3])
-
-
-# In[96]:
-
-
 threshold = 0.5
 
 for index, score in enumerate(percentiles):
@@ -126,13 +96,10 @@ for index, score in enumerate(percentiles):
         heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], 2] = 1-score
 
 # print(heatmap_mask)
-plt.imshow(heatmap_mask)
+# plt.imshow(heatmap_mask)
 
 
-# In[97]:
-
-
-img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".jpg")
+img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
 
 # print(orig_img.shape)
 # print(heatmap_mask.shape)
@@ -150,7 +117,6 @@ gamma = 0.0
 # heatmap_mask = cv.cvtColor(np.array(heatmap_mask).astype(np.uint8), cv.COLOR_RGB2BGR)
 
 img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
-if not cv.imwrite(img_heatmap_filename, img_heatmap):
-     raise Exception("Could not save the heatmap", img_heatmap_filename)
-plt.imshow(img_heatmap)
 
+plt.imshow(img_heatmap)
+plt.savefig(img_heatmap_filename)
