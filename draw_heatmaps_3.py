@@ -76,11 +76,6 @@ print(scores)
 print()
 print(percentiles)
 
-
-# heatmap_mask = Image.new("RGB", (1536, 1024), (0, 0, 0))
-# heatmap_mask = cv.cvtColor(np.array(heatmap_mask), cv.COLOR_RGB2BGR)
-
-
 heatmap_mask = np.zeros([1024, 1536, 3])
 threshold = 0.5
 
@@ -95,26 +90,14 @@ for index, score in enumerate(percentiles):
     else:
         heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], 2] = 1-score
 
-# print(heatmap_mask)
-# plt.imshow(heatmap_mask)
-
-
 img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
-
-# print(orig_img.shape)
-# print(heatmap_mask.shape)
 
 orig_img = orig_img.astype(np.float32)
 orig_img /= 255
 
-# print(orig_img.max())
-# print(heatmap_mask.max())
-
 alpha = 1
 beta = 0.4
 gamma = 0.0
-
-# heatmap_mask = cv.cvtColor(np.array(heatmap_mask).astype(np.uint8), cv.COLOR_RGB2BGR)
 
 img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
 
