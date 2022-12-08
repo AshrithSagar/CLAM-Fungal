@@ -219,7 +219,7 @@ for i in folds:
     all_test_acc.append(test_acc)
     all_val_acc.append(val_acc)
     #write results to pkl
-    filename = os.path.join(results_dir, 'split_{}_results.pkl'.format(i))
+    filename = os.path.join(results_dir, "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
     save_pkl(filename, results)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc, 

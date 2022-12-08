@@ -262,7 +262,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         data = data.float()
         model = model.float()
         data, label = data.to(device), label.to(device)
-        print("data.shape", data.shape)
+        # print("data.shape", data.shape)
         logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
