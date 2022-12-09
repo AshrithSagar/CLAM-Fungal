@@ -1,0 +1,117 @@
+# Configuration file
+---
+patchify:
+    # Path to folder containing the image files
+    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/NF_a/
+    
+    # Path to folder for storing the patches
+    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/
+    
+    patch_size: 256
+    
+
+extract_features_resnet_torch:
+    # Path to folder containing the image folders of patches
+    patch_dir: "image_sets/patches/"
+
+    # Path to folder for storing the feature vectors
+    feat_dir: "image_sets/features/"
+
+    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+    
+
+dataset_csv_creator:
+    filename : "dataset_csv/fungal_vs_nonfungal.csv"
+    patch_dir : "image_sets/patches/"
+    feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/"
+
+
+splits_creator:
+    label_frac : 1.0
+    seed : 1
+    k : 3
+    val_frac : 0.15
+    test_frac : 0.15
+
+
+main:
+    data_root_dir : "image_sets/patches/"
+    max_epochs : 200
+    lr : 1e-5
+    label_frac : 1.0
+    reg : 1e-5
+    seed : 1
+    k : 5
+    k_start : -1
+    k_end : -1
+    results_dir : "image_sets/results"
+    split_dir : "fungal_vs_nonfungal_100"
+    log_data : False
+    testing : False
+    early_stopping : False
+    opt : 'adam'
+    drop_out : False
+    bag_loss : 'ce'
+    # bag_loss : 'svm'
+    # model_type : 'mil'
+    model_type : 'clam_sb'
+    # model_type : 'clam_mb'
+    weighted_sample : False
+    model_size : 'small'
+    task : 'task_fungal_vs_nonfungal'
+    ### CLAM specific options
+    no_inst_cluster : False
+    # inst_loss : None
+    inst_loss : 'svm'
+    subtyping : False
+    bag_weight : 0.7
+    B : 12
+
+    exp_code : "exp_10"
+    dropout : False
+    patch_dir : "image_sets/patches/"
+    dest_dir : "image_sets/splits/"
+    feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
+
+
+heatmaps_creator:
+    drop_out : False
+    n_classes : 2
+    splits : range(5)
+    model_type : "clam_sb"
+    model_size : 'small'
+    exp_code : "exp_10" + "_s1"
+    results_dir : "image_sets/results"
+
+    data_dir : "image_sets/original/"
+    image_ext : ".tif"
+    patch_dir : "image_sets/patches/"
+    feat_dir : "image_sets/features/"
+    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+
+    select_image : [0, 10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300]
+    
+
+draw_heatmaps:
+    drop_out : False
+    n_classes : 2
+    splits : range(5)
+    model_type : "clam_sb"
+    model_size : 'small'
+    exp_code : "exp_10" + "_s1"
+    results_dir : "image_sets/results"
+
+    data_dir : "image_sets/original/"
+    image_ext : ".tif"
+    patch_dir : "image_sets/patches/"
+    feat_dir : "image_sets/features/"
+    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+
+    patch_size : (256, 256)
+    blur : (128, 128)
+    alpha : 1
+    beta : 0.5
+    gamma : 0.0
+    cmap : 'coolwarm'
+    threshold : 0.5
+    select_image : [0, 10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300]
