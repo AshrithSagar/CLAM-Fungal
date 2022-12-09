@@ -5,6 +5,8 @@ from __future__ import print_function
 
 import pdb
 import os
+import yaml
+import argparse
 import math
 
 # internal imports
@@ -26,45 +28,15 @@ import numpy as np
 # Generic training settings
 # Configurations for WSI Training
 
-data_root_dir = "image_sets/patches/"
-max_epochs = 200
-lr = 1e-5
-label_frac = 1.0
-reg = 1e-5
-seed = 1
-k = 5
-k_start = -1
-k_end = -1
-results_dir = "image_sets/results"
-split_dir = "fungal_vs_nonfungal_100"
-log_data = False
-testing = False
-early_stopping = False
-opt = 'adam'
-drop_out = False
-bag_loss = 'ce'
-# bag_loss = 'svm'
-# model_type = 'mil'
-model_type = 'clam_sb'
-# model_type = 'clam_mb'
-weighted_sample = False
-model_size = 'small'
-task = 'task_fungal_vs_nonfungal'
-### CLAM specific options
-no_inst_cluster = False
-# inst_loss = None
-inst_loss = 'svm'
-subtyping = False
-bag_weight = 0.7
-B = 12
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Patchify images')
+    parser.add_argument('-c', '--config', type = str,
+                        help='Path to the config file')
 
-exp_code = "exp_10"
-dropout = False
-patch_dir = "image_sets/patches/"
-dest_dir = "image_sets/splits/"
-feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
-
-device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    args = parser.parse_args()
+    if args.config:
+        config = yaml.safe_load(open(args.config, 'r'))
+        args = config['main']
 
 
 def seed_torch(seed=7):
@@ -79,6 +51,9 @@ def seed_torch(seed=7):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
+
+# ------------------------------------------------------
+device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 seed_torch(seed)
 
 encoding_size = 1024
@@ -195,9 +170,6 @@ for key, val in settings.items():
 
 
 # ------------------------------------------------------
-# main
-# --------------------------
-
 start = 0 if k_start == -1 else k_start
 end = k if k_end == -1 else k_end
 
@@ -208,11 +180,11 @@ all_val_acc = []
 folds = np.arange(start, end)
 for i in folds:
     seed_torch(seed)
-    train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False, 
+    train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
             csv_path='{}/splits_{}.csv'.format(split_dir, i))
-    
+
     datasets = (train_dataset, val_dataset, test_dataset)
-    
+
     results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, settings)
     all_test_auc.append(test_auc)
     all_val_auc.append(val_auc)
@@ -222,7 +194,7 @@ for i in folds:
     filename = os.path.join(results_dir, "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
     save_pkl(filename, results)
 
-final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc, 
+final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
     'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc})
 
 if len(folds) != k:
