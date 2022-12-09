@@ -1,6 +1,8 @@
 from PIL import Image
 import torch
 import os
+import yaml
+import argparse
 import numpy as np
 import pickle
 from utils.utils import *
@@ -13,21 +15,15 @@ from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt
 
 
-drop_out = False
-n_classes = 2
-splits = range(5)
-model_type = "clam_sb"
-model_size = 'small'
-exp_code = "exp_10" + "_s1"
-results_dir = "image_sets/results"
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Patchify images')
+    parser.add_argument('-c', '--config', type = str,
+                        help='Path to the config file')
 
-data_dir = "image_sets/original/"
-image_ext = ".tif"
-patch_dir = "image_sets/patches/"
-feat_dir = "image_sets/features/"
-actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
-
-select_image = [0, 10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300]
+    args = parser.parse_args()
+    if args.config:
+        config = yaml.safe_load(open(args.config, 'r'))
+        args = config['heatmaps_creator']
 
 
 def score2percentile(score, ref):
@@ -124,10 +120,8 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
             mode = "a"
     return heatmap_dict
 
-# ------------------------------------------------------
-# main
-# ---------------------------
 
+# ------------------------------------------------------
 feature_extractor = resnet50_baseline(pretrained=True)
 feature_extractor.eval()
 device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
