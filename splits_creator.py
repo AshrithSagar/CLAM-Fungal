@@ -1,4 +1,5 @@
 import os
+import yaml
 import argparse
 import numpy as np
 from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset, save_splits
@@ -6,6 +7,9 @@ from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creating splits for whole slide classification')
+    parser.add_argument('-c', '--config', type = str,
+                        help='Path to the config file')
+
     parser.add_argument('--label_frac', type=float, default= 1.0,
                         help='fraction of labels (default: 1)')
     parser.add_argument('--seed', type=int, default=1,
@@ -18,19 +22,18 @@ if __name__ == '__main__':
                         help='fraction of labels for test (default: 0.1)')
 
     args = parser.parse_args()
+    if args.config:
+        config = yaml.safe_load(open(args.config, 'r'))
+        args = config['splits_creator']
+
     label_frac = args.label_frac
     seed = args.seed
     k = args.k
     val_frac = args.val_frac
     test_frac = args.test_frac
-else:
-    label_frac = 1.0
-    seed = 1
-    k = 3
-    val_frac = 0.15
-    test_frac = 0.15
 
 
+# ----------------------------------------------------------------
 # task_1_fungal_vs_nonfungal
 n_classes=2
 dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/fungal_vs_nonfungal.csv',
