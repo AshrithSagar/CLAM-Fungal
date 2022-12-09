@@ -37,7 +37,7 @@ splits_creator:
 main:
     data_root_dir : "image_sets/patches/"
     max_epochs : 200
-    lr : 1e-5
+    lr : 1e-6
     label_frac : 1.0
     reg : 1e-5
     seed : 1
@@ -67,7 +67,7 @@ main:
     bag_weight : 0.7
     B : 12
 
-    exp_code : "exp_10"
+    exp_code : "exp_11"
     dropout : False
     patch_dir : "image_sets/patches/"
     dest_dir : "image_sets/splits/"
