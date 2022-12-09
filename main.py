@@ -127,7 +127,7 @@ if args['task'] == 'task_fungal_vs_nonfungal':
                                   ignore=[])
 
     if args['model_type'] in ['clam_sb', 'clam_mb']:
-        assert args['subtyping']
+        assert subtyping
 
 else:
     raise NotImplementedError
