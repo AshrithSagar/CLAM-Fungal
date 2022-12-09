@@ -126,8 +126,8 @@ if args['task'] == 'task_fungal_vs_nonfungal':
                                   patient_strat=False,
                                   ignore=[])
 
-    if args['model_type'] in ['clam_sb', 'clam_mb']:
-        assert args['subtyping']
+    # if args['model_type'] in ['clam_sb', 'clam_mb']:
+    #     assert args['subtyping']
 
 else:
     raise NotImplementedError
