@@ -1,5 +1,6 @@
 import os
 import argparse
+import yaml
 from PIL import Image
 from itertools import product
 
@@ -9,29 +10,24 @@ from sklearn.feature_extraction import image
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Patchify images')
-    parser.add_argument('--source', type = str,
+    parser.add_argument('-c', '--config', type = str,
+                        help='Path to the config file')
+    
+    parser.add_argument('--input_dir', type = str,
                         help='Path to folder containing the image files')
-    parser.add_argument('--dest', type = str,
+    parser.add_argument('--output_dir', type = str,
                         help='Path to folder for storing the patches')
     parser.add_argument('--patch_size', type = int, default=256,
                         help='patch_size')
 
     args = parser.parse_args()
-	input_dir = args.source
-	output_dir = args.dest
-	patch_size = args.patch_size
+    if args.config:
+        config = yaml.safe_load(open(args.config, 'r'))
+        args = config['patchify']
 
-if not input_dir:
-    # Path to folder containing the image files
-    # input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/F_a/F_a_original/"
-    input_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/NF_a/"
-
-if not output_dir:
-    # Path to folder for storing the patches
-    output_dir = "/home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/"
-
-if not patch_size:
-    patch_size = 256
+    input_dir = args.input_dir
+    output_dir = args.output_dir
+    patch_size = args.patch_size
 
 
 def tile(filename, dir_in, dir_out, d):
@@ -58,10 +54,8 @@ def tile_scikit(filename, dir_in, dir_out, d):
 
     print(patches)
 
-# ----------------------------------------------------------------
-# main
-# --------------------------------
 
+# ----------------------------------------------------------------
 if not os.path.isdir(output_dir):
     os.mkdir(output_dir)
 
