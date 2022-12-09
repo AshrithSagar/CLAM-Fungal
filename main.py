@@ -90,7 +90,7 @@ settings = {'num_splits': args['k'],
             'exp_code': args['exp_code'],
             }
 
-if model_type in ['clam_sb', 'clam_mb']:
+if args['model_type'] in ['clam_sb', 'clam_mb']:
     settings.update({'bag_weight': args['bag_weight'],
                      'inst_loss': args['inst_loss'],
                      'B': args['B']})
@@ -169,7 +169,7 @@ for i in folds:
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
     'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc})
 
-if len(folds) != k:
+if len(folds) != args['k']:
     save_name = 'summary_partial_{}_{}.csv'.format(start, end)
 else:
     save_name = 'summary.csv'
