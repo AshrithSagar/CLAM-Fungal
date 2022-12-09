@@ -18,7 +18,7 @@ n_classes = 2
 splits = range(5)
 model_type = "clam_sb"
 model_size = 'small'
-exp_code = "exp_8" + "_s1"
+exp_code = "exp_10" + "_s1"
 results_dir = "image_sets/results"
 
 data_dir = "image_sets/original/"

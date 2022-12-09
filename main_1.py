@@ -28,7 +28,7 @@ import numpy as np
 
 data_root_dir = "image_sets/patches/"
 max_epochs = 200
-lr = 1e-4
+lr = 1e-5
 label_frac = 1.0
 reg = 1e-5
 seed = 1
@@ -42,8 +42,8 @@ testing = False
 early_stopping = False
 opt = 'adam'
 drop_out = False
-# bag_loss = 'ce'
-bag_loss = 'svm'
+bag_loss = 'ce'
+# bag_loss = 'svm'
 # model_type = 'mil'
 model_type = 'clam_sb'
 # model_type = 'clam_mb'
@@ -58,7 +58,7 @@ subtyping = False
 bag_weight = 0.7
 B = 12
 
-exp_code = "exp_8"
+exp_code = "exp_10"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"
