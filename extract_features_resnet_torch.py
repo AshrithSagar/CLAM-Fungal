@@ -14,28 +14,24 @@ from utils.utils import print_network, collate_features
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract features using RESNET')
-    parser.add_argument('--source', type = str,
+    parser.add_argument('-c', '--config', type = str,
+                        help='Path to the config file')
+
+    parser.add_argument('--patch_dir', type = str,
         help='Path to folder containing the image folders of patches')
-    parser.add_argument('--output', type = str,
+    parser.add_argument('--feat_dir', type = str,
         help='Path to folder for storing the feature vectors')
 
     args = parser.parse_args()
-    patch_dir = args.source
-    feat_dir = args.output
+    if args.config:
+        config = yaml.safe_load(open(args.config, 'r'))
+        args = config['extract_features_resnet_torch']
 
-if not patch_dir:
-    patch_dir = "image_sets/patches/"
+    patch_dir = args.patch_dir
+    feat_dir = args.feat_dir
 
-if not feat_dir:
-    feat_dir = "image_sets/features/"
-
-if not actual_feat_dir:
-    actual_feat_dir = "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
 # ----------------------------------------------------------------
-# main
-# --------------------------------
-
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 # Create feat_dir if not exists.
@@ -62,6 +58,9 @@ model.eval()
 # Create dataset from the image patches
 for folder in sorted(os.listdir(patch_dir)):
     patch_folder = os.path.join(patch_dir, folder)
+    if str(patch_folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
+        continue
+
     dataset = []
     for patch_file in sorted(os.listdir(patch_folder)):
         if patch_file == "pt_files":
