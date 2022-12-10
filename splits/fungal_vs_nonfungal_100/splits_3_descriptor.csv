@@ -1,0 +1,3 @@
+,train,val,test
+nonfungal,151,32,32
+fungal,146,31,31

@@ -26,11 +26,11 @@ if __name__ == '__main__':
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['splits_creator']
 
-    label_frac = args.label_frac
-    seed = args.seed
-    k = args.k
-    val_frac = args.val_frac
-    test_frac = args.test_frac
+    label_frac = args['label_frac']
+    seed = args['seed']
+    k = args['k']
+    val_frac = args['val_frac']
+    test_frac = args['test_frac']
 
 
 # ----------------------------------------------------------------
@@ -49,20 +49,19 @@ val_num = np.round(num_slides_cls * val_frac).astype(int)
 test_num = np.round(num_slides_cls * test_frac).astype(int)
 
 if label_frac > 0:
-        label_fracs = [label_frac]
-    else:
-        label_fracs = [0.1, 0.25, 0.5, 0.75, 1.0]
+    label_fracs = [label_frac]
+else:
+    label_fracs = [0.1, 0.25, 0.5, 0.75, 1.0]
 
-    for lf in label_fracs:
-        split_dir = 'splits/fungal_vs_nonfungal' + '_{}'.format(int(lf * 100))
-#         split_dir = 'splits/tumor_vs_normal_dummy_clean/' + '_{}'.format(int(lf * 100))
-        os.makedirs(split_dir, exist_ok=True)
-        dataset.create_splits(k = k, val_num = val_num, test_num = test_num, label_frac=lf)
-        for i in range(k):
-            dataset.set_splits()
-            descriptor_df = dataset.test_split_gen(return_descriptor=True)
-            splits = dataset.return_splits(from_id=True)
+for lf in label_fracs:
+    split_dir = 'splits/fungal_vs_nonfungal' + '_{}'.format(int(lf * 100))
+    os.makedirs(split_dir, exist_ok=True)
+    dataset.create_splits(k = k, val_num = val_num, test_num = test_num, label_frac=lf)
+    for i in range(k):
+        dataset.set_splits()
+        descriptor_df = dataset.test_split_gen(return_descriptor=True)
+        splits = dataset.return_splits(from_id=True)
 
-            save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
-            save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
-            descriptor_df.to_csv(os.path.join(split_dir, 'splits_{}_descriptor.csv'.format(i)))
+        save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
+        save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
+        descriptor_df.to_csv(os.path.join(split_dir, 'splits_{}_descriptor.csv'.format(i)))

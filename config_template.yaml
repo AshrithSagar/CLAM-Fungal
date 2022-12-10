@@ -30,7 +30,7 @@ dataset_csv_creator:
 splits_creator:
     label_frac : 1.0
     seed : 1
-    k : 3
+    k : 5
     val_frac : 0.15
     test_frac : 0.15
 
