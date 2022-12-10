@@ -124,7 +124,7 @@ for folder in sorted(os.listdir(patch_dir)):
     features = torch.tensor(features)
 
     print(count, " || ", coord, " || ", features, " || ", filePath)
-    # print("Features size: ", features.shape)
+    print("Features size: ", features.shape)
     torch.save(features, filePath)
 
     # Save the .hdf5

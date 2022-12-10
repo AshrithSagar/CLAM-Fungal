@@ -58,7 +58,7 @@ subtyping = False
 bag_weight = 0.7
 B = 12
 
-exp_code = "exp_10"
+exp_code = "exp_11"
 dropout = False
 patch_dir = "image_sets/patches/"
 dest_dir = "image_sets/splits/"
