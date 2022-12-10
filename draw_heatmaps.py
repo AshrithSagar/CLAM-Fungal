@@ -29,6 +29,29 @@ if __name__ == '__main__':
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['draw_heatmaps']
 
+    drop_out = args['drop_out']
+    n_classes = args['n_classes']
+    splits = args['splits']
+    model_type = args['model_type']
+    model_size = args['model_size']
+    exp_code = args['exp_code']
+    results_dir = args['results_dir']
+
+    data_dir = args['data_dir']
+    image_ext = args['image_ext']
+    patch_dir = args['patch_dir']
+    feat_dir = args['feat_dir']
+    actual_feat_dir = args['actual_feat_dir']
+
+    patch_size = args['patch_size']
+    blur = args['blur']
+    alpha = args['alpha']
+    beta = args['beta']
+    gamma = args['gamma']
+    cmap = args['cmap']
+    threshold = args['threshold']
+    select_image = args['select_image']
+    
 
 # ------------------------------------------------------
 for split in splits:
@@ -78,7 +101,7 @@ for split in splits:
             color_block = (cmap(raw_block*score) * 255)[:,:,:3].astype(np.uint8)
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()/255
 
-        heatmap_mask = cv.blur(heatmap_mask, blur)
+        heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
         img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
 

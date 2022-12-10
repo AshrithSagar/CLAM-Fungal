@@ -108,8 +108,8 @@ draw_heatmaps:
     feat_dir : "image_sets/features/"
     actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
-    patch_size : (256, 256)
-    blur : (128, 128)
+    patch_size : [256, 256]
+    blur : [128, 128]
     alpha : 1
     beta : 0.5
     gamma : 0.0
