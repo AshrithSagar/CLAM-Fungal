@@ -13,9 +13,9 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--config', type = str,
                         help='Path to the config file')
     
-    parser.add_argument('--input_dir', type = str,
+    parser.add_argument('--source_dir', type = str,
                         help='Path to folder containing the image files')
-    parser.add_argument('--output_dir', type = str,
+    parser.add_argument('--patch_dir', type = str,
                         help='Path to folder for storing the patches')
     parser.add_argument('--patch_size', type = int, default=256,
                         help='patch_size')
@@ -25,9 +25,9 @@ if __name__ == '__main__':
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['patchify']
 
-    input_dir = args.input_dir
-    output_dir = args.output_dir
-    patch_size = args.patch_size
+    source_dir = args['source_dir']
+    patch_dir = args['patch_dir']
+    patch_size = args['patch_size']
 
 
 def tile(filename, dir_in, dir_out, d):
@@ -56,14 +56,15 @@ def tile_scikit(filename, dir_in, dir_out, d):
 
 
 # ----------------------------------------------------------------
-if not os.path.isdir(output_dir):
-    os.mkdir(output_dir)
+if not os.path.isdir(patch_dir):
+    os.mkdir(patch_dir)
 
-for filename in os.listdir(input_dir):
+for filename in os.listdir(source_dir):
     name, ext = os.path.splitext(filename)
-    output_patches_dir = os.path.join(output_dir, name)
+    output_patches_dir = os.path.join(patch_dir, name)
 
     if not os.path.isdir(output_patches_dir):
         os.mkdir(output_patches_dir)
-
-    tile(filename, input_dir, output_patches_dir, patch_size)
+    
+        # Run only if folder doesn't already exist
+        tile(filename, source_dir, output_patches_dir, patch_size)

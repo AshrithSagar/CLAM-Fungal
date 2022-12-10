@@ -2,7 +2,7 @@
 ---
 patchify:
     # Path to folder containing the image files
-    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/NF_a/
+    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/original/
     
     # Path to folder for storing the patches
     patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/
