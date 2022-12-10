@@ -24,6 +24,22 @@ if __name__ == '__main__':
     if args.config:
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['heatmaps_creator']
+        
+    drop_out = args['drop_out']
+    n_classes = args['n_classes']
+    splits = args['splits']
+    model_type = args['model_type']
+    model_size = args['model_size']
+    exp_code = args['exp_code']
+    results_dir = args['results_dir']
+
+    data_dir = args['data_dir']
+    image_ext = args['image_ext']
+    patch_dir = args['patch_dir']
+    feat_dir = args['feat_dir']
+    actual_feat_dir = args['actual_feat_dir']
+
+    select_image = args['select_image']
 
 
 def score2percentile(score, ref):
