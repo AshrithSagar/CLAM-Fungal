@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2 as cv
 import argparse
+import yaml
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -21,14 +22,19 @@ if __name__ == '__main__':
         help='Path to folder containing the image folders of patches')
     parser.add_argument('--feat_dir', type = str,
         help='Path to folder for storing the feature vectors')
+    parser.add_argument('--actual_feat_dir', type = str,
+        help='[TEMP] Path to folder for storing the feature vectors')
 
     args = parser.parse_args()
     if args.config:
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['extract_features_resnet_torch']
 
-    patch_dir = args.patch_dir
-    feat_dir = args.feat_dir
+    patch_dir = args['patch_dir']
+    feat_dir = args['feat_dir']
+    
+    actual_feat_dir = args['actual_feat_dir']
+    feat_dir = actual_feat_dir
 
 
 # ----------------------------------------------------------------
@@ -57,6 +63,14 @@ model.eval()
 
 # Create dataset from the image patches
 for folder in sorted(os.listdir(patch_dir)):
+    filename = str(folder).split("/")[-1]
+    print("File:", filename)
+    
+    filePath = os.path.join(feat_dir, filename+'.pt')
+    # Run only if file doesn't already exist
+    if os.path.exists(filePath):
+        continue
+    
     patch_folder = os.path.join(patch_dir, folder)
     if str(patch_folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
         continue
@@ -87,9 +101,6 @@ for folder in sorted(os.listdir(patch_dir)):
         dataset.append([imgs, coord])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
-    filename = str(folder).split("/")[-1]
-    print("File:", filename)
-
     features = []
     for count, data in enumerate(loader):
         with torch.no_grad():
@@ -112,8 +123,6 @@ for folder in sorted(os.listdir(patch_dir)):
     features = np.asarray(features, dtype="float32")
     features = torch.tensor(features)
 
-    print(filename)
-    filePath = os.path.join(feat_dir, filename+'.pt')
     print(count, " || ", coord, " || ", features, " || ", filePath)
     # print("Features size: ", features.shape)
     torch.save(features, filePath)

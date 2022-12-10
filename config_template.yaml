@@ -16,7 +16,8 @@ extract_features_resnet_torch:
 
     # Path to folder for storing the feature vectors
     feat_dir: "image_sets/features/"
-
+    
+    # [TEMP] Path to folder for storing the feature vectors
     actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
     
 
