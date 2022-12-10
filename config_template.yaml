@@ -38,9 +38,9 @@ splits_creator:
 main:
     data_root_dir : "image_sets/patches/"
     max_epochs : 200
-    lr : 1e-6
+    lr : !!float 1e-5
     label_frac : 1.0
-    reg : 1e-5
+    reg : !!float 1e-5
     seed : 1
     k : 5
     k_start : -1
