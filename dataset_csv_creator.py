@@ -24,9 +24,9 @@ if __name__ == '__main__':
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['dataset_csv_creator']
 
-    filename = args.filename
-    patch_dir = args.patch_dir
-    feat_dir = args.feat_dir
+    filename = args['filename']
+    patch_dir = args['patch_dir']
+    feat_dir = args['feat_dir']
 
 
 # ----------------------------------------------------------------
@@ -36,11 +36,13 @@ with open(filename, 'w') as file:
     patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
 
     for i, name in enumerate(patch_folders):
-        if name != feat_dir:
-            name = name.split("/")[-1]
+        name = name.split("/")[-1]
+        if name != feat_dir:         
             if name[0] == "F":
                 f_nf = "fungal"
-            else:
+            elif name[0] == "N":
                 f_nf = "nonfungal"
+            else:
+                f_nf = "unclassified"
             line = 'case_' + str(i) + ',' + name + ',' + f_nf
             file.write('{}\n'.format(line))

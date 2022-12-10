@@ -24,7 +24,7 @@ extract_features_resnet_torch:
 dataset_csv_creator:
     filename : "dataset_csv/fungal_vs_nonfungal.csv"
     patch_dir : "image_sets/patches/"
-    feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/"
+    feat_dir : "fungal_vs_nonfungal_resnet_features"
 
 
 splits_creator:
