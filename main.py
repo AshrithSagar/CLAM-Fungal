@@ -98,14 +98,14 @@ if args['model_type'] in ['clam_sb', 'clam_mb']:
 print('\nLoad Dataset')
 
 
-results_dir = os.path.join(args['results_dir'], str(args['exp_code']) + '_s{}'.format(args['seed']))
+args['results_dir'] = os.path.join(args['results_dir'], str(args['exp_code']) + '_s{}'.format(args['seed']))
 if not os.path.isdir(args['results_dir']):
     os.mkdir(args['results_dir'])
 
 if args['split_dir'] is None:
-    split_dir = os.path.join('splits', args['task']+'_{}'.format(int(args['label_frac']*100)))
+    args['split_dir'] = os.path.join('splits', args['task']+'_{}'.format(int(args['label_frac']*100)))
 else:
-    split_dir = os.path.join('splits', args['split_dir'])
+    args['split_dir'] = os.path.join('splits', args['split_dir'])
 
 # print('split_dir: ', split_dir)
 # assert os.path.isdir(split_dir)
@@ -114,8 +114,8 @@ else:
 
 
 if args['task'] == 'task_fungal_vs_nonfungal':
-    n_classes = 2
-    settings.update({'n_classes': n_classes})
+    args['n_classes'] = 2
+    settings.update({'n_classes': args['n_classes']})
     dataset = Generic_MIL_Dataset(csv_path='dataset_csv/fungal_vs_nonfungal.csv',
                                   data_dir=os.path.join(
                                       args['data_root_dir'], 'fungal_vs_nonfungal_resnet_features'),
@@ -127,8 +127,8 @@ if args['task'] == 'task_fungal_vs_nonfungal':
                                   ignore=[])
 
 elif task == 'task_1_tumor_vs_normal':
-    n_classes = 2
-    settings.update({'n_classes': n_classes})
+    args['n_classes'] = 2
+    settings.update({'n_classes': args['n_classes']})
     dataset = Generic_MIL_Dataset(csv_path='dataset_csv/tumor_vs_normal_dummy_clean.csv',
                                   data_dir=os.path.join(
                                       args['data_root_dir'], 'tumor_vs_normal_resnet_features'),
@@ -141,8 +141,8 @@ elif task == 'task_1_tumor_vs_normal':
                                   ignore=[])
 
 elif task == 'task_2_tumor_subtyping':
-    n_classes = 3
-    settings.update({'n_classes': n_classes})
+    args['n_classes'] = 3
+    settings.update({'n_classes': args['n_classes']})
     dataset = Generic_MIL_Dataset(csv_path='dataset_csv/tumor_subtyping_dummy_clean.csv',
                                   data_dir=os.path.join(
                                       args['data_root_dir'], 'tumor_subtyping_resnet_features'),
@@ -181,7 +181,7 @@ folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
-            csv_path='{}/splits_{}.csv'.format(split_dir, i))
+            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i))
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
