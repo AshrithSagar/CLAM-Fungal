@@ -96,11 +96,11 @@ heatmaps_creator:
 draw_heatmaps:
     drop_out : False
     n_classes : 2
-    splits : [1, 3]
+    splits : [1]
     model_type : "clam_sb"
     model_size : 'small'
     exp_code : "exp_10_s1"
-    results_dir : "image_sets/results"
+    results_dir : "image_sets/results_2"
 
     data_dir : "image_sets/original/"
     image_ext : ".tif"

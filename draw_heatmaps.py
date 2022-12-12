@@ -66,8 +66,8 @@ for split in splits:
         image_name = image_file['filename']
         attention_scores = image_file['attention_scores']
         coords_list = image_file['coords_list']
-
-
+    
+        plt.clf()
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
 
@@ -100,6 +100,8 @@ for split in splits:
             raw_block = np.ones([256, 256])
             color_block = (cmap(raw_block*score) * 255)[:,:,:3].astype(np.uint8)
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()/255
+            
+            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(score, 2)))
 
         heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
@@ -113,7 +115,7 @@ for split in splits:
         gamma = 0.0
 
         img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
-
+        
         plt.imshow(img_heatmap)
         plt.savefig(img_heatmap_filename)
         print("Saved", img_heatmap_filename)
