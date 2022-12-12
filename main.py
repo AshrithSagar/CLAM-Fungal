@@ -107,10 +107,10 @@ if args['split_dir'] is None:
 else:
     split_dir = os.path.join('splits', args['split_dir'])
 
-print('split_dir: ', split_dir)
-assert os.path.isdir(split_dir)
+# print('split_dir: ', split_dir)
+# assert os.path.isdir(split_dir)
 
-settings.update({'split_dir': split_dir})
+# settings.update({'split_dir': split_dir})
 
 
 if args['task'] == 'task_fungal_vs_nonfungal':

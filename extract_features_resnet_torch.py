@@ -64,12 +64,12 @@ model.eval()
 # Create dataset from the image patches
 for folder in sorted(os.listdir(patch_dir)):
     filename = str(folder).split("/")[-1]
-    print("File:", filename)
-    
     filePath = os.path.join(feat_dir, filename+'.pt')
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
+        print("Skipping File:", filename)
         continue
+    print("Running on File:", filename)
     
     patch_folder = os.path.join(patch_dir, folder)
     if str(patch_folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
