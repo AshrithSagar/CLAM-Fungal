@@ -149,10 +149,10 @@ class CLAM_SB(nn.Module):
 
     def forward(self, h, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
-        print("h.shape", h.shape)
+#         print("h.shape", h.shape)
         A, h = self.attention_net(h)  # NxK
-        print("A.shape", A.shape)
-        print("h.shape", h.shape)
+#         print("A.shape", A.shape)
+#         print("h.shape", h.shape)
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
