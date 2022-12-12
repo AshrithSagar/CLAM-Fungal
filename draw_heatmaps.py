@@ -101,7 +101,7 @@ for split in splits:
             color_block = (cmap(raw_block*score) * 255)[:,:,:3].astype(np.uint8)
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()/255
             
-            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(score, 2)))
+            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(score, 2))+"\n"+str(round(scores[index], 2)), fontsize='x-small')
 
         heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
