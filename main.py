@@ -107,10 +107,10 @@ if args['split_dir'] is None:
 else:
     split_dir = os.path.join('splits', args['split_dir'])
 
-# print('split_dir: ', split_dir)
-# assert os.path.isdir(split_dir)
+print('split_dir: ', split_dir)
+assert os.path.isdir(split_dir)
 
-# settings.update({'split_dir': split_dir})
+settings.update({'split_dir': split_dir})
 
 
 if args['task'] == 'task_fungal_vs_nonfungal':
@@ -153,7 +153,7 @@ folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
-            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i))
+            csv_path='{}/splits_{}.csv'.format(split_dir, i))
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
