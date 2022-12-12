@@ -112,6 +112,8 @@ def train(datasets, cur, settings):
     print("Settings:", settings)
     print('\nTraining Fold {}!'.format(cur))
     exp_dir = os.path.join(settings["results_dir"], str(settings["exp_code"]) + '_s{}'.format(settings["seed"]))
+    if not os.path.isdir(exp_dir):
+        os.mkdir(exp_dir)
     split_dir = os.path.join(exp_dir, 'splits_{}'.format(cur))
     if not os.path.isdir(split_dir):
         os.mkdir(split_dir)
