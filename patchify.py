@@ -66,5 +66,5 @@ for filename in os.listdir(source_dir):
     if not os.path.isdir(output_patches_dir):
         os.mkdir(output_patches_dir)
     
-        # Run only if folder doesn't already exist
-        tile(filename, source_dir, output_patches_dir, patch_size)
+    print("Patching", filename)
+    tile(filename, source_dir, output_patches_dir, patch_size)
