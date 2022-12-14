@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-from __future__ import print_function
-
 import pdb
 import os
 import yaml
@@ -57,44 +52,38 @@ device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 seed_torch(args['seed'])
 
 encoding_size = 1024
-settings = {'num_splits': args['k'],
-            'k_start': args['k_start'],
-            'k_end': args['k_end'],
-            'task': args['task'],
-            'max_epochs': args['max_epochs'],
-            'results_dir': args['results_dir'],
-            'lr': args['lr'],
-            'experiment': args['exp_code'],
-            'reg': args['reg'],
-            'label_frac': args['label_frac'],
-            'bag_loss': args['bag_loss'],
-            'seed': args['seed'],
-            'model_type': args['model_type'],
-            'model_size': args['model_size'],
-            "use_drop_out": args['drop_out'],
-            'weighted_sample': args['weighted_sample'],
-            'opt': args['opt'],
-            'data_root_dir': args['data_root_dir'],
-            'label_frac': args['label_frac'],
-            'k': args['k'],
-            'split_dir': args['split_dir'],
-            'log_data': args['log_data'],
-            'testing': args['testing'],
-            'early_stopping': args['early_stopping'],
-            'dropout': args['dropout'],
-            'no_inst_cluster': args['no_inst_cluster'],
-#             'inst_loss': args['inst_loss'],
-            'subtyping': args['subtyping'],
-            'bag_weight': args['bag_weight'],
-#             'B': args['B'],
-            'exp_code': args['exp_code'],
-            }
-
-if args['model_type'] in ['clam_sb', 'clam_mb']:
-    settings.update({'bag_weight': args['bag_weight'],
-                     'inst_loss': args['inst_loss'],
-                     'B': args['B']})
-
+settings = {
+    'k': args['k'],
+    'k_start': args['k_start'],
+    'k_end': args['k_end'],
+    'task': args['task'],
+    'max_epochs': args['max_epochs'],
+    'results_dir': args['results_dir'],
+    'lr': args['lr'],
+    'experiment': args['exp_code'],
+    'reg': args['reg'],
+    'label_frac': args['label_frac'],
+    'bag_loss': args['bag_loss'],
+    'seed': args['seed'],
+    'model_type': args['model_type'],
+    'model_size': args['model_size'],
+    "use_drop_out": args['drop_out'],
+    'weighted_sample': args['weighted_sample'],
+    'opt': args['opt'],
+    'data_root_dir': args['data_root_dir'],
+    'label_frac': args['label_frac'],
+    'split_dir': args['split_dir'],
+    'log_data': args['log_data'],
+    'testing': args['testing'],
+    'early_stopping': args['early_stopping'],
+    'dropout': args['dropout'],
+    'no_inst_cluster': args['no_inst_cluster'],
+    'subtyping': args['subtyping'],
+    'exp_code': args['exp_code'],
+    'bag_weight': args['bag_weight'],
+    'inst_loss': args['inst_loss'],
+    'B': args['B']
+}
 print('\nLoad Dataset')
 
 
