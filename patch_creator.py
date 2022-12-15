@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from itertools import product
+import matplotlib.pyplot as plt
 
 from sklearn.datasets import load_sample_image
 from sklearn.feature_extraction import image
@@ -19,9 +20,9 @@ if __name__ == '__main__':
                         help='Path to folder containing the image files')
     parser.add_argument('--patch_dir', type = str,
                         help='Path to folder for storing the patches')
-    parser.add_argument('--annotation', type = bool,
-                        help='Whether to perform on annotated images or not')
-    parser.add_argument('--threshold', type = str,
+    parser.add_argument('--function_type', type = str,
+                        help='Variation of the patching that\'s to be performed')
+    parser.add_argument('--thresholds', type = dict,
                         help='Threshold to consider for the annotated images')
     parser.add_argument('--patch_size', type = int, default=256,
                         help='patch_size')
@@ -33,8 +34,8 @@ if __name__ == '__main__':
 
     source_dir = args['source_dir']
     patch_dir = args['patch_dir']
-    annotation = args['annotation']
-    threshold = args['threshold']
+    function_type = args['function_type']
+    thresholds = args['thresholds']
     patch_size = args['patch_size']
 
 
@@ -66,12 +67,13 @@ def tile_scikit(filename, dir_in, dir_out, d):
 def tile_annotations(filename, dir_in, dir_out, d):
     patch_scores = []
     name, ext = os.path.splitext(filename)
-    img = cv2.imread(os.path.join(dir_in, filename))
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
-    ret, img = cv2.threshold(img, threshold, 255, cv2.THRESH_TOZERO)  # Apply thresholding
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert to RGB, for PIL Image
-    img = Image.fromarray(img)  # Convert to PIL Image
-    w, h = img.size
+    img_cv = cv2.imread(os.path.join(dir_in, filename))
+    img_cv_gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    # Thresholding options: ['THRESH_BINARY', 'THRESH_BINARY_INV', 'THRESH_TOZERO ', 'THRESH_TOZERO_INV', 'THRESH_OTSU']
+    ret, img_cv_binarized = cv2.threshold(img_cv_gray, thresholds['annotations'], 255, cv2.THRESH_TOZERO)  # Apply thresholding
+    img_pil_binarized = cv2.cvtColor(img_cv_binarized, cv2.COLOR_BGR2RGB)  # Convert to RGB, for PIL Image
+    img_pil_binarized = Image.fromarray(img_pil_binarized)  # Convert to PIL Image
+    w, h = img_pil_binarized.size
 
     grid = product(range(0, h-h%d, d), range(0, w-w%d, d))
     for i, j in grid:
@@ -80,15 +82,53 @@ def tile_annotations(filename, dir_in, dir_out, d):
         j /= 256
         out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
 
-        img_patch = img.crop(box)
+        img_patch = img_pil_binarized.crop(box)
 
-        im_np = np.asarray(img_patch)  # Convert to Numpy array
-        patch_non_zero = np.count_nonzero(im_np)
+        img_patch_np = np.asarray(img_patch)  # Convert to Numpy array
+        patch_non_zero = np.count_nonzero(img_patch_np)
         patch_scores.append(patch_non_zero)
 
         img_patch.save(out)  # Save patch image
 
-    print(patch_scores)
+    print("P", patch_scores)
+
+
+def artefact_annotations(filename, dir_in, dir_out, d):
+    patch_scores = []
+    name, ext = os.path.splitext(filename)
+    img_cv = cv2.imread(os.path.join(dir_in, filename))
+    img_cv_gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    # Thresholding options: ['THRESH_BINARY', 'THRESH_BINARY_INV', 'THRESH_TOZERO ', 'THRESH_TOZERO_INV', 'THRESH_OTSU']
+    ret, img_cv_binarized = cv2.threshold(img_cv_gray, thresholds['artefacts'], 255, cv2.THRESH_BINARY_INV)  # Apply thresholding
+    img_pil_binarized = cv2.cvtColor(img_cv_binarized, cv2.COLOR_BGR2RGB)  # Convert to RGB, for PIL Image
+    img_pil_binarized = Image.fromarray(img_pil_binarized)  # Convert to PIL Image
+    w, h = img_pil_binarized.size
+
+    grid = product(range(0, h-h%d, d), range(0, w-w%d, d))
+    for i, j in grid:
+        box = (j, i, j+d, i+d)
+        i /= 256
+        j /= 256
+        out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
+
+        img_patch = img_pil_binarized.crop(box)
+
+        img_patch_np = np.asarray(img_patch)  # Convert to Numpy array
+        patch_non_zero = np.count_nonzero(img_patch_np)
+        patch_scores.append(patch_non_zero)
+
+#         img_patch.save(out)  # Save patch image
+
+    print("A", patch_scores)
+    
+    kernel = np.ones((2, 2), np.uint8)
+    img_cv_eroded = cv2.erode(img_cv_binarized.copy(), kernel, iterations=5)
+    img_cv_dilated = cv2.dilate(img_cv_eroded.copy(), kernel, iterations=10)
+    img_pil_dilated = cv2.cvtColor(img_cv_dilated, cv2.COLOR_BGR2RGB)
+    cmap=plt.get_cmap('gray')
+    img_pil_cmapped = cmap(img_pil_dilated)
+    img_pil_cmapped = Image.fromarray(img_pil_cmapped[:,:,:3])  # Convert to PIL Image
+    img_pil_cmapped.save(os.path(dir_out))  # Save artefact image
 
 
 # ----------------------------------------------------------------
@@ -102,9 +142,14 @@ for filename in os.listdir(source_dir):
     if not os.path.isdir(output_patches_dir):
         os.mkdir(output_patches_dir)
 
-    if annotation:
-        print("Binarizing and Patching", filename)
-        tile_annotations(filename, source_dir, output_patches_dir, patch_size)
-    else:
+    if function_type == 'tile':
         print("Patching", filename)
         tile(filename, source_dir, output_patches_dir, patch_size)
+    elif function_type == 'tile_annotations':
+        print("Binarizing and Patching Annotated", filename)
+        tile_annotations(filename, source_dir, output_patches_dir, patch_size)
+    elif function_type == 'artefact_annotations':
+        print("Binarizing and Patching Artefacts", filename)
+        artefact_annotations(filename, source_dir, output_patches_dir, patch_size)
+    else:
+        print("Unknown function_type")

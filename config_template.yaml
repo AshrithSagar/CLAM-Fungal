@@ -5,14 +5,17 @@ patch_creator:
     source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotated/
 
     # Path to folder for storing the patches
-    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
+    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/artefacts_annotated/
        
-    # Whether to perform on annotated images or not
-    annotation: True
+    # Variation of the patching that's to be performed
+    # ['tile', 'tile_annotations', 'artefact_annotations']
+    function_type: 'artefact_annotations'
 
-    # Threshold to consider for the annotated images
-    threshold: 50
-      
+    # Thresholds to consider
+    thresholds:
+        'annotations': 254  # For the annotated images
+        'artefacts': 50  # For artefacts in all images
+
     # patch_size is taken as a square
     patch_size: 256
 
