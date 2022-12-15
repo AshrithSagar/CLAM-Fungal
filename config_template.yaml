@@ -12,7 +12,8 @@ patch_creator:
 
     # Threshold to consider for the annotated images
     threshold: 254
-   
+      
+    # patch_size is taken as a square
     patch_size: 256
 
 extract_features_resnet_torch:
