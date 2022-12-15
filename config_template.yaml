@@ -1,26 +1,19 @@
 # Configuration file
 ---
-patchify:
-    # Path to folder containing the image files
-    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/original/
-
-    # Path to folder for storing the patches
-    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/
-
-    patch_size: 256
-
-
-patch_labels:
+patch_creator:
     # Path to folder containing the image files
     source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotated/
 
     # Path to folder for storing the patches
     patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
+       
+    # Whether to perform on annotated images or not
+    annotation: True
 
-    threshold: 250
-    
+    # Threshold to consider for the annotated images
+    threshold: 254
+   
     patch_size: 256
-
 
 extract_features_resnet_torch:
     # Path to folder containing the image folders of patches
