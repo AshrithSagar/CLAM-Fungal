@@ -3,12 +3,22 @@
 patchify:
     # Path to folder containing the image files
     source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/original/
-    
+
     # Path to folder for storing the patches
     patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches/
-    
+
     patch_size: 256
-    
+
+
+patch_labels:
+    # Path to folder containing the image files
+    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotated/
+
+    # Path to folder for storing the patches
+    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
+
+    patch_size: 256
+
 
 extract_features_resnet_torch:
     # Path to folder containing the image folders of patches
@@ -16,10 +26,10 @@ extract_features_resnet_torch:
 
     # Path to folder for storing the feature vectors
     feat_dir: "image_sets/features/"
-    
+
     # [TEMP] Path to folder for storing the feature vectors
     actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
-    
+
 
 dataset_csv_creator:
     filename : "dataset_csv/fungal_vs_nonfungal.csv"
@@ -91,7 +101,7 @@ heatmaps_creator:
     actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
 
     select_image : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300, 305, 350]
-    
+
 
 draw_heatmaps:
     drop_out : False
