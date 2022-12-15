@@ -11,7 +11,7 @@ patch_creator:
     annotation: True
 
     # Threshold to consider for the annotated images
-    threshold: 254
+    threshold: 50
       
     # patch_size is taken as a square
     patch_size: 256
