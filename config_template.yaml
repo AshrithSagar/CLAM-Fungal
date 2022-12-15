@@ -17,6 +17,8 @@ patch_labels:
     # Path to folder for storing the patches
     patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
 
+    threshold: 250
+    
     patch_size: 256
 
 
