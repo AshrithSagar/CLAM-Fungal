@@ -40,6 +40,9 @@ if __name__ == '__main__':
 
 
 def tile(filename, dir_in, dir_out, d):
+    if not os.path.isdir(dir_out):
+        os.mkdir(dir_out)
+
     name, ext = os.path.splitext(filename)
     img = Image.open(os.path.join(dir_in, filename))
     w, h = img.size
@@ -54,6 +57,9 @@ def tile(filename, dir_in, dir_out, d):
 
 
 def tile_scikit(filename, dir_in, dir_out, d):
+    if not os.path.isdir(dir_out):
+        os.mkdir(dir_out)
+
     name, ext = os.path.splitext(filename)
     img = load_sample_image(os.path.join(dir_in, filename))
     print('Image shape: {}'.format(img.shape))
@@ -65,6 +71,9 @@ def tile_scikit(filename, dir_in, dir_out, d):
 
 
 def tile_annotations(filename, dir_in, dir_out, d):
+    if not os.path.isdir(dir_out):
+        os.mkdir(dir_out)
+
     patch_scores = []
     name, ext = os.path.splitext(filename)
     img_cv = cv2.imread(os.path.join(dir_in, filename))
@@ -107,28 +116,28 @@ def artefact_annotations(filename, dir_in, dir_out, d):
     grid = product(range(0, h-h%d, d), range(0, w-w%d, d))
     for i, j in grid:
         box = (j, i, j+d, i+d)
-        i /= 256
-        j /= 256
-        out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
-
         img_patch = img_pil_binarized.crop(box)
 
         img_patch_np = np.asarray(img_patch)  # Convert to Numpy array
         patch_non_zero = np.count_nonzero(img_patch_np)
         patch_scores.append(patch_non_zero)
 
-#         img_patch.save(out)  # Save patch image
-
     print("A", patch_scores)
-    
+
     kernel = np.ones((2, 2), np.uint8)
-    img_cv_eroded = cv2.erode(img_cv_binarized.copy(), kernel, iterations=5)
-    img_cv_dilated = cv2.dilate(img_cv_eroded.copy(), kernel, iterations=10)
+    img_cv_eroded = cv2.erode(img_cv_binarized.copy(), kernel, iterations=2)
+    img_cv_dilated = cv2.dilate(img_cv_eroded.copy(), kernel, iterations=2)
     img_pil_dilated = cv2.cvtColor(img_cv_dilated, cv2.COLOR_BGR2RGB)
-    cmap=plt.get_cmap('gray')
-    img_pil_cmapped = cmap(img_pil_dilated)
-    img_pil_cmapped = Image.fromarray(img_pil_cmapped[:,:,:3])  # Convert to PIL Image
-    img_pil_cmapped.save(os.path(dir_out))  # Save artefact image
+#     cmap = plt.get_cmap('gray')
+#     img_np_cmapped = cmap(img_pil_dilated) * 255
+#     print(img_np_cmapped.shape)
+#     img_np_cmapped = img_np_cmapped[:,:,:3]
+#     print(img_np_cmapped.shape)
+#     img_pil_cmapped = Image.fromarray(np.uint8(img_np_cmapped))  # Convert to PIL Image
+    out = os.path.join(dir_out, f'{name}{ext}')
+    print(out)
+#     img_pil_cmapped.save(os.path(out))  # Save artefact image
+    cv2.imwrite(out, img_cv_dilated)
 
 
 # ----------------------------------------------------------------
@@ -139,9 +148,6 @@ for filename in os.listdir(source_dir):
     name, ext = os.path.splitext(filename)
     output_patches_dir = os.path.join(patch_dir, name)
 
-    if not os.path.isdir(output_patches_dir):
-        os.mkdir(output_patches_dir)
-
     if function_type == 'tile':
         print("Patching", filename)
         tile(filename, source_dir, output_patches_dir, patch_size)
@@ -150,6 +156,6 @@ for filename in os.listdir(source_dir):
         tile_annotations(filename, source_dir, output_patches_dir, patch_size)
     elif function_type == 'artefact_annotations':
         print("Binarizing and Patching Artefacts", filename)
-        artefact_annotations(filename, source_dir, output_patches_dir, patch_size)
+        artefact_annotations(filename, source_dir, patch_dir, patch_size)
     else:
         print("Unknown function_type")
