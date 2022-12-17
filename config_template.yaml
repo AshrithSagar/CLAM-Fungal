@@ -5,11 +5,11 @@ patch_creator:
     source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/original/
 
     # Path to folder for storing the patches
-    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/artefacts_annotated/
+    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
        
     # Variation of the patching that's to be performed
     # ['tile', 'tile_annotations', 'artefact_annotations']
-    function_type: 'artefact_annotations'
+    function_type: 'tile_annotations'
 
     # Thresholds to consider
     thresholds:
