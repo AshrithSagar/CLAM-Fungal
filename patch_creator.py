@@ -104,7 +104,7 @@ def tile_annotations(filename, dir_in, dir_out, d):
 
     bin_scores = []
     for score in patch_scores:
-        bin_score = (score > thresholds['patch_positive']) ? 1 : 0
+        bin_score = (score > thresholds['patch_positive']) if 1 else 0
         bin_scores.append(bin_score)
 
     save_path = os.path.join(dir_out, name+".pkl")
