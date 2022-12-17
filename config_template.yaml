@@ -15,6 +15,7 @@ patch_creator:
     thresholds:
         'annotations': 254  # For the annotated images
         'artefacts': 50  # For artefacts in all images
+        'patch_positive': 10000  # For positive label
 
     # patch_size is taken as a square
     patch_size: 256

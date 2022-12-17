@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 from itertools import product
 import matplotlib.pyplot as plt
+from utils.file_utils import save_pkl, load_pkl
 
 from sklearn.datasets import load_sample_image
 from sklearn.feature_extraction import image
@@ -15,7 +16,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Patchify images')
     parser.add_argument('-c', '--config', type = str,
                         help='Path to the config file')
-    
+
     parser.add_argument('--source_dir', type = str,
                         help='Path to folder containing the image files')
     parser.add_argument('--patch_dir', type = str,
@@ -100,6 +101,17 @@ def tile_annotations(filename, dir_in, dir_out, d):
         img_patch.save(out)  # Save patch image
 
     print("P", patch_scores)
+
+    bin_scores = []
+    for score in patch_scores:
+        bin_score = (score > thresholds['patch_positive']) ? 1 : 0
+        bin_scores.append(bin_score)
+
+    save_object = {
+        "patch_scores": patch_scores,
+        "bin_scores": bin_scores
+    }
+    save_pkl(name+".pkl", save_object)
 
 
 def artefact_annotations(filename, dir_in, dir_out, d):
