@@ -107,11 +107,12 @@ def tile_annotations(filename, dir_in, dir_out, d):
         bin_score = (score > thresholds['patch_positive']) ? 1 : 0
         bin_scores.append(bin_score)
 
+    save_path = os.path.join(dir_out, name+".pkl")
     save_object = {
         "patch_scores": patch_scores,
         "bin_scores": bin_scores
     }
-    save_pkl(name+".pkl", save_object)
+    save_pkl(save_path, save_object)
 
 
 def artefact_annotations(filename, dir_in, dir_out, d):
