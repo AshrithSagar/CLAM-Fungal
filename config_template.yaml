@@ -35,6 +35,7 @@ dataset_csv_creator:
     filename : "dataset_csv/fungal_vs_nonfungal.csv"
     patch_dir : "image_sets/patches/"
     feat_dir : "fungal_vs_nonfungal_resnet_features"
+    annotated_dir: "image_sets/annotated/"
 
 
 splits_creator:

@@ -37,22 +37,19 @@ with open(filename, 'w') as file:
     file.write('case_id,slide_id,label,annotated' + '\n')
 
     patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
-    annotated_folders = os.listdir(annotated_dir)
+    annotated_folders = [os.path.splitext(file)[0] for file in os.listdir(annotated_dir)]
 
     for i, name in enumerate(patch_folders):
         name = name.split("/")[-1]
         if name != feat_dir:
             if name[0] == "F":
                 f_nf = "fungal"
+                annotated = True if name in annotated_folders else False
             elif name[0] == "N":
                 f_nf = "nonfungal"
+                annotated = True
             else:
                 f_nf = "unclassified"
 
-            if name not in annotated_folders:
-                annotated = False
-            else:
-                annotated = True
-
-            line = 'case_' + str(i) + ',' + name + ',' + f_nf + ',' + annotated
+            line = 'case_' + str(i) + ',' + name + ',' + f_nf + ',' + str(annotated)
             file.write('{}\n'.format(line))
