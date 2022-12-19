@@ -252,7 +252,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 			val_split = self.get_split_from_df(all_splits, 'val')
 			test_split = self.get_split_from_df(all_splits, 'test')
 
-		return train_split, [], val_split, test_split
+		return train_split, val_split, test_split
 
 	def get_list(self, ids):
 		return self.slide_data['slide_id'][ids]

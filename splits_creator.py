@@ -68,11 +68,16 @@ for lf in label_fracs:
         splits = dataset.return_splits(from_id=True)
 
         train_set = splits[0]
-        annot_num = np.round(len(train_set) * annot_frac).astype(int)
-        annot_set = random.sample(train_set, annot_num)
+        train_set_list = []
+        for i in range(n_classes):
+            for ids in train_set.slide_cls_ids[i]:
+                train_set_list.append(str(train_set.slide_data['slide_id'][ids]))
+
+        annot_num = np.round(len(train_set_list) * annot_frac).astype(int)
+        annot_set = random.sample(train_set_list, annot_num)
 
         true_annot_set = [True if (x in annot_set) else False for x in annot_set]
-        splits[1] = true_annot_set
+        splits = splits[0], true_annot_set, splits[1], splits[2]
 
         save_splits(splits, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
         # save_splits(splits, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
