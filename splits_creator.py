@@ -1,6 +1,5 @@
 import os
 import yaml
-import random
 import argparse
 import numpy as np
 from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset, save_splits
@@ -67,6 +66,6 @@ for lf in label_fracs:
         descriptor_df = dataset.test_split_gen(return_descriptor=True)
         splits = dataset.return_splits(from_id=True)
 
-        save_splits(splits, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
+        save_splits(splits, ['train', 'annot', 'val', 'test'], annot_frac, os.path.join(split_dir, 'splits_{}.csv'.format(i)))
         # save_splits(splits, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
         # descriptor_df.to_csv(os.path.join(split_dir, 'splits_{}_descriptor.csv'.format(i)))
