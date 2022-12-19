@@ -20,7 +20,7 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, filename, bo
 	splits = [split_datasets[i].slide_data['slide_id'] for i in range(len(split_datasets))]
 
 	# Add annot column
-	train_set = splits[0]
+	train_set = split_datasets[0]
 	train_set_list = []
 	for i in range(n_classes):
 		for ids in train_set.slide_cls_ids[i]:
