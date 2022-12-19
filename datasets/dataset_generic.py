@@ -17,6 +17,14 @@ from utils.utils import generate_split, nth
 def save_splits(split_datasets, column_keys, filename, boolean_style=False):
 	print(split_datasets)
 	splits = [split_datasets[i].slide_data['slide_id'] for i in range(len(split_datasets))]
+
+	# Add annot column
+	train_set_list = splits[0]
+	annot_num = np.round(len(train_set_list) * annot_frac).astype(int)
+    annot_set = random.sample(train_set_list, annot_num)
+    true_annot_set = [True if (x in annot_set) else False for x in annot_set]
+    splits.insert(1, true_annot_set)
+
 	if not boolean_style:
 		df = pd.concat(splits, ignore_index=True, axis=1)
 		df.columns = column_keys
@@ -25,7 +33,7 @@ def save_splits(split_datasets, column_keys, filename, boolean_style=False):
 		index = df.values.tolist()
 		one_hot = np.eye(len(split_datasets)).astype(bool)
 		bool_array = np.repeat(one_hot, [len(dset) for dset in split_datasets], axis=0)
-		df = pd.DataFrame(bool_array, index=index, columns = ['train', 'val', 'test'])
+		df = pd.DataFrame(bool_array, index=index, columns = ['train', 'annot', 'val', 'test'])
 
 	print(split_datasets[0].slide_data)
 	df.to_csv(filename)
