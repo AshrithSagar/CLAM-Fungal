@@ -27,7 +27,12 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, filename, bo
 			train_set_list.append(str(train_set.slide_data['slide_id'][ids]))
 	annot_num = np.round(len(train_set_list) * annot_frac).astype(int)
 	annot_set = random.sample(train_set_list, annot_num)
-	true_annot_set = pd.DataFrame([True if (x in annot_set) else False for x in annot_set])
+
+	true_annot_set = [False]*len(train_set_list)
+	for idx in range(len(true_annot_set)):
+		if annot_set[idx] in train_set_list:
+			true_annot_set[idx] = True
+	true_annot_set = pd.DataFrame(true_annot_set)
 	splits.insert(1, true_annot_set)
 
 	if not boolean_style:
