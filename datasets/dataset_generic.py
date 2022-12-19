@@ -20,7 +20,11 @@ def save_splits(split_datasets, column_keys, annot_frac, filename, boolean_style
 	splits = [split_datasets[i].slide_data['slide_id'] for i in range(len(split_datasets))]
 
 	# Add annot column
-	train_set_list = splits[0]
+	train_set = splits[0]
+    train_set_list = []
+    for i in range(n_classes):
+        for ids in train_set.slide_cls_ids[i]:
+            train_set_list.append(str(train_set.slide_data['slide_id'][ids]))
 	annot_num = np.round(len(train_set_list) * annot_frac).astype(int)
 	annot_set = random.sample(train_set_list, annot_num)
 	true_annot_set = [True if (x in annot_set) else False for x in annot_set]
