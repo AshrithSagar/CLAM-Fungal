@@ -30,7 +30,7 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, filename, bo
 
 	true_annot_set = [False]*len(train_set_list)
 	for idx in range(len(true_annot_set)):
-		if annot_set[idx] in train_set_list:
+		if train_set_list[idx] in annot_set:
 			true_annot_set[idx] = True
 	true_annot_set = pd.DataFrame(true_annot_set)
 	splits.insert(1, true_annot_set)
