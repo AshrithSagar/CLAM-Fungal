@@ -22,7 +22,7 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, annot_positi
 	# Add annot column
 	train_set = split_datasets[0]
 	train_set_list = []
-	annot_sets = []
+	annot_sets = [[], []]
 	annot_fracs = [(1-annot_positive_frac), annot_positive_frac]
 	# Only for 2 classes
 	for i in range(n_classes):
