@@ -2,10 +2,10 @@
 ---
 patch_creator:
     # Path to folder containing the image files
-    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/original/
+    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotations/original/
 
     # Path to folder for storing the patches
-    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/patches_annotated/
+    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotations/patches/
        
     # Variation of the patching that's to be performed
     # ['tile', 'tile_annotations', 'artefact_annotations']
@@ -35,7 +35,7 @@ dataset_csv_creator:
     filename : "dataset_csv/fungal_vs_nonfungal.csv"
     patch_dir : "image_sets/patches/"
     feat_dir : "fungal_vs_nonfungal_resnet_features"
-    annotated_dir: "image_sets/annotated/"
+    annotated_dir: "image_sets/annotations/original/"
 
 
 splits_creator:
