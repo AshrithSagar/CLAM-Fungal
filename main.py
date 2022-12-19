@@ -82,7 +82,8 @@ settings = {
     'exp_code': args['exp_code'],
     'bag_weight': args['bag_weight'],
     'inst_loss': args['inst_loss'],
-    'B': args['B']
+    'B': args['B'],
+    'annot_frac': args['annot_frac']
 }
 print('\nLoad Dataset')
 
