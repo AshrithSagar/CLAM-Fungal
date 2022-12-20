@@ -86,6 +86,7 @@ main:
     dropout : False
     patch_dir : "image_sets/patches/"
     dest_dir : "image_sets/splits/"
+    annotated_dir: "image_sets/annotations/patches/"
     feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
 
 

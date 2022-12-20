@@ -130,10 +130,11 @@ def train(datasets, cur, settings):
         writer = None
 
     print('\nInit train/val/test splits...', end=' ')
-    train_split, val_split, test_split = datasets
-    save_splits(datasets, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(cur)))
+    train_split, annot_split, val_split, test_split = datasets
+    save_splits(datasets, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(cur)))
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
+    print("Annotations provided on {} samples".format(len(annot_split)))
     print("Validating on {} samples".format(len(val_split)))
     print("Testing on {} samples".format(len(test_split)))
 
@@ -192,7 +193,7 @@ def train(datasets, cur, settings):
     print('Done!')
 
     print('\nInit Loaders...', end=' ')
-    train_loader = get_split_loader(train_split, training=True, testing = settings['testing'], weighted = settings['weighted_sample'])
+    train_loader = get_split_loader(train_split, annot_split=annot_split, training=True, testing = settings['testing'], weighted = settings['weighted_sample'])
     val_loader = get_split_loader(val_split,  testing = settings['testing'])
     test_loader = get_split_loader(test_split, testing = settings['testing'])
     print('Done!')
@@ -260,12 +261,12 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     inst_count = 0
 
     print('\n')
-    for batch_idx, (data, label) in enumerate(loader):
+    for batch_idx, (data, label, bool_annot, patch_annot) in enumerate(loader):
         data = data.float()
         model = model.float()
         data, label = data.to(device), label.to(device)
         # print("data.shape", data.shape)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
+        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=None, patch_annot=None, label=label, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)

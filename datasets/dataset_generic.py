@@ -31,10 +31,10 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, annot_positi
 
     for ids in train_set.slide_cls_ids[1]:
         positive_list.append(str(train_set.slide_data['slide_id'][ids]))
-        
+
     train_set_list.extend(negative_list)
     train_set_list.extend(positive_list)
-    
+
     train_set_annot = np.round(len(train_set_list) * annot_frac)
     neg_annot_num = np.round(train_set_annot * (1-annot_positive_frac)).astype(int)
     pos_annot_num = np.round(train_set_annot * annot_positive_frac).astype(int)
@@ -44,7 +44,7 @@ def save_splits(split_datasets, column_keys, n_classes, annot_frac, annot_positi
 
     annot_set.extend(neg_annot_set)
     annot_set.extend(pos_annot_set)
-    
+
 #     print("annot_set", annot_set)
 
     true_annot_set = [False]*len(train_set_list)
@@ -270,6 +270,13 @@ class Generic_WSI_Classification_Dataset(Dataset):
             else:
                 train_split = None
 
+            # if len(self.annot_ids) > 0:
+            #     annot_data = self.slide_data.loc[self.annot_ids].reset_index(drop=True)
+            #     annot_split = Generic_Split(annot_data, data_dir=self.data_dir, num_classes=self.num_classes)
+
+            # else:
+            #     annot_split = None
+
             if len(self.val_ids) > 0:
                 val_data = self.slide_data.loc[self.val_ids].reset_index(drop=True)
                 val_split = Generic_Split(val_data, data_dir=self.data_dir, num_classes=self.num_classes)
@@ -289,9 +296,11 @@ class Generic_WSI_Classification_Dataset(Dataset):
             assert csv_path
             all_splits = pd.read_csv(csv_path, dtype=self.slide_data['slide_id'].dtype)  # Without "dtype=self.slide_data['slide_id'].dtype", read_csv() will convert all-number columns to a numerical type. Even if we convert numerical columns back to objects later, we may lose zero-padding in the process; the columns must be correctly read in from the get-go. When we compare the individual train/val/test columns to self.slide_data['slide_id'] in the get_split_from_df() method, we cannot compare objects (strings) to numbers or even to incorrectly zero-padded objects/strings. An example of this breaking is shown in https://github.com/andrew-weisman/clam_analysis/tree/main/datatype_comparison_bug-2021-12-01.
             train_split = self.get_split_from_df(all_splits, 'train')
+            # annot_split = self.get_split_from_df(all_splits, 'annot')
             val_split = self.get_split_from_df(all_splits, 'val')
             test_split = self.get_split_from_df(all_splits, 'test')
 
+        # return train_split, annot_split, val_split, test_split
         return train_split, val_split, test_split
 
     def get_list(self, ids):
@@ -371,6 +380,9 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
+        # if self.slide_data['bool_annot']:
+        #     bool_annot = self.slide_data['bool_annot'][idx]
+        #     patch_annot = self.slide_data['patch_annot'][idx]
         if type(self.data_dir) == dict:
             source = self.slide_data['source'][idx]
             data_dir = self.data_dir[source]
@@ -381,9 +393,17 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
             if self.data_dir:
                 full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
                 features = torch.load(full_path)
+                # if self.slide_data['bool_annot']:
+                #     return features, label, bool_annot, patch_annot
+                # else:
+                #     return features, label
                 return features, label
 
             else:
+                # if self.slide_data['bool_annot']:
+                #     return slide_id, label, bool_annot, patch_annot
+                # else:
+                #     return slide_id, label
                 return slide_id, label
 
         else:
