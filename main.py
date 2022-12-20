@@ -82,8 +82,7 @@ settings = {
     'exp_code': args['exp_code'],
     'bag_weight': args['bag_weight'],
     'inst_loss': args['inst_loss'],
-    'B': args['B'],
-    'annot_frac': args['annot_frac']
+    'B': args['B']
 }
 print('\nLoad Dataset')
 
@@ -108,7 +107,7 @@ if args['task'] == 'task_fungal_vs_nonfungal':
     settings.update({'n_classes': args['n_classes']})
     dataset = Generic_MIL_Dataset(csv_path='dataset_csv/fungal_vs_nonfungal.csv',
                                   data_dir=os.path.join(
-                                      args['data_root_dir'], 'fungal_vs_nonfungal_resnet_features'),
+                                      args['data_root_dir'], 'fungal_vs_nonfungal_resnet_features'),  # Feature path
                                   shuffle=False,
                                   seed=args['seed'],
                                   print_info=True,

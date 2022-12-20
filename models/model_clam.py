@@ -10,7 +10,7 @@ args:
     L: input feature dimension
     D: hidden layer dimension
     dropout: whether to use dropout (p = 0.25)
-    n_classes: number of classes 
+    n_classes: number of classes
 """
 class Attn_Net(nn.Module):
 
@@ -24,9 +24,9 @@ class Attn_Net(nn.Module):
             self.module.append(nn.Dropout(0.25))
 
         self.module.append(nn.Linear(D, n_classes))
-        
+
         self.module = nn.Sequential(*self.module)
-    
+
     def forward(self, x):
         return self.module(x), x # N x n_classes
 
@@ -36,7 +36,7 @@ args:
     L: input feature dimension
     D: hidden layer dimension
     dropout: whether to use dropout (p = 0.25)
-    n_classes: number of classes 
+    n_classes: number of classes
 """
 class Attn_Net_Gated(nn.Module):
     def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
@@ -44,7 +44,7 @@ class Attn_Net_Gated(nn.Module):
         self.attention_a = [
             nn.Linear(L, D),
             nn.Tanh()]
-        
+
         self.attention_b = [nn.Linear(L, D),
                             nn.Sigmoid()]
         if dropout:
@@ -53,7 +53,7 @@ class Attn_Net_Gated(nn.Module):
 
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
-        
+
         self.attention_c = nn.Linear(D, n_classes)
 
     def forward(self, x):
@@ -70,7 +70,7 @@ args:
     dropout: whether to use dropout
     k_sample: number of positive/neg patches to sample for instance-level training
     dropout: whether to use dropout (p = 0.25)
-    n_classes: number of classes 
+    n_classes: number of classes
     instance_loss_fn: loss function to supervise instance-level training
     subtyping: whether it's a subtyping problem
 """
@@ -104,33 +104,44 @@ class CLAM_SB(nn.Module):
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
         self.instance_classifiers = self.instance_classifiers.to(device)
-    
+
     @staticmethod
     def create_positive_targets(length, device):
         return torch.full((length, ), 1, device=device).long()
     @staticmethod
     def create_negative_targets(length, device):
         return torch.full((length, ), 0, device=device).long()
-    
+
     #instance-level evaluation for in-the-class attention branch
-    def inst_eval(self, A, h, classifier): 
+    def inst_eval(self, A, h, classifier, bool_annot, patch_annot):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
+
+        # Get instance
         top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
-        top_p = torch.index_select(h, dim=0, index=top_p_ids)
         top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
+        top_p = torch.index_select(h, dim=0, index=top_p_ids)
         top_n = torch.index_select(h, dim=0, index=top_n_ids)
-        p_targets = self.create_positive_targets(self.k_sample, device)
-        n_targets = self.create_negative_targets(self.k_sample, device)
+        all_instances = torch.cat([top_p, top_n], dim=0)
+
+        logits = classifier(all_instances)
+        logits = logits.view(2*self.k_sample, 2)  # Shape is [24, 2]; B=12
+
+        all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
+
+        # Get target labels
+        if bool_annot:
+            p_targets = torch.index_select(patch_annot, dim=0, index=top_p_ids).long()
+            n_targets = torch.index_select(patch_annot, dim=0, index=top_n_ids).long()
+        else:
+            p_targets = self.create_positive_targets(self.k_sample, device)
+            n_targets = self.create_negative_targets(self.k_sample, device)
 
         all_targets = torch.cat([p_targets, n_targets], dim=0)
-        all_instances = torch.cat([top_p, top_n], dim=0)
-        logits = classifier(all_instances)
-        all_preds = torch.topk(logits.view(2*self.k_sample, 2), 1, dim = 1)[1].squeeze(1)
-        instance_loss = self.instance_loss_fn(logits.view(2*self.k_sample, 2), all_targets)
+        instance_loss = self.instance_loss_fn(logits, all_targets)
         return instance_loss, all_preds, all_targets
-    
+
     #instance-level evaluation for out-of-the-class attention branch
     def inst_eval_out(self, A, h, classifier):
         device=h.device
@@ -169,7 +180,7 @@ class CLAM_SB(nn.Module):
 #                 print("inst_label", inst_label)
                 classifier = self.instance_classifiers[i]
                 if inst_label == 1: #in-the-class:
-                    instance_loss, preds, targets = self.inst_eval(A, h, classifier)
+                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot)
 #                     print("1, preds", preds.shape)
 #                     print("1, targets", targets.shape)
                     all_preds.extend(preds.cpu().numpy())
@@ -191,8 +202,8 @@ class CLAM_SB(nn.Module):
 
             if self.subtyping:
                 total_inst_loss /= len(self.instance_classifiers)
-        
-        M = torch.mm(A.view(1, 24), h.view(24, 512)) 
+
+        M = torch.mm(A.view(1, 24), h.view(24, 512))
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
 #         print("logits", logits)
@@ -208,7 +219,7 @@ class CLAM_SB(nn.Module):
 #         print("Y_prob.shape", Y_prob.shape)
 #         print("Y_prob", logits)
         if instance_eval:
-            results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
+            results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets),
             'inst_preds': np.array(all_preds)}
         else:
             results_dict = {}
@@ -244,7 +255,7 @@ class CLAM_MB(CLAM_SB):
 
     def forward(self, h, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
-        A, h = self.attention_net(h)  # NxK        
+        A, h = self.attention_net(h)  # NxK
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
@@ -282,7 +293,7 @@ class CLAM_MB(CLAM_SB):
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
         Y_prob = F.softmax(logits, dim = 1)
         if instance_eval:
-            results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets), 
+            results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets),
             'inst_preds': np.array(all_preds)}
         else:
             results_dict = {}
