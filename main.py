@@ -109,7 +109,7 @@ if args['task'] == 'task_fungal_vs_nonfungal':
     dataset = Generic_MIL_Dataset(csv_path='dataset_csv/fungal_vs_nonfungal.csv',
                                   data_dir=os.path.join(
                                       args['data_root_dir'], 'fungal_vs_nonfungal_resnet_features'),  # Feature path
-                                  # annotated_dir=args['annotated_dir'],
+                                  annotated_dir=args['annotated_dir'],
                                   shuffle=False,
                                   seed=args['seed'],
                                   print_info=True,
@@ -171,10 +171,10 @@ all_val_acc = []
 folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
-    train_dataset, annot_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
-            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i))
+    train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
+            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i), annot_dir=args['annotated_dir'])
 
-    datasets = (train_dataset, annot_dataset, val_dataset, test_dataset)
+    datasets = (train_dataset, val_dataset, test_dataset)
 
     results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, settings)
     all_test_auc.append(test_auc)

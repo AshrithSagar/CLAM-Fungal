@@ -258,14 +258,30 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
         return split
 
+    def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot']):
+        overlap_split = []
+        for split_key in split_keys:
+            split = all_splits[split_key]
+            split = split.dropna().reset_index(drop=True).tolist()
+            overlap_split.extend(split)
 
-    def return_splits(self, from_id=True, csv_path=None):
+        if len(split) > 0:
+            mask = self.slide_data['slide_id'].isin(overlap_split)
+            df_slice = self.slide_data[mask].reset_index(drop=True)
+            split = Generic_Split(df_slice, data_dir=self.data_dir, num_classes=self.num_classes)
+        else:
+            split = None
+
+        return split
+
+
+    def return_splits(self, from_id=True, csv_path=None, annot_dir=None):
 
 
         if from_id:
             if len(self.train_ids) > 0:
                 train_data = self.slide_data.loc[self.train_ids].reset_index(drop=True)
-                train_split = Generic_Split(train_data, data_dir=self.data_dir, num_classes=self.num_classes)
+                train_split = Generic_Split(train_data, annot_dir=self.annot_dir, data_dir=self.data_dir, num_classes=self.num_classes)
 
             else:
                 train_split = None
@@ -295,8 +311,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
         else:
             assert csv_path
             all_splits = pd.read_csv(csv_path, dtype=self.slide_data['slide_id'].dtype)  # Without "dtype=self.slide_data['slide_id'].dtype", read_csv() will convert all-number columns to a numerical type. Even if we convert numerical columns back to objects later, we may lose zero-padding in the process; the columns must be correctly read in from the get-go. When we compare the individual train/val/test columns to self.slide_data['slide_id'] in the get_split_from_df() method, we cannot compare objects (strings) to numbers or even to incorrectly zero-padded objects/strings. An example of this breaking is shown in https://github.com/andrew-weisman/clam_analysis/tree/main/datatype_comparison_bug-2021-12-01.
-            train_split = self.get_split_from_df(all_splits, 'train')
-            # annot_split = self.get_split_from_df(all_splits, 'annot')
+            # train_split = self.get_split_from_df(all_splits, 'train')
+            train_split = self.get_overlap_split_from_df(all_splits, ['train', 'annot'])
             val_split = self.get_split_from_df(all_splits, 'val')
             test_split = self.get_split_from_df(all_splits, 'test')
 
@@ -368,10 +384,12 @@ class Generic_WSI_Classification_Dataset(Dataset):
 class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __init__(self,
         data_dir,
+        annot_dir,
         **kwargs):
 
         super(Generic_MIL_Dataset, self).__init__(**kwargs)
         self.data_dir = data_dir
+        self.annot_dir = annot_dir
         self.use_h5 = False
 
     def load_from_h5(self, toggle):
@@ -417,10 +435,11 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
 
 
 class Generic_Split(Generic_MIL_Dataset):
-    def __init__(self, slide_data, data_dir=None, num_classes=2):
+    def __init__(self, slide_data, annot_dir=None, data_dir=None, num_classes=2):
         self.use_h5 = False
         self.slide_data = slide_data
         self.data_dir = data_dir
+        self.annot_dir = annot_dir
         self.num_classes = num_classes
         self.slide_cls_ids = [[] for i in range(self.num_classes)]
         for i in range(self.num_classes):

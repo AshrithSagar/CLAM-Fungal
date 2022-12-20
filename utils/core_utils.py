@@ -266,7 +266,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         model = model.float()
         data, label = data.to(device), label.to(device)
         # print("data.shape", data.shape)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=None, patch_annot=None, label=label, instance_eval=True)
+        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=bool_annot, patch_annot=patch_annot, label=label, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)
