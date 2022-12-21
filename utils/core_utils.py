@@ -130,11 +130,10 @@ def train(datasets, cur, settings):
         writer = None
 
     print('\nInit train/val/test splits...', end=' ')
-    train_split, annot_split, val_split, test_split = datasets
-    save_splits(datasets, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(cur)))
+    train_split, val_split, test_split = datasets
+    save_splits(datasets, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(cur)))
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
-    print("Annotations provided on {} samples".format(len(annot_split)))
     print("Validating on {} samples".format(len(val_split)))
     print("Testing on {} samples".format(len(test_split)))
 
@@ -193,7 +192,7 @@ def train(datasets, cur, settings):
     print('Done!')
 
     print('\nInit Loaders...', end=' ')
-    train_loader = get_split_loader(train_split, annot_split=annot_split, training=True, testing = settings['testing'], weighted = settings['weighted_sample'])
+    train_loader = get_split_loader(train_split, training=True, testing = settings['testing'], weighted = settings['weighted_sample'])
     val_loader = get_split_loader(val_split,  testing = settings['testing'])
     test_loader = get_split_loader(test_split, testing = settings['testing'])
     print('Done!')
@@ -256,8 +255,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     inst_logger = Accuracy_Logger(n_classes=n_classes)
 
     train_loss = 0.
-    train_error = 0.
-    train_inst_loss = 0.
+    train_error = 0
+.    train_inst_loss = 0.
     inst_count = 0
 
     print('\n')

@@ -172,7 +172,7 @@ folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
-            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i), annot_dir=args['annotated_dir'])
+            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i))
 
     datasets = (train_dataset, val_dataset, test_dataset)
 

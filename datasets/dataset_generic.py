@@ -259,16 +259,13 @@ class Generic_WSI_Classification_Dataset(Dataset):
         return split
 
     def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot']):
-        overlap_split = []
-        for split_key in split_keys:
-            split = all_splits[split_key]
-            split = split.dropna().reset_index(drop=True).tolist()
-            overlap_split.extend(split)
+        train_split = all_splits['train']
+        annot_split = all_splits['annot']
 
         if len(split) > 0:
-            mask = self.slide_data['slide_id'].isin(overlap_split)
+            mask = self.slide_data['slide_id'].isin(train_split)
             df_slice = self.slide_data[mask].reset_index(drop=True)
-            split = Generic_Split(df_slice, data_dir=self.data_dir, num_classes=self.num_classes)
+            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
         else:
             split = None
 
@@ -384,7 +381,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __init__(self,
         data_dir,
-        annot_dir,
+        annot_dir=None,
         **kwargs):
 
         super(Generic_MIL_Dataset, self).__init__(**kwargs)
