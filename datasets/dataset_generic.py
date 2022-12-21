@@ -16,7 +16,7 @@ import h5py
 
 from utils.utils import generate_split, nth
 
-def save_splits(split_datasets, column_keys, n_classes, annot_frac, annot_positive_frac, filename, boolean_style=False):
+def save_splits(split_datasets, column_keys, filename, annot_frac=None, annot_positive_frac=None, boolean_style=False):
     print(split_datasets)
     splits = [split_datasets[i].slide_data['slide_id'] for i in range(len(split_datasets))]
 
