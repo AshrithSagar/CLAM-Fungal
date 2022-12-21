@@ -9,6 +9,7 @@ import pdb
 import pickle
 import random
 from scipy import stats
+from utils.file_utils import load_pkl
 
 from torch.utils.data import Dataset
 import h5py
@@ -100,6 +101,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
         self.patient_strat = patient_strat
         self.train_ids, self.val_ids, self.test_ids  = (None, None, None)
         self.data_dir = None
+        self.annot_dir = None
         if not label_col:
             label_col = 'label'
         self.label_col = label_col
@@ -236,7 +238,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
         if len(split) > 0:
             mask = self.slide_data['slide_id'].isin(split.tolist())
             df_slice = self.slide_data[mask].reset_index(drop=True)
-            split = Generic_Split(df_slice, data_dir=self.data_dir, num_classes=self.num_classes)
+            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
         else:
             split = None
 
@@ -258,21 +260,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
         return split
 
-    def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot']):
-        train_split = all_splits['train']
-        annot_split = all_splits['annot']
 
-        if len(split) > 0:
-            mask = self.slide_data['slide_id'].isin(train_split)
-            df_slice = self.slide_data[mask].reset_index(drop=True)
-            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
-        else:
-            split = None
-
-        return split
-
-
-    def return_splits(self, from_id=True, csv_path=None, annot_dir=None):
+    def return_splits(self, from_id=True, csv_path=None):
 
 
         if from_id:
@@ -282,13 +271,6 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
             else:
                 train_split = None
-
-            # if len(self.annot_ids) > 0:
-            #     annot_data = self.slide_data.loc[self.annot_ids].reset_index(drop=True)
-            #     annot_split = Generic_Split(annot_data, data_dir=self.data_dir, num_classes=self.num_classes)
-
-            # else:
-            #     annot_split = None
 
             if len(self.val_ids) > 0:
                 val_data = self.slide_data.loc[self.val_ids].reset_index(drop=True)
@@ -308,12 +290,10 @@ class Generic_WSI_Classification_Dataset(Dataset):
         else:
             assert csv_path
             all_splits = pd.read_csv(csv_path, dtype=self.slide_data['slide_id'].dtype)  # Without "dtype=self.slide_data['slide_id'].dtype", read_csv() will convert all-number columns to a numerical type. Even if we convert numerical columns back to objects later, we may lose zero-padding in the process; the columns must be correctly read in from the get-go. When we compare the individual train/val/test columns to self.slide_data['slide_id'] in the get_split_from_df() method, we cannot compare objects (strings) to numbers or even to incorrectly zero-padded objects/strings. An example of this breaking is shown in https://github.com/andrew-weisman/clam_analysis/tree/main/datatype_comparison_bug-2021-12-01.
-            # train_split = self.get_split_from_df(all_splits, 'train')
-            train_split = self.get_overlap_split_from_df(all_splits, ['train', 'annot'])
+            train_split = self.get_split_from_df(all_splits, 'train')
             val_split = self.get_split_from_df(all_splits, 'val')
             test_split = self.get_split_from_df(all_splits, 'test')
 
-        # return train_split, annot_split, val_split, test_split
         return train_split, val_split, test_split
 
     def get_list(self, ids):
@@ -395,9 +375,11 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
-        # if self.slide_data['bool_annot']:
-        #     bool_annot = self.slide_data['bool_annot'][idx]
-        #     patch_annot = self.slide_data['patch_annot'][idx]
+        if self.slide_data['annot']:
+            bool_annot = self.slide_data['annot'][idx]
+            patch_annot_path = os.path.join(annot_dir, slide_id, slide_id+'.pkl')
+            patch_annot = load_pkl(patch_annot_path)
+
         if type(self.data_dir) == dict:
             source = self.slide_data['source'][idx]
             data_dir = self.data_dir[source]
@@ -408,17 +390,17 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
             if self.data_dir:
                 full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
                 features = torch.load(full_path)
-                # if self.slide_data['bool_annot']:
-                #     return features, label, bool_annot, patch_annot
-                # else:
-                #     return features, label
-                return features, label
+                if bool_annot:
+                    return features, label, bool_annot, patch_annot
+                else:
+                    return features, label, None, None
+                # return features, label
 
             else:
-                # if self.slide_data['bool_annot']:
+                # if bool_annot:
                 #     return slide_id, label, bool_annot, patch_annot
                 # else:
-                #     return slide_id, label
+                #     return slide_id, label, None, None
                 return slide_id, label
 
         else:
@@ -444,6 +426,3 @@ class Generic_Split(Generic_MIL_Dataset):
 
     def __len__(self):
         return len(self.slide_data)
-
-
-
