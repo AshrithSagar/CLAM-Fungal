@@ -260,6 +260,23 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
         return split
 
+    def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot']):
+        train_split = all_splits['train']
+        annot_split = all_splits['annot']
+
+        if len(split) > 0:
+            mask = self.slide_data['slide_id'].isin(train_split)
+            df_slice = self.slide_data[mask].reset_index(drop=True)
+
+            mask = train_split.isin(df_slice['slide_id'].tolist())
+            df_slice['annot'] = annot_split[mask]
+
+            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
+        else:
+            split = None
+
+        return split
+
 
     def return_splits(self, from_id=True, csv_path=None):
 
@@ -290,7 +307,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
         else:
             assert csv_path
             all_splits = pd.read_csv(csv_path, dtype=self.slide_data['slide_id'].dtype)  # Without "dtype=self.slide_data['slide_id'].dtype", read_csv() will convert all-number columns to a numerical type. Even if we convert numerical columns back to objects later, we may lose zero-padding in the process; the columns must be correctly read in from the get-go. When we compare the individual train/val/test columns to self.slide_data['slide_id'] in the get_split_from_df() method, we cannot compare objects (strings) to numbers or even to incorrectly zero-padded objects/strings. An example of this breaking is shown in https://github.com/andrew-weisman/clam_analysis/tree/main/datatype_comparison_bug-2021-12-01.
-            train_split = self.get_split_from_df(all_splits, 'train')
+            # train_split = self.get_split_from_df(all_splits, 'train')
+            train_split = self.get_overlap_split_from_df(all_splits, ['train', 'annot'])
             val_split = self.get_split_from_df(all_splits, 'val')
             test_split = self.get_split_from_df(all_splits, 'test')
 
@@ -375,7 +393,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
-        if self.slide_data['annot']:
+        if self.slide_data['annot'][idx]:
             bool_annot = self.slide_data['annot'][idx]
             patch_annot_path = os.path.join(annot_dir, slide_id, slide_id+'.pkl')
             patch_annot = load_pkl(patch_annot_path)
