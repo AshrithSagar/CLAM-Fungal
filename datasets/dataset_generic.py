@@ -264,7 +264,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
         train_split = all_splits['train']
         annot_split = all_splits['annot']
 
-        if len(split) > 0:
+        if len(train_split) > 0:
             mask = self.slide_data['slide_id'].isin(train_split)
             df_slice = self.slide_data[mask].reset_index(drop=True)
 
