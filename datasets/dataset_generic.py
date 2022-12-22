@@ -394,7 +394,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
         if self.slide_data['annot'][idx]:
-            bool_annot = self.slide_data['annot'][idx]
+            bool_annot = bool(self.slide_data['annot'][idx])
             if label == 1:
                 patch_annot_path = os.path.join(self.annot_dir, slide_id, slide_id+'.pkl')
                 patch_annot = load_pkl(patch_annot_path)
