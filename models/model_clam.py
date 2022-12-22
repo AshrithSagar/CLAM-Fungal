@@ -139,8 +139,8 @@ class CLAM_SB(nn.Module):
             n_targets = self.create_negative_targets(self.k_sample, device)
 
         all_targets = torch.cat([p_targets, n_targets], dim=0)
-        print("logits", logits.shape)
-        print("all_targets", all_targets.shape)
+#         print("logits", logits.shape)
+#         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
         return instance_loss, all_preds, all_targets
 
