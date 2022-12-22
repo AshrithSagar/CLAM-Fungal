@@ -89,6 +89,10 @@ main:
     annot_dir: "image_sets/annotations/patches/"
     feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
 
+    T1: 50
+    T2: 150
+    af: 1.0
+
 
 heatmaps_creator:
     drop_out : False

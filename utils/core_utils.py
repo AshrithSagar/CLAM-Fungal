@@ -207,7 +207,7 @@ def train(datasets, cur, settings):
 
     for epoch in range(settings['max_epochs']):
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
-            train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'], settings['bag_weight'], writer, loss_fn)
+            train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'], settings['bag_weight'], writer, loss_fn, weight_alpha=alpha_weight(epoch, settings['T1'], settings['T2'], settings['af']))
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
                 early_stopping, writer, loss_fn, settings['results_dir'])
 
@@ -248,7 +248,7 @@ def train(datasets, cur, settings):
     return results_dict, test_auc, val_auc, 1-test_error, 1-val_error
 
 
-def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None):
+def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, weight_alpha=None, writer = None, loss_fn = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -266,7 +266,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         data, label = data.to(device), label.to(device)
         bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
         # print("data.shape", data.shape)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=bool_annot, patch_annot=patch_annot, label=label, instance_eval=True)
+        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=bool_annot, patch_annot=patch_annot, label=label, weight_alpha=weight_alpha, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)
@@ -571,3 +571,11 @@ def summary(model, loader, n_classes):
 
 
     return patient_results, test_error, auc, acc_logger
+
+def alpha_weight(epoch, T1, T2, af):
+    if epoch < T1:
+        return 0.0
+    elif epoch > T2:
+        return af
+    else:
+         return ((epoch-T1) / (T2-T1))*af

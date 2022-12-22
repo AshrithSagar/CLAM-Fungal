@@ -83,7 +83,10 @@ settings = {
     'bag_weight': args['bag_weight'],
     'inst_loss': args['inst_loss'],
     'B': args['B'],
-    'annot_dir': args['annot_dir']
+    'annot_dir': args['annot_dir'],
+    'T1': args['T1'],
+    'T2': args['T2'],
+    'af': args['af']
 }
 print('\nLoad Dataset')
 
