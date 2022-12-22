@@ -270,8 +270,6 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
             mask = train_split.isin(df_slice['slide_id'].tolist())
             df_slice['annot'] = annot_split[mask]
-            
-            print("df slice", df_slice)
 
             split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
         else:
@@ -395,14 +393,14 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
-#         if self.slide_data['annot'].any():
-#             bool_annot = self.slide_data['annot'][idx]
-#             if label == 1:
-#                 patch_annot_path = os.path.join(self.annot_dir, slide_id, slide_id+'.pkl')
-#                 patch_annot = load_pkl(patch_annot_path)
-#                 patch_annot = patch_annot['bin_scores']
-#             elif label == 0:
-#                 patch_annot = [False]*24
+        if self.slide_data['annot'][idx]:
+            bool_annot = self.slide_data['annot'][idx]
+            if label == 1:
+                patch_annot_path = os.path.join(self.annot_dir, slide_id, slide_id+'.pkl')
+                patch_annot = load_pkl(patch_annot_path)
+                patch_annot = patch_annot['bin_scores']
+            elif label == 0:
+                patch_annot = [False]*24
 
         if type(self.data_dir) == dict:
             source = self.slide_data['source'][idx]
@@ -414,11 +412,12 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
             if self.data_dir:
                 full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
                 features = torch.load(full_path)
-#                 if bool_annot:
-#                     return features, label
-#                 else:
-#                     return features, label
-                return features, label
+                print(bool_annot, patch_annot)
+                if bool_annot:
+                    return features, label, bool_annot, patch_annot
+                else:
+                    return features, label, None, None
+                # return features, label
 
             else:
                 # if bool_annot:
