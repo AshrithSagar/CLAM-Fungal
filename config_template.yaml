@@ -79,10 +79,10 @@ main:
 #     inst_loss : None
     inst_loss : 'svm'
     subtyping : False
-    bag_weight : 0.7
+    bag_weight : 0.5
     B : 12
 
-    exp_code : "exp_19"
+    exp_code : "exp_20"
     dropout : True
     patch_dir : "image_sets/patches/"
     dest_dir : "image_sets/splits/"
@@ -97,11 +97,7 @@ main:
 heatmaps_creator:
     drop_out : False
     n_classes : 2
-<<<<<<< HEAD
     splits : [3]
-=======
-    splits : [0, 1, 2, 3, 4]
->>>>>>> f6387797bbc065d1aaec6af532d91ef4272c53b3
     model_type : "clam_sb"
     model_size : 'small'
     exp_code : "exp_17_s1"
@@ -119,11 +115,7 @@ heatmaps_creator:
 draw_heatmaps:
     drop_out : False
     n_classes : 2
-<<<<<<< HEAD
     splits : [3]
-=======
-    splits : [0, 1, 2, 3, 4]
->>>>>>> f6387797bbc065d1aaec6af532d91ef4272c53b3
     model_type : "clam_sb"
     model_size : 'small'
     exp_code : "exp_17_s1"

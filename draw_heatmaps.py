@@ -96,17 +96,12 @@ for split in splits:
             y = 256 * coords_list[0][1][index].item() # Top left corner
         #     print("Score, x, y:", score, x, y)
         #     print(x, y, x+patch_size[0], y+patch_size[1])
-            
-            if block > 0.5 * max(percentiles):
-                block_score = percentiles[index]
-            else:
-                block_score = scores[index]
 
             raw_block = np.ones([256, 256])
             color_block = cmap(raw_block*block_score)[:,:,:3]
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
             
-            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 2))+"\n"+str(round(scores[index], 2)), fontsize='x-small')
+            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
         heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
