@@ -97,10 +97,10 @@ main:
 heatmaps_creator:
     drop_out : False
     n_classes : 2
-    splits : [1, 3]
+    splits : [3]
     model_type : "clam_sb"
     model_size : 'small'
-    exp_code : "exp_10_s1"
+    exp_code : "exp_17_s1"
     results_dir : "image_sets/results"
 
     data_dir : "image_sets/original/"
@@ -115,11 +115,11 @@ heatmaps_creator:
 draw_heatmaps:
     drop_out : False
     n_classes : 2
-    splits : [1]
+    splits : [3]
     model_type : "clam_sb"
     model_size : 'small'
-    exp_code : "exp_10_s1"
-    results_dir : "image_sets/results_2"
+    exp_code : "exp_17_s1"
+    results_dir : "image_sets/results"
 
     data_dir : "image_sets/original/"
     image_ext : ".tif"

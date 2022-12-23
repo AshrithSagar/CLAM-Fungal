@@ -91,31 +91,41 @@ for split in splits:
 
         heatmap_mask = np.zeros([1024, 1536, 3])
 
-        for index, score in enumerate(percentiles):
+        for index, block in enumerate(percentiles):
             x = 256 * coords_list[0][0][index].item() # Top left corner
             y = 256 * coords_list[0][1][index].item() # Top left corner
         #     print("Score, x, y:", score, x, y)
         #     print(x, y, x+patch_size[0], y+patch_size[1])
-
-            raw_block = np.ones([256, 256])
-            color_block = (cmap(raw_block*score) * 255)[:,:,:3].astype(np.uint8)
-            heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()/255
             
-            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(score, 2))+"\n"+str(round(scores[index], 2)), fontsize='x-small')
+            if block > 0.5 * max(percentiles):
+                block_score = percentiles[index]
+            else:
+                block_score = scores[index]
+    
+            raw_block = np.ones([256, 256])
+            color_block = cmap(raw_block*block_score)[:,:,:3]
+            heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
+            
+            plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 2))+"\n"+str(round(scores[index], 2)), fontsize='x-small')
 
         heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
         img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
 
         orig_img = orig_img.astype(np.float32)
-        orig_img /= 255
+        orig_img /= 255.0
 
-        alpha = 1
-        beta = 0.4
+        alpha = 0.75
+        beta = 0.25
         gamma = 0.0
+        eps = 1e-8
 
         img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
-        
+        # From GradCAM
+        numer = img_heatmap - np.min(img_heatmap)
+        denom = (img_heatmap.max() - img_heatmap.min()) + eps
+        img_heatmap = numer / denom
+
         plt.imshow(img_heatmap)
         plt.savefig(img_heatmap_filename)
         print("Saved", img_heatmap_filename)
