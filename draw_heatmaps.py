@@ -101,7 +101,7 @@ for split in splits:
                 block_score = percentiles[index]
             else:
                 block_score = scores[index]
-    
+
             raw_block = np.ones([256, 256])
             color_block = cmap(raw_block*block_score)[:,:,:3]
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
