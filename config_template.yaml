@@ -47,7 +47,6 @@ splits_creator:
 
 
 main:
-    data_root_dir : "experiments/patches/"
     max_epochs : 200
     lr : !!float 1e-4
     label_frac : 1.0

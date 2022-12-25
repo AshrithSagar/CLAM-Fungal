@@ -70,10 +70,12 @@ settings = {
     "use_drop_out": args['drop_out'],
     'weighted_sample': args['weighted_sample'],
     'opt': args['opt'],
-    'data_root_dir': args['data_root_dir'],
+    'patch_dir': args['patch_dir'],
+    'feat_dir': args['feat_dir'],
     'label_frac': args['label_frac'],
     'split_dir': args['split_dir'],
     'log_data': args['log_data'],
+    'dataset_csv': args['dataset_csv'],
     'testing': args['testing'],
     'early_stopping': args['early_stopping'],
     'dropout': args['dropout'],
@@ -84,6 +86,7 @@ settings = {
     'inst_loss': args['inst_loss'],
     'B': args['B'],
     'annot_dir': args['annot_dir'],
+    'alpha_weight': args['alpha_weight'],
     'T1': args['T1'],
     'T2': args['T2'],
     'af': args['af']
@@ -109,9 +112,8 @@ else:
 if args['task'] == 'task_fungal_vs_nonfungal':
     args['n_classes'] = 2
     settings.update({'n_classes': args['n_classes']})
-    dataset = Generic_MIL_Dataset(csv_path='dataset_csv/fungal_vs_nonfungal.csv',
-                                  data_dir=os.path.join(
-                                      args['data_root_dir'], 'fungal_vs_nonfungal_resnet_features'),  # Feature path
+    dataset = Generic_MIL_Dataset(csv_path=args['dataset_csv'],
+                                  data_dir=args['feat_dir'],
                                   annot_dir=args['annot_dir'],
                                   shuffle=False,
                                   seed=args['seed'],
