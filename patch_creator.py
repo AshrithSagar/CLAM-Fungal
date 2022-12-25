@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from itertools import product
 import matplotlib.pyplot as plt
-from utils.file_utils import save_pkl, load_pkl
+from modules.file_utils import save_pkl, load_pkl
 
 from sklearn.datasets import load_sample_image
 from sklearn.feature_extraction import image

@@ -3,7 +3,7 @@ import yaml
 import random
 import argparse
 import numpy as np
-from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset, save_splits
+from modules.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset, save_splits
 
 
 if __name__ == '__main__':

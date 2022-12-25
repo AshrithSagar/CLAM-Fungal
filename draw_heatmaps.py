@@ -8,10 +8,10 @@ import yaml
 import argparse
 import numpy as np
 import pickle
-from utils.utils import *
-from utils.file_utils import save_pkl, load_pkl
-from models.resnet_custom import resnet50_baseline
-from models.model_clam import CLAM_MB, CLAM_SB
+from modules.utils import *
+from modules.file_utils import save_pkl, load_pkl
+from modules.resnet_custom import resnet50_baseline
+from modules.model_clam import CLAM_MB, CLAM_SB
 from torch.utils.data import DataLoader
 from scipy.stats import percentileofscore
 import matplotlib.pyplot as plt

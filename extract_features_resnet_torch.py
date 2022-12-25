@@ -9,8 +9,8 @@ from torch.utils.data import DataLoader
 from PIL import Image
 import h5py
 
-from models.resnet_custom import resnet50_baseline
-from utils.utils import print_network, collate_features
+from modules.resnet_custom import resnet50_baseline
+from modules.utils import print_network, collate_features
 
 
 if __name__ == '__main__':
