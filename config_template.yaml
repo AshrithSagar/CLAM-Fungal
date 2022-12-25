@@ -2,14 +2,14 @@
 ---
 patch_creator:
     # Path to folder containing the image files
-    source_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotations/original/
+    source_dir: "experiments/original/"
 
     # Path to folder for storing the patches
-    patch_dir: /home/keerthanaprasad/RajithaKV/ROI_Detection/CLAM_model/CLAM_1/image_sets/annotations/patches/
+    patch_dir: experiments/patches/
 
     # Variation of the patching that's to be performed
     # ['tile', 'tile_annotations', 'artefact_annotations']
-    function_type: 'tile_annotations'
+    function_type: 'tile'
 
     # Thresholds to consider
     thresholds:
@@ -22,20 +22,17 @@ patch_creator:
 
 extract_features_resnet_torch:
     # Path to folder containing the image folders of patches
-    patch_dir: "image_sets/patches/"
+    patch_dir: "experiments/patches/"
 
     # Path to folder for storing the feature vectors
-    feat_dir: "image_sets/features/"
-
-    # [TEMP] Path to folder for storing the feature vectors
-    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+    feat_dir: "experiments/features/"
 
 
 dataset_csv_creator:
-    filename : "dataset_csv/fungal_vs_nonfungal.csv"
-    patch_dir : "image_sets/patches/"
-    feat_dir : "fungal_vs_nonfungal_resnet_features"
-    annotated_dir: "image_sets/annotations/original/"
+    filename : "experiments/dataset_csv/_task_.csv"
+    patch_dir : "experiments/patches/"
+    feat_dir : "experiments/features/"
+    annotated_dir: "experiments/annotations/original/"
 
 
 splits_creator:
@@ -50,45 +47,43 @@ splits_creator:
 
 
 main:
-    data_root_dir : "image_sets/patches/"
+    data_root_dir : "experiments/patches/"
     max_epochs : 200
-    lr : !!float 1e-5
+    lr : !!float 1e-4
     label_frac : 1.0
     reg : !!float 1e-5
     seed : 1
     k : 5
     k_start : -1
     k_end : -1
-    results_dir : "image_sets/results"
+    results_dir : "experiments/results/"
     split_dir : "fungal_vs_nonfungal_100"
     log_data : False
     testing : False
     early_stopping : False
     opt : 'adam'
     drop_out : False
-    bag_loss : 'ce'
-#     bag_loss : 'svm'
-#     model_type : 'mil'
-    model_type : 'clam_sb'
-#     model_type : 'clam_mb'
+    bag_loss : 'ce'  # ['ce', 'svm']
+    model_type : 'clam_sb'  # ['clam_sb', 'clam_mb', 'mil']
     weighted_sample : False
     model_size : 'small'
     task : 'task_fungal_vs_nonfungal'
+
     ### CLAM specific options
     no_inst_cluster : False
-#     inst_loss : None
-    inst_loss : 'svm'
+    inst_loss : 'svm'  # ['svm', 'ce', None]
     subtyping : False
     bag_weight : 0.5
     B : 12
 
-    exp_code : "exp_24"
-    dropout : True
-    patch_dir : "image_sets/patches/"
-    dest_dir : "image_sets/splits/"
-    annot_dir: "image_sets/annotations/patches/"
-    feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/" # Not updated
+    exp_code : "exp_00"  # Experiment name
+    dropout : True  # Whether to use dropout
+    patch_dir : "experiments/patches/"
+    dest_dir : "experiments/splits/"
+    annot_dir: "experiments/annotations/patches/"
+    feat_dir : "experiments/features"
 
+    ### Alpha weight
     T1: 50
     T2: 150
     af: 1.0
@@ -97,35 +92,34 @@ main:
 heatmaps_creator:
     drop_out : False
     n_classes : 2
-    splits : [3]
+    splits : [1, 3, 5]
     model_type : "clam_sb"
     model_size : 'small'
-    exp_code : "exp_17_s1"
-    results_dir : "image_sets/results"
+    exp_code : "exp_00_s1"
+    results_dir : "experiments/results/"
 
-    data_dir : "image_sets/original/"
+    data_dir : "experiments/original/"
     image_ext : ".tif"
-    patch_dir : "image_sets/patches/"
-    feat_dir : "image_sets/features/"
-    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+    patch_dir : "experiments/patches/"
+    feat_dir : "experiments/features/"
 
-    select_image : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300, 305, 350]
+    # Only create heatmaps for selected images
+    select_image : [0, 5, 10, 15, 20, 25]
 
 
 draw_heatmaps:
     drop_out : False
     n_classes : 2
-    splits : [3]
+    splits : [1, 3, 5]
     model_type : "clam_sb"
     model_size : 'small'
-    exp_code : "exp_17_s1"
-    results_dir : "image_sets/results"
+    exp_code : "exp_00_s1"
+    results_dir : "experiments/results/"
 
-    data_dir : "image_sets/original/"
+    data_dir : "experiments/original/"
     image_ext : ".tif"
-    patch_dir : "image_sets/patches/"
-    feat_dir : "image_sets/features/"
-    actual_feat_dir : "image_sets/patches/fungal_vs_nonfungal_resnet_features/pt_files/"
+    patch_dir : "experiments/patches/"
+    feat_dir : "experiments/features/"
 
     patch_size : [256, 256]
     blur : [128, 128]
@@ -134,4 +128,6 @@ draw_heatmaps:
     gamma : 0.0
     cmap : 'coolwarm'
     threshold : 0.5
-    select_image : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 85, 90, 100, 150, 160, 170, 180, 190, 200, 250, 300, 305, 350]
+
+    # Only create heatmaps for selected images
+    select_image : [0, 5, 10, 15, 20, 25]
