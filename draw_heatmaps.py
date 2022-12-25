@@ -51,7 +51,7 @@ if __name__ == '__main__':
     cmap = args['cmap']
     threshold = args['threshold']
     select_image = args['select_image']
-    
+
 
 # ------------------------------------------------------
 for split in splits:
@@ -66,7 +66,7 @@ for split in splits:
         image_name = image_file['filename']
         attention_scores = image_file['attention_scores']
         coords_list = image_file['coords_list']
-    
+
         plt.clf()
         if isinstance(cmap, str):
             cmap = plt.get_cmap(cmap)
@@ -100,7 +100,7 @@ for split in splits:
             raw_block = np.ones([256, 256])
             color_block = cmap(raw_block*block_score)[:,:,:3]
             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
-            
+
             plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
         heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
@@ -115,7 +115,8 @@ for split in splits:
         gamma = 0.0
         eps = 1e-8
 
-        img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+        # img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+        img_heatmap = orig_img.copy()
         # From GradCAM
         numer = img_heatmap - np.min(img_heatmap)
         denom = (img_heatmap.max() - img_heatmap.min()) + eps
