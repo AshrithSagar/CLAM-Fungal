@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import pdb
 import os
 import pandas as pd
-from utils.utils import *
+from modules.utils import *
 from PIL import Image
 from math import floor
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ import h5py
 from wsi_core.WholeSlideImage import WholeSlideImage
 from scipy.stats import percentileofscore
 import math
-from utils.file_utils import save_hdf5
+from modules.file_utils import save_hdf5
 from scipy.stats import percentileofscore
 
 device=torch.device("cuda" if torch.cuda.is_available() else "cpu")

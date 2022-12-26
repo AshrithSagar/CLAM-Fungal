@@ -9,12 +9,12 @@ import pdb
 import pickle
 import random
 from scipy import stats
-from utils.file_utils import load_pkl
+from modules.file_utils import load_pkl
 
 from torch.utils.data import Dataset
 import h5py
 
-from utils.utils import generate_split, nth
+from modules.utils import generate_split, nth
 
 def save_splits(split_datasets, column_keys, filename, annot_frac=None, annot_positive_frac=None, boolean_style=False):
     print(split_datasets)
