@@ -55,6 +55,7 @@ main:
     k : 5
     k_start : -1
     k_end : -1
+    dataset_csv: "experiments/dataset_csv/fungal_vs_nonfungal.csv"
     results_dir : "experiments/results/"
     split_dir : "fungal_vs_nonfungal_100"
     log_data : False
