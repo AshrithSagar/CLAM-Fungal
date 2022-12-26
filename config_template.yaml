@@ -57,7 +57,7 @@ main:
     k_end : -1
     dataset_csv: "experiments/dataset_csv/fungal_vs_nonfungal.csv"
     results_dir : "experiments/results/"
-    split_dir : "fungal_vs_nonfungal_100"
+    split_dir : "experiments/splits/fungal_vs_nonfungal_100"
     log_data : False
     testing : False
     early_stopping : False
