@@ -84,6 +84,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
         patient_strat=False,
         label_col = None,
         patient_voting = 'max',
+        results_dir = None
         ):
         """
         Args:
@@ -117,6 +118,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
             np.random.shuffle(slide_data)
 
         self.slide_data = slide_data
+        slide_data.to_csv(os.path.join(results_dir, 'dataset_csv.csv'))
 
         self.patient_data_prep(patient_voting)
         self.cls_ids_prep()
