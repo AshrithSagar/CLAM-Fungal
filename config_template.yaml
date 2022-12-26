@@ -84,6 +84,7 @@ main:
     feat_dir : "experiments/features"
 
     ### Alpha weight
+    alpha_weight: False
     T1: 50
     T2: 150
     af: 1.0

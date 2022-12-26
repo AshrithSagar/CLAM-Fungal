@@ -22,8 +22,6 @@ if __name__ == '__main__':
         help='Path to folder containing the image folders of patches')
     parser.add_argument('--feat_dir', type = str,
         help='Path to folder for storing the feature vectors')
-    parser.add_argument('--actual_feat_dir', type = str,
-        help='[TEMP] Path to folder for storing the feature vectors')
 
     args = parser.parse_args()
     if args.config:
@@ -32,9 +30,6 @@ if __name__ == '__main__':
 
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']
-    
-    actual_feat_dir = args['actual_feat_dir']
-    feat_dir = actual_feat_dir
 
 
 # ----------------------------------------------------------------
@@ -123,8 +118,8 @@ for folder in sorted(os.listdir(patch_dir)):
     features = np.asarray(features, dtype="float32")
     features = torch.tensor(features)
 
-    print(count, " || ", coord, " || ", features, " || ", filePath)
-    print("Features size: ", features.shape)
+#     print(features, " || ", filePath)
+#     print("Features size: ", features.shape)
     torch.save(features, filePath)
 
     # Save the .hdf5
