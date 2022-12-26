@@ -16,47 +16,48 @@ import h5py
 
 from modules.utils import generate_split, nth
 
-def save_splits(split_datasets, column_keys, filename, annot_frac=None, annot_positive_frac=None, boolean_style=False):
+def save_splits(split_datasets, column_keys, filename, annot_frac=None, annot_positive_frac=None, boolean_style=False, annot_create=True):
     print(split_datasets)
     splits = [split_datasets[i].slide_data['slide_id'] for i in range(len(split_datasets))]
 
-    # Add annot column # Only for 2 classes
-    train_set = split_datasets[0]
-    train_set_list = []
-    annot_set = []
-    positive_list = []
-    negative_list = []
+    if annot_create:
+        # Add annot column # Only for 2 classes
+        train_set = split_datasets[0]
+        train_set_list = []
+        annot_set = []
+        positive_list = []
+        negative_list = []
 
-    for ids in train_set.slide_cls_ids[0]:
-        negative_list.append(str(train_set.slide_data['slide_id'][ids]))
+        for ids in train_set.slide_cls_ids[0]:
+            negative_list.append(str(train_set.slide_data['slide_id'][ids]))
 
-    for ids in train_set.slide_cls_ids[1]:
-        positive_list.append(str(train_set.slide_data['slide_id'][ids]))
+        for ids in train_set.slide_cls_ids[1]:
+            positive_list.append(str(train_set.slide_data['slide_id'][ids]))
 
-    train_set_list.extend(negative_list)
-    train_set_list.extend(positive_list)
+        train_set_list.extend(negative_list)
+        train_set_list.extend(positive_list)
 
-    train_set_annot = np.round(len(train_set_list) * annot_frac)
-    neg_annot_num = np.round(train_set_annot * (1-annot_positive_frac)).astype(int)
-    pos_annot_num = np.round(train_set_annot * annot_positive_frac).astype(int)
+        train_set_annot = np.round(len(train_set_list) * annot_frac)
+        neg_annot_num = np.round(train_set_annot * (1-annot_positive_frac)).astype(int)
+        pos_annot_num = np.round(train_set_annot * annot_positive_frac).astype(int)
 
-    neg_annot_set = random.sample(negative_list, neg_annot_num)
-    pos_annot_set = random.sample(positive_list, pos_annot_num)
+        neg_annot_set = random.sample(negative_list, neg_annot_num)
+        pos_annot_set = random.sample(positive_list, pos_annot_num)
 
-    annot_set.extend(neg_annot_set)
-    annot_set.extend(pos_annot_set)
+        annot_set.extend(neg_annot_set)
+        annot_set.extend(pos_annot_set)
 
-#     print("annot_set", annot_set)
+    #     print("annot_set", annot_set)
 
-    true_annot_set = [False]*len(train_set_list)
-    for idx in range(len(true_annot_set)):
-        if train_set_list[idx] in annot_set:
-            true_annot_set[idx] = True
-#     print("true_annot_set", true_annot_set)
-    true_annot_set = pd.DataFrame(true_annot_set)
-#     print("splits", splits)
-#     print("true_annot_set", true_annot_set)
-    splits.insert(1, true_annot_set)
+        true_annot_set = [False]*len(train_set_list)
+        for idx in range(len(true_annot_set)):
+            if train_set_list[idx] in annot_set:
+                true_annot_set[idx] = True
+    #     print("true_annot_set", true_annot_set)
+        true_annot_set = pd.DataFrame(true_annot_set)
+    #     print("splits", splits)
+    #     print("true_annot_set", true_annot_set)
+        splits.insert(1, true_annot_set)
 
     if not boolean_style:
         df = pd.concat(splits, ignore_index=True, axis=1)
