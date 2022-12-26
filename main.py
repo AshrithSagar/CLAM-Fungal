@@ -98,6 +98,9 @@ args['results_dir'] = os.path.join(args['results_dir'], str(args['exp_code']) + 
 if not os.path.isdir(args['results_dir']):
     os.mkdir(args['results_dir'])
 
+with open(os.path.join(args['results_dir'], 'config.yaml'), 'w') as yaml_file:
+    yaml.dump(config, yaml_file, default_flow_style=False)
+
 # if args['split_dir'] is None:
 #     args['split_dir'] = os.path.join('splits', args['task']+'_{}'.format(int(args['label_frac']*100)))
 # else:
