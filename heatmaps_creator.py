@@ -37,7 +37,6 @@ if __name__ == '__main__':
     image_ext = args['image_ext']
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']
-    actual_feat_dir = args['actual_feat_dir']
 
     select_image = args['select_image']
 

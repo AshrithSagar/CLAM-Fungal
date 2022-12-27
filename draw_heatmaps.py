@@ -41,7 +41,6 @@ if __name__ == '__main__':
     image_ext = args['image_ext']
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']
-    actual_feat_dir = args['actual_feat_dir']
 
     patch_size = args['patch_size']
     blur = args['blur']
@@ -97,9 +96,9 @@ for split in splits:
         #     print("Score, x, y:", score, x, y)
         #     print(x, y, x+patch_size[0], y+patch_size[1])
 
-            raw_block = np.ones([256, 256])
-            color_block = cmap(raw_block*block_score)[:,:,:3]
-            heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
+#             raw_block = np.ones([256, 256])
+#             color_block = cmap(raw_block*block_score)[:,:,:3]
+#             heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
 
             plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
@@ -125,3 +124,4 @@ for split in splits:
         plt.imshow(img_heatmap)
         plt.savefig(img_heatmap_filename)
         print("Saved", img_heatmap_filename)
+    print()
