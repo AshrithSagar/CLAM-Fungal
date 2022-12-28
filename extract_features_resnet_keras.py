@@ -34,7 +34,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.config:
         config = yaml.safe_load(open(args.config, 'r'))
-        args = config['extract_features_resnet_torch']  # Change not required
+        args = config['extract_features_resnet_keras']
 
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']

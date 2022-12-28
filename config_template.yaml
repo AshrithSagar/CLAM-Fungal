@@ -20,6 +20,7 @@ patch_creator:
     # patch_size is taken as a square
     patch_size: 256
 
+
 extract_features_resnet_torch:
     # Path to folder containing the image folders of patches
     patch_dir: "experiments/patches/"
@@ -27,6 +28,13 @@ extract_features_resnet_torch:
     # Path to folder for storing the feature vectors
     feat_dir: "experiments/features/"
 
+
+extract_features_resnet_keras:
+    # Path to folder containing the image folders of patches
+    patch_dir: "experiments/patches/"
+
+    # Path to folder for storing the feature vectors
+    feat_dir: "experiments/features_1/"
 
 dataset_csv_creator:
     filename : "experiments/dataset_csv/_task_.csv"
