@@ -126,9 +126,3 @@ for folder in sorted(os.listdir(patch_dir)):
     # hf = h5py.File('data.h5', 'w')
 
     print("="*15)
-
-
-# !mkdir -p $actual_feat_dir
-# !mv $feat_dir/* $actual_feat_dir
-
-# !rm -rf "${actual_feat_dir}fungal_vs_nonfungal_resnet_features.pt"
