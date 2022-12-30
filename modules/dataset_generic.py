@@ -119,7 +119,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
             np.random.shuffle(slide_data)
 
         self.slide_data = slide_data
-        slide_data.to_csv(os.path.join(results_dir, 'dataset_csv.csv'))
+        if results_dir:
+            slide_data.to_csv(os.path.join(results_dir, 'dataset_csv.csv'))
 
         self.patient_data_prep(patient_voting)
         self.cls_ids_prep()
