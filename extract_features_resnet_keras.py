@@ -3,6 +3,7 @@ import yaml
 import argparse
 
 # import h5py
+import cv2
 import numpy as np
 from PIL import Image
 
@@ -80,22 +81,22 @@ for folder in sorted(os.listdir(patch_dir)):
         coord = [int(coord[-2])/256, int(coord[-1])/256]
 
         # Read image
-        orig = cv.imread(img_path)
+        orig = cv2.imread(img_path)
 
         # Convert image to RGB from BGR (another way is to use "image = image[:, :, ::-1]" code)
-        orig = cv.cvtColor(orig, cv.COLOR_BGR2RGB)
+        orig = cv2.cvtColor(orig, cv2.COLOR_BGR2RGB)
 
         # Resize image to 224x224 size
-        image = cv.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
+        image = cv2.resize(orig, (224, 224)).reshape(-1, 224, 224, 3)
 
         # We need to preprocess imageto fulfill ResNet50 requirements
         image = preprocess_input(image)
 
         # Extracting our features
-        features = model.predict(image)
+        feature = model.predict(image)
 
-        print(features.shape)
-        print(features)
+        print(feature.shape)
+        print(feature)
 
         # Group the features
         features.append(feature)
