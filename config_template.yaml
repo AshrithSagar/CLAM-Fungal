@@ -44,6 +44,9 @@ dataset_csv_creator:
 
 
 splits_creator:
+    dataset_csv: "experiments/dataset_csv/fungal_vs_nonfungal.csv"
+    split_dir: "experiments/splits/"
+    
     label_frac : 1.0
     seed : 1
     k : 5

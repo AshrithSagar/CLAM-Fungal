@@ -34,6 +34,8 @@ if __name__ == '__main__':
     test_frac = args['test_frac']
     annot_frac = args['annot_frac']
     annot_positive_frac = args['annot_positive_frac']
+    dataset_csv = args['dataset_csv']
+    split_dir = args['split_dir']
 
 
 # ----------------------------------------------------------------
@@ -41,7 +43,7 @@ random.seed(seed)
 
 # task_1_fungal_vs_nonfungal
 n_classes=2
-dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/fungal_vs_nonfungal.csv',
+dataset = Generic_WSI_Classification_Dataset(csv_path = os.path.abspath(dataset_csv),
                         shuffle = False,
                         seed = seed,
                         print_info = True,
@@ -59,7 +61,8 @@ else:
     label_fracs = [0.1, 0.25, 0.5, 0.75, 1.0]
 
 for lf in label_fracs:
-    split_dir = 'splits/fungal_vs_nonfungal' + '_{}'.format(int(lf * 100))
+    split_dir = os.path.join(split_dir, 'fungal_vs_nonfungal' + '_{}'.format(int(lf * 100)))
+    print(split_dir)
     os.makedirs(split_dir, exist_ok=True)
     dataset.create_splits(k = k, val_num = val_num, test_num = test_num, label_frac=lf)
     for i in range(k):
