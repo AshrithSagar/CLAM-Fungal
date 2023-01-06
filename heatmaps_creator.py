@@ -1,3 +1,7 @@
+"""
+heatmaps_creator: Save in .pkl format
+draw_heatmaps: Using cv2 weighted overlay
+"""
 from PIL import Image
 import torch
 import os
@@ -10,13 +14,15 @@ from modules.file_utils import save_pkl, load_pkl
 from modules.resnet_custom import resnet50_baseline
 from modules.model_clam import CLAM_MB, CLAM_SB
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
 from scipy.stats import percentileofscore
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from skimage.color import label2rgb
+import cv2 as cv
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Patchify images')
+    parser = argparse.ArgumentParser(description='Visualise heatmaps')
     parser.add_argument('-c', '--config', type = str,
                         help='Path to the config file')
 
@@ -24,7 +30,7 @@ if __name__ == '__main__':
     if args.config:
         config = yaml.safe_load(open(args.config, 'r'))
         args = config['heatmaps_creator']
-        
+
     drop_out = args['drop_out']
     n_classes = args['n_classes']
     splits = args['splits']
@@ -39,6 +45,16 @@ if __name__ == '__main__':
     feat_dir = args['feat_dir']
 
     select_image = args['select_image']
+    heatmap_dict_only = args['heatmap_dict_only']
+
+    ### Draw heatmaps config
+    patch_size = args['patch_size']
+    blur = args['blur']
+    alpha = args['alpha']
+    beta = args['beta']
+    gamma = args['gamma']
+    cmap = args['cmap']
+    threshold = args['threshold']
 
 
 def score2percentile(score, ref):
@@ -136,60 +152,148 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
     return heatmap_dict
 
 
-# ------------------------------------------------------
-feature_extractor = resnet50_baseline(pretrained=True)
-feature_extractor.eval()
-device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def generate_heatmap_dict():
+    """
+    Run saved model on select images for generating heatmap info.
+    """
+    feature_extractor = resnet50_baseline(pretrained=True)
+    feature_extractor.eval()
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-if torch.cuda.device_count() > 1:
-    device_ids = list(range(torch.cuda.device_count()))
-    feature_extractor = nn.DataParallel(feature_extractor, device_ids=device_ids).to('cuda:0')
-else:
-    feature_extractor = feature_extractor.to(device)
-
-# Load model
-model_dict = {"dropout": drop_out, 'n_classes': n_classes}
-
-if model_size is not None and model_type in ['clam_sb', 'clam_mb']:
-    model_dict.update({"size_arg": model_size})
-
-if model_type =='clam_sb':
-    model = CLAM_SB(**model_dict)
-elif model_type =='clam_mb':
-    model = CLAM_MB(**model_dict)
-else: # model_type == 'mil'
-    if n_classes > 2:
-        model = MIL_fc_mc(**model_dict)
+    if torch.cuda.device_count() > 1:
+        device_ids = list(range(torch.cuda.device_count()))
+        feature_extractor = nn.DataParallel(feature_extractor, device_ids=device_ids).to('cuda:0')
     else:
-        model = MIL_fc(**model_dict)
+        feature_extractor = feature_extractor.to(device)
 
-print_network(model)
+    # Load model
+    model_dict = {"dropout": drop_out, 'n_classes': n_classes}
 
-for split in splits:
-    print("Evaluating attentions scores for split_{}".format(split))
+    if model_size is not None and model_type in ['clam_sb', 'clam_mb']:
+        model_dict.update({"size_arg": model_size})
 
-    save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
-    if not os.path.isdir(save_path):
-        os.mkdir(save_path)
-    ref_scores = None
-    Y_hats = None
-    ckpt_path = "s_"+str(split)+"_checkpoint.pt"
-    ckpt_path = os.path.join(results_dir, exp_code, "splits_"+str(split), ckpt_path)
+    if model_type =='clam_sb':
+        model = CLAM_SB(**model_dict)
+    elif model_type =='clam_mb':
+        model = CLAM_MB(**model_dict)
+    else: # model_type == 'mil'
+        if n_classes > 2:
+            model = MIL_fc_mc(**model_dict)
+        else:
+            model = MIL_fc(**model_dict)
 
-    ckpt = torch.load(ckpt_path)
-    ckpt_clean = {}
-    for key in ckpt.keys():
-        if 'instance_loss_fn' in key:
-            continue
-        ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
-    model.load_state_dict(ckpt_clean, strict=True)
+    print_network(model)
 
-    model.relocate()
-    model.eval()
+    for split in splits:
+        print("Evaluating attentions scores for split_{}".format(split))
 
-    heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+        save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
+        ref_scores = None
+        Y_hats = None
+        ckpt_path = "s_"+str(split)+"_checkpoint.pt"
+        ckpt_path = os.path.join(results_dir, exp_code, "splits_"+str(split), ckpt_path)
 
-    heatmap_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl")
-    save_pkl(heatmap_dict_save, heatmap_dict)
+        ckpt = torch.load(ckpt_path)
+        ckpt_clean = {}
+        for key in ckpt.keys():
+            if 'instance_loss_fn' in key:
+                continue
+            ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
+        model.load_state_dict(ckpt_clean, strict=True)
 
-print("Done!")
+        model.relocate()
+        model.eval()
+
+        heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+
+        heatmap_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl")
+        save_pkl(heatmap_dict_save, heatmap_dict)
+        print()
+
+    print("Done!")
+
+
+def draw_heatmaps():
+    """
+    Plot and save the heatmaps.
+    """
+    for split in splits:
+        ckpt_path = "s_"+str(split)+"_checkpoint.pt"
+        save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
+
+        heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
+
+        for image_file in heatmap_dict:
+            image_name = image_file['filename']
+            attention_scores = image_file['attention_scores']
+            coords_list = image_file['coords_list']
+
+            plt.clf()
+            if isinstance(cmap, str):
+                cmap = plt.get_cmap(cmap)
+
+            img_path = os.path.join(data_dir, image_name+image_ext)
+            # orig_img = np.array(Image.open(img_path))
+            # orig_img = orig_img[0:1024, 0:1536] # No left-overs
+
+            orig_img = cv.imread(img_path)
+            orig_img = orig_img[0:1024, 0:1536] # No left-overs
+
+
+            scores = attention_scores[0].copy()
+            scores = [float(x) for x in scores]
+            percentiles = []
+            for score in scores:
+                percentile = percentileofscore(scores, score)
+                percentiles.append(percentile/100)
+            # print(scores)
+            # print()
+            # print(percentiles)
+
+            heatmap_mask = np.zeros([1024, 1536, 3])
+
+            for index, block in enumerate(percentiles):
+                x = 256 * coords_list[0][0][index].item() # Top left corner
+                y = 256 * coords_list[0][1][index].item() # Top left corner
+                # print("Score, x, y:", score, x, y)
+                # print(x, y, x+patch_size[0], y+patch_size[1])
+
+                # raw_block = np.ones([256, 256])
+                # color_block = cmap(raw_block*block_score)[:,:,:3]
+                # heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
+
+                plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+
+            heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
+
+            img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
+
+            orig_img = orig_img.astype(np.float32)
+            orig_img /= 255.0
+
+            alpha = 0.75
+            beta = 0.25
+            gamma = 0.0
+            eps = 1e-8
+
+            # img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+            img_heatmap = orig_img.copy()
+            # From GradCAM
+            numer = img_heatmap - np.min(img_heatmap)
+            denom = (img_heatmap.max() - img_heatmap.min()) + eps
+            img_heatmap = numer / denom
+
+            plt.imshow(img_heatmap)
+            plt.savefig(img_heatmap_filename)
+            print("Saved", img_heatmap_filename)
+        print()
+
+
+# ------------------------------------------------------
+generate_heatmap_dict()
+if not heatmap_dict_only:
+    draw_heatmaps()

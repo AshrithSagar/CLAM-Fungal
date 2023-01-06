@@ -46,7 +46,7 @@ dataset_csv_creator:
 splits_creator:
     dataset_csv: "experiments/dataset_csv/fungal_vs_nonfungal.csv"
     split_dir: "experiments/splits/"
-    
+
     label_frac : 1.0
     seed : 1
     k : 5
@@ -115,24 +115,6 @@ heatmaps_creator:
     patch_dir : "experiments/patches/"
     feat_dir : "experiments/features/"
 
-    # Only create heatmaps for selected images
-    select_image : [0, 5, 10, 15, 20, 25]
-
-
-draw_heatmaps:
-    drop_out : False
-    n_classes : 2
-    splits : [1, 3, 5]
-    model_type : "clam_sb"
-    model_size : 'small'
-    exp_code : "exp_00_s1"
-    results_dir : "experiments/results/"
-
-    data_dir : "experiments/original/"
-    image_ext : ".tif"
-    patch_dir : "experiments/patches/"
-    feat_dir : "experiments/features/"
-
     patch_size : [256, 256]
     blur : [128, 128]
     alpha : 1
@@ -143,3 +125,4 @@ draw_heatmaps:
 
     # Only create heatmaps for selected images
     select_image : [0, 5, 10, 15, 20, 25]
+    heatmap_dict_only: False
