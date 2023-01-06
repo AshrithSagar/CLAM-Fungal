@@ -283,9 +283,10 @@ def draw_heatmaps(cmap='coolwarm'):
             gamma = 0.0
             eps = 1e-8
 
-            # img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
-            img_heatmap = orig_img.copy()
-            # From GradCAM
+            img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+            # img_heatmap = orig_img.copy()
+            
+            # Normalise
             numer = img_heatmap - np.min(img_heatmap)
             denom = (img_heatmap.max() - img_heatmap.min()) + eps
             img_heatmap = numer / denom
