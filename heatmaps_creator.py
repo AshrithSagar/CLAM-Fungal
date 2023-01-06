@@ -215,7 +215,7 @@ def generate_heatmap_dict():
     print("Done!")
 
 
-def draw_heatmaps():
+def draw_heatmaps(cmap='coolwarm'):
     """
     Plot and save the heatmaps.
     """
@@ -296,4 +296,4 @@ def draw_heatmaps():
 # ------------------------------------------------------
 generate_heatmap_dict()
 if not heatmap_dict_only:
-    draw_heatmaps()
+    draw_heatmaps(cmap)
