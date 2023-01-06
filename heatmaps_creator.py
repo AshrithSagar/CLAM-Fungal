@@ -259,15 +259,15 @@ def draw_heatmaps(cmap='coolwarm'):
 
             heatmap_mask = np.zeros([1024, 1536, 3])
 
-            for index, block in enumerate(percentiles):
+            for index, block_score in enumerate(percentiles):
                 x = 256 * coords_list[0][0][index].item() # Top left corner
                 y = 256 * coords_list[0][1][index].item() # Top left corner
                 # print("Score, x, y:", score, x, y)
                 # print(x, y, x+patch_size[0], y+patch_size[1])
 
-                # raw_block = np.ones([256, 256])
-                # color_block = cmap(raw_block*block_score)[:,:,:3]
-                # heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
+                raw_block = np.ones([256, 256])
+                color_block = cmap(raw_block*block_score)[:,:,:3]
+                heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] = color_block.copy()
 
                 plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
