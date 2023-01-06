@@ -70,11 +70,14 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
     # Load the dataset
     # Create dataset from the image patches
     for index, folder in enumerate(sorted(os.listdir(patch_dir))):
-        if index not in select_image:
-            continue
+        # if index not in select_image:
+        #     continue
 
         filename = str(folder).split("/")[-1]
         if filename == "fungal_vs_nonfungal_resnet_features":
+            continue
+
+        if filename not in select_image:
             continue
 
         patch_folder = os.path.join(patch_dir, folder)
