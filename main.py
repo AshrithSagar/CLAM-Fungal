@@ -87,6 +87,7 @@ settings = {
     'B': args['B'],
     'annot_dir': args['annot_dir'],
     'alpha_weight': args['alpha_weight'],
+    'semi_supervised': args['semi_supervised'],
     'T1': args['T1'],
     'T2': args['T2'],
     'af': args['af']

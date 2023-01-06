@@ -113,7 +113,7 @@ class CLAM_SB(nn.Module):
         return torch.full((length, ), 0, device=device).long()
 
     #instance-level evaluation for in-the-class attention branch
-    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, alpha_weight, weight_alpha):
+    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
@@ -131,7 +131,7 @@ class CLAM_SB(nn.Module):
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
 
         # Get target labels
-        if bool_annot:
+        if semi_supervised and bool_annot:
             p_targets = torch.index_select(patch_annot.squeeze(), dim=0, index=top_p_ids).long()
             n_targets = torch.index_select(patch_annot.squeeze(), dim=0, index=top_n_ids).long()
         else:
@@ -162,7 +162,7 @@ class CLAM_SB(nn.Module):
         instance_loss = self.instance_loss_fn(logits.squeeze(), p_targets)
         return instance_loss, p_preds, p_targets
 
-    def forward(self, h, bool_annot=None, patch_annot=None, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
+    def forward(self, h, bool_annot=None, patch_annot=None, semi_supervised=False, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
 #         print("h.shape", h.shape)
         A, h = self.attention_net(h)  # NxK
@@ -184,7 +184,7 @@ class CLAM_SB(nn.Module):
 #                 print("inst_label", inst_label)
                 classifier = self.instance_classifiers[i]
                 if inst_label == 1: #in-the-class:
-                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, alpha_weight, weight_alpha)
+                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha)
 #                     print("1, preds", preds.shape)
 #                     print("1, targets", targets.shape)
                     all_preds.extend(preds.cpu().numpy())
