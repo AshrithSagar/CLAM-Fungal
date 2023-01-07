@@ -444,7 +444,7 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
                 color_block = cmap(raw_block*block_score)[:,:,:3]
                 heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
 
-                plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+                plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
             # print(heatmap_mask.shape)
             
             # Normalise
