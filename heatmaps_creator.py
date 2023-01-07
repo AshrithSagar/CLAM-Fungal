@@ -9,6 +9,7 @@ import yaml
 import argparse
 import numpy as np
 import pickle
+from itertools import product
 from modules.utils import *
 from modules.file_utils import save_pkl, load_pkl
 from modules.resnet_custom import resnet50_baseline
@@ -156,6 +157,92 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
     return heatmap_dict
 
 
+def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=None, batch_size=512,
+    attn_save_path=None, ref_scores=None, feat_save_path=None):
+
+    heatmap_dict = []
+    overlap = 2
+
+    # Load the dataset
+    # Create dataset from the image patches
+    for index, image_file in enumerate(sorted(os.listdir(data_dir))):
+        # if index not in select_image:
+        #     continue
+        filename = str(image_file).split("/")[-1]
+        name, ext = os.path.splitext(filename)
+        if filename not in select_image:
+            continue
+        img = Image.open(image_file)
+        w, h = img.size
+
+        dataset = []
+        grid = product(range(0, h-h%d, int(d/overlap)), range(0, w-w%d, int(d/overlap)))
+        for i, j in grid:
+            box = (j, i, j+d, i+d)
+            i /= 256
+            j /= 256
+            patch = img.crop(box)
+            patch_arr = np.asarray(patch)
+            # img_arr = np.expand_dims(img_arr, 0)
+            # img_PIL = Image.fromarray(img_arr)
+
+            # Create the dataset loader
+            imgs = torch.tensor(patch_arr)
+
+            # Get coord in [x, y] format
+            coord = [i, j]
+
+            dataset.append([imgs, coord])
+
+        roi_loader = DataLoader(dataset=dataset, batch_size=39)
+        print("File:", filename)
+
+        num_batches = len(roi_loader)
+        print('number of batches: ', len(roi_loader)) # len(roi_loader) = 39 / (batch_size)
+        mode = "w"
+
+        attention_scores = []
+        coords_list = []
+
+        for idx, (roi, coords) in enumerate(roi_loader):
+            roi = roi.to(device)
+
+            with torch.no_grad():
+                roi = roi.reshape([39, 3, 256, 256])
+                roi = roi.float()
+                features = feature_extractor(roi)
+
+                if attn_save_path is not None:
+                    A = model(features, attention_only=True)
+                    A = F.softmax(A, dim=1)  # softmax over N
+
+                    if A.size(0) > 1: #CLAM multi-branch attention
+                        if clam_pred:
+                            A = A[clam_pred]
+
+                    A = A.view(-1, 1).cpu().numpy()
+
+                    if ref_scores is not None:
+                        for score_idx in range(len(A)):
+                            A[score_idx] = score2percentile(A[score_idx], ref_scores)
+
+                    # Save
+                    attention_scores.append(A)
+                    coords_list.append(coords)
+
+            # if idx % math.ceil(num_batches * 0.05) == 0:
+            #     print('procssed {} / {}'.format(idx, num_batches))
+
+            if feat_save_path is not None:
+                asset_dict = {'features': features.cpu().numpy(), 'coords': coords}
+                # Save # TBD. Not required
+
+            heatmap_dict.append({"filename": filename, "attention_scores": attention_scores, "coords_list": coords_list})
+
+            mode = "a"
+    return heatmap_dict
+
+
 def generate_heatmap_dict():
     """
     Run saved model on select images for generating heatmap info.
@@ -274,6 +361,91 @@ def draw_heatmaps(cmap='coolwarm'):
 
                 plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
+            heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
+
+            img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
+
+            orig_img = orig_img.astype(np.float32)
+            orig_img /= 255.0
+
+            alpha = 0.75
+            beta = 0.25
+            gamma = 0.0
+            eps = 1e-8
+
+            img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+            # img_heatmap = orig_img.copy()
+
+            # Normalise
+            numer = img_heatmap - np.min(img_heatmap)
+            denom = (img_heatmap.max() - img_heatmap.min()) + eps
+            img_heatmap = numer / denom
+
+            plt.imshow(img_heatmap)
+            plt.savefig(img_heatmap_filename)
+            print("Saved", img_heatmap_filename)
+        print()
+
+
+def draw_heatmaps_overlap(cmap='coolwarm'):
+    """
+    Plot and save the heatmaps. Overlap method.
+    """
+    for split in splits:
+        ckpt_path = "s_"+str(split)+"_checkpoint.pt"
+        save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
+        if delete_previous:
+            os.remove(save_path)
+        if not os.path.isdir(save_path):
+            os.mkdir(save_path)
+
+        heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
+
+        for image_file in heatmap_dict:
+            image_name = image_file['filename']
+            attention_scores = image_file['attention_scores']
+            coords_list = image_file['coords_list']
+
+            plt.clf()
+            if isinstance(cmap, str):
+                cmap = plt.get_cmap(cmap)
+
+            img_path = os.path.join(data_dir, image_name+image_ext)
+            # orig_img = np.array(Image.open(img_path))
+            # orig_img = orig_img[0:1024, 0:1536] # No left-overs
+
+            orig_img = cv.imread(img_path)
+            orig_img = orig_img[0:1024, 0:1536] # No left-overs
+
+
+            scores = attention_scores[0].copy()
+            scores = [float(x) for x in scores]
+            percentiles = []
+            for score in scores:
+                percentile = percentileofscore(scores, score)
+                percentiles.append(percentile/100)
+            # print(scores)
+            # print()
+            # print(percentiles)
+
+            heatmap_mask = np.zeros([1024, 1536, 3])
+
+            for index, block_score in enumerate(percentiles):
+                x = 256 * coords_list[0][0][index].item() # Top left corner
+                y = 256 * coords_list[0][1][index].item() # Top left corner
+                # print("Score, x, y:", score, x, y)
+                # print(x, y, x+patch_size[0], y+patch_size[1])
+
+                raw_block = np.ones([256, 256])
+                color_block = cmap(raw_block*block_score)[:,:,:3]
+                heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
+
+                plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+
+            # Normalise
+            numer = heatmap_mask - np.min(heatmap_mask)
+            denom = (heatmap_mask.max() - heatmap_mask.min()) + eps
+            heatmap_mask = numer / denom
             heatmap_mask = cv.blur(heatmap_mask, tuple(blur))
 
             img_heatmap_filename = os.path.join(save_path, image_name+"_heatmap"+".png")
