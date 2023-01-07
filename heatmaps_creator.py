@@ -190,14 +190,14 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
             # img_PIL = Image.fromarray(img_arr)
 
             # Create the dataset loader
-            imgs = torch.tensor(patch_arr)
+            patch_tensor = torch.tensor(patch_arr)
 
             # Get coord in [x, y] format
             coord = [int(i), int(j)]
 
-            dataset.append([imgs, coord])
+            dataset.append([patch_tensor, coord])
 
-        roi_loader = DataLoader(dataset=dataset, batch_size=count//3)
+        roi_loader = DataLoader(dataset=dataset, batch_size=count)
         print("File:", filename)
 
         num_batches = len(roi_loader)
@@ -211,7 +211,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
             roi = roi.to(device)
 
             with torch.no_grad():
-                roi = roi.reshape([count//3, 3, 256, 256])
+                roi = roi.reshape([count, 3, 256, 256])
                 roi = roi.float()
                 features = feature_extractor(roi)
 
