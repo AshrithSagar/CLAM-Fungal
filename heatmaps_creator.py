@@ -178,11 +178,9 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
 
         dataset = []
         count = 0
-        grid = product(range(0, h-h%d, int(d/overlap)), range(0, w-w%d, int(d/overlap)))
+        grid = product(range(0, h-h%d-int(d/overlap), int(d/overlap)), range(0, w-w%d-int(d/overlap), int(d/overlap)))
         for i, j in grid:
             box = (j, i, j+d, i+d)
-            i /= 256
-            j /= 256
             count += 1
             patch = img.crop(box)
             patch_arr = np.asarray(patch)
@@ -211,7 +209,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
             roi = roi.to(device)
 
             with torch.no_grad():
-                roi = roi.reshape([count, 3, 256, 256])
+                roi = roi.reshape([count, 3, patch_size[0], patch_size[1]])
                 roi = roi.float()
                 features = feature_extractor(roi)
 
@@ -424,7 +422,6 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             orig_img = cv.imread(img_path)
             orig_img = orig_img[0:1024, 0:1536] # No left-overs
 
-
             scores = attention_scores[0].copy()
             scores = [float(x) for x in scores]
             percentiles = []
@@ -438,17 +435,18 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             heatmap_mask = np.zeros([1024, 1536, 3])
 
             for index, block_score in enumerate(percentiles):
-                x = int(patch_size[0]/overlap) * coords_list[0][0][index].item() # Top left corner
-                y = int(patch_size[0]/overlap) * coords_list[0][1][index].item() # Top left corner
-                # print("Score, x, y:", score, x, y)
+                x = coords_list[0][0][index].item() # Top left corner
+                y = coords_list[0][1][index].item() # Top left corner
+                # print("Score, x, y:", block_score, x, y)
                 # print(x, y, x+patch_size[0], y+patch_size[1])
 
                 raw_block = np.ones([patch_size[0], patch_size[1]])
                 color_block = cmap(raw_block*block_score)[:,:,:3]
                 heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
 
-                plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
-
+                plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+            # print(heatmap_mask.shape)
+            
             # Normalise
             eps = 1e-8
             numer = heatmap_mask - np.min(heatmap_mask)
