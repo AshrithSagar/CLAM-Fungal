@@ -49,6 +49,7 @@ if __name__ == '__main__':
     heatmap_dict_only = args['heatmap_dict_only']
     delete_previous = args['delete_previous']
     use_overlap = args['use_overlap']
+    overlap = args['overlap']
 
     ### Draw heatmaps config
     patch_size = args['patch_size']
@@ -162,7 +163,6 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
     attn_save_path=None, ref_scores=None, feat_save_path=None):
 
     heatmap_dict = []
-    overlap = 2
 
     # Load the dataset
     # Create dataset from the image patches
@@ -411,6 +411,7 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             image_name = image_file['filename']
             attention_scores = image_file['attention_scores']
             coords_list = image_file['coords_list']
+            # print(coords_list)
 
             plt.clf()
             if isinstance(cmap, str):
@@ -437,16 +438,16 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             heatmap_mask = np.zeros([1024, 1536, 3])
 
             for index, block_score in enumerate(percentiles):
-                x = 256 * coords_list[0][0][index].item() # Top left corner
-                y = 256 * coords_list[0][1][index].item() # Top left corner
+                x = int(patch_size[0]/overlap) * coords_list[0][0][index].item() # Top left corner
+                y = int(patch_size[0]/overlap) * coords_list[0][1][index].item() # Top left corner
                 # print("Score, x, y:", score, x, y)
                 # print(x, y, x+patch_size[0], y+patch_size[1])
 
-                raw_block = np.ones([256, 256])
+                raw_block = np.ones([patch_size[0], patch_size[1]])
                 color_block = cmap(raw_block*block_score)[:,:,:3]
                 heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
 
-                plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+                plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
             # Normalise
             eps = 1e-8
