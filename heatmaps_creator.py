@@ -169,19 +169,21 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
     for index, image_file in enumerate(sorted(os.listdir(data_dir))):
         # if index not in select_image:
         #     continue
-        filename = str(image_file).split("/")[-1]
-        name, ext = os.path.splitext(filename)
+        filename, ext = os.path.splitext(image_file)
         if filename not in select_image:
             continue
-        img = Image.open(image_file)
+        img = Image.open(os.path.join(data_dir, image_file))
         w, h = img.size
+        d = patch_size[0]
 
         dataset = []
+        count = 0
         grid = product(range(0, h-h%d, int(d/overlap)), range(0, w-w%d, int(d/overlap)))
         for i, j in grid:
             box = (j, i, j+d, i+d)
             i /= 256
             j /= 256
+            count += 1
             patch = img.crop(box)
             patch_arr = np.asarray(patch)
             # img_arr = np.expand_dims(img_arr, 0)
@@ -191,15 +193,15 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
             imgs = torch.tensor(patch_arr)
 
             # Get coord in [x, y] format
-            coord = [i, j]
+            coord = [int(i), int(j)]
 
             dataset.append([imgs, coord])
 
-        roi_loader = DataLoader(dataset=dataset, batch_size=39)
+        roi_loader = DataLoader(dataset=dataset, batch_size=count//3)
         print("File:", filename)
 
         num_batches = len(roi_loader)
-        print('number of batches: ', len(roi_loader)) # len(roi_loader) = 39 / (batch_size)
+        print('number of batches: ', len(roi_loader)) # len(roi_loader) = count / (batch_size)
         mode = "w"
 
         attention_scores = []
@@ -209,7 +211,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
             roi = roi.to(device)
 
             with torch.no_grad():
-                roi = roi.reshape([39, 3, 256, 256])
+                roi = roi.reshape([count//3, 3, 256, 256])
                 roi = roi.float()
                 features = feature_extractor(roi)
 
@@ -447,6 +449,7 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
                 plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
 
             # Normalise
+            eps = 1e-8
             numer = heatmap_mask - np.min(heatmap_mask)
             denom = (heatmap_mask.max() - heatmap_mask.min()) + eps
             heatmap_mask = numer / denom
