@@ -461,8 +461,8 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             orig_img = orig_img.astype(np.float32)
             orig_img /= 255.0
 
-            alpha = 0.75
-            beta = 0.25
+            alpha = 0.6
+            beta = 0.4
             gamma = 0.0
             eps = 1e-8
 
