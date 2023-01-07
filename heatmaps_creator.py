@@ -48,6 +48,7 @@ if __name__ == '__main__':
     select_image = args['select_image']
     heatmap_dict_only = args['heatmap_dict_only']
     delete_previous = args['delete_previous']
+    use_overlap = args['use_overlap']
 
     ### Draw heatmaps config
     patch_size = args['patch_size']
@@ -243,7 +244,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
     return heatmap_dict
 
 
-def generate_heatmap_dict():
+def generate_heatmap_dict(use_overlap=True):
     """
     Run saved model on select images for generating heatmap info.
     """
@@ -297,7 +298,10 @@ def generate_heatmap_dict():
         model.relocate()
         model.eval()
 
-        heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+        if use_overlap:
+            heatmap_dict = compute_from_patches_overlap(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+        else:
+            heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
         heatmap_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl")
         save_pkl(heatmap_dict_save, heatmap_dict)
@@ -473,6 +477,11 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
 
 
 # ------------------------------------------------------
-generate_heatmap_dict()
-if not heatmap_dict_only:
-    draw_heatmaps(cmap)
+if use_overlap:
+    generate_heatmap_dict(use_overlap)
+    if not heatmap_dict_only:
+        draw_heatmaps_overlap(cmap)
+else:
+    generate_heatmap_dict()
+    if not heatmap_dict_only:
+        draw_heatmaps(cmap)

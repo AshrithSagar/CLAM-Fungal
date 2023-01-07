@@ -127,3 +127,4 @@ heatmaps_creator:
     select_image : [0, 5, 10, 15, 20, 25]
     heatmap_dict_only: False
     delete_previous: False
+    use_overlap: True
