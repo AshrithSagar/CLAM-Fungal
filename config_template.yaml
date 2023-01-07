@@ -128,3 +128,5 @@ heatmaps_creator:
     heatmap_dict_only: False
     delete_previous: False
     use_overlap: True
+    overlap: 2
+    show_labels: False

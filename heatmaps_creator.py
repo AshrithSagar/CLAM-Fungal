@@ -50,6 +50,7 @@ if __name__ == '__main__':
     delete_previous = args['delete_previous']
     use_overlap = args['use_overlap']
     overlap = args['overlap']
+    show_labels = args['show_labels']
 
     ### Draw heatmaps config
     patch_size = args['patch_size']
@@ -443,8 +444,9 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
                 raw_block = np.ones([patch_size[0], patch_size[1]])
                 color_block = cmap(raw_block*block_score)[:,:,:3]
                 heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
-
-                plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+    
+                if show_labels:
+                    plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
             # print(heatmap_mask.shape)
             
             # Normalise
