@@ -46,6 +46,7 @@ if __name__ == '__main__':
 
     select_image = args['select_image']
     heatmap_dict_only = args['heatmap_dict_only']
+    delete_previous = args['delete_previous']
 
     ### Draw heatmaps config
     patch_size = args['patch_size']
@@ -225,6 +226,8 @@ def draw_heatmaps(cmap='coolwarm'):
     for split in splits:
         ckpt_path = "s_"+str(split)+"_checkpoint.pt"
         save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
+        if delete_previous:
+            os.remove(save_path)
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
@@ -285,7 +288,7 @@ def draw_heatmaps(cmap='coolwarm'):
 
             img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
             # img_heatmap = orig_img.copy()
-            
+
             # Normalise
             numer = img_heatmap - np.min(img_heatmap)
             denom = (img_heatmap.max() - img_heatmap.min()) + eps

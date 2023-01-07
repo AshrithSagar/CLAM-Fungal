@@ -126,3 +126,4 @@ heatmaps_creator:
     # Only create heatmaps for selected images
     select_image : [0, 5, 10, 15, 20, 25]
     heatmap_dict_only: False
+    delete_previous: False
