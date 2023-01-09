@@ -434,6 +434,7 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
             # print(percentiles)
 
             heatmap_mask = np.zeros([1024, 1536, 3])
+            counter = np.zeros([1024, 1536, 3])
 
             for index, block_score in enumerate(percentiles):
                 x = coords_list[0][0][index].item() # Top left corner
@@ -444,11 +445,17 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
                 raw_block = np.ones([patch_size[0], patch_size[1]])
                 color_block = cmap(raw_block*block_score)[:,:,:3]
                 heatmap_mask[x:x+patch_size[0], y:y+patch_size[1], :] += color_block.copy()
-    
+                counter[x:x+patch_size[0], y:y+patch_size[1], :] += 1
+
                 if show_labels:
                     plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
             # print(heatmap_mask.shape)
-            
+
+            # Average
+            zero_mask = counter == 0
+            heatmap_mask[~zero_mask] = heatmap_mask[~zero_mask] / counter[~zero_mask]
+            del counter
+
             # Normalise
             eps = 1e-8
             numer = heatmap_mask - np.min(heatmap_mask)
