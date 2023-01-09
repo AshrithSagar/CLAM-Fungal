@@ -38,7 +38,6 @@ if __name__ == '__main__':
     function_type = args['function_type']
     thresholds = args['thresholds']
     patch_size = args['patch_size']
-    use_overlap = args['use_overlap']
     overlap = args['overlap']
 
 
@@ -230,7 +229,7 @@ for filename in os.listdir(source_dir):
         print("Binarizing and Patching Annotated", filename)
         tile_annotations(filename, source_dir, output_patches_dir, patch_size)
     elif function_type == 'tile_annotations_overlap':
-        print("Binarizing and Patching Annotated", filename)
+        print("Binarizing and Patching Annotate with overlap", filename)
         tile_annotations_overlap(filename, source_dir, output_patches_dir, patch_size, overlap)
     elif function_type == 'artefact_annotations':
         print("Binarizing and Patching Artefacts", filename)
