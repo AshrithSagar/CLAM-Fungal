@@ -20,6 +20,9 @@ patch_creator:
     # patch_size is taken as a square
     patch_size: 256
 
+    use_overlap: True
+    overlap: 2
+
 
 extract_features_resnet_torch:
     # Path to folder containing the image folders of patches

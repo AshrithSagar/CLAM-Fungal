@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('--patch_dir', type = str,
                         help='Path to folder for storing the patches')
     parser.add_argument('--function_type', type = str,
-                        help='Variation of the patching that\'s to be performed')
+                        help='Variation of the patching that is to be performed')
     parser.add_argument('--thresholds', type = dict,
                         help='Threshold to consider for the annotated images')
     parser.add_argument('--patch_size', type = int, default=256,
@@ -38,6 +38,8 @@ if __name__ == '__main__':
     function_type = args['function_type']
     thresholds = args['thresholds']
     patch_size = args['patch_size']
+    use_overlap = args['use_overlap']
+    overlap = args['overlap']
 
 
 def tile(filename, dir_in, dir_out, d):
@@ -53,6 +55,21 @@ def tile(filename, dir_in, dir_out, d):
         box = (j, i, j+d, i+d)
         i /= 256
         j /= 256
+        out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
+        img.crop(box).save(out)
+
+
+def tile_overlap(filename, dir_in, dir_out, d, overlap):
+    if not os.path.isdir(dir_out):
+        os.mkdir(dir_out)
+
+    name, ext = os.path.splitext(filename)
+    img = Image.open(os.path.join(dir_in, filename))
+    w, h = img.size
+
+    grid = product(range(0, h-h%d-int(d/overlap), int(d/overlap)), range(0, w-w%d-int(d/overlap), int(d/overlap)))
+    for i, j in grid:
+        box = (j, i, j+d, i+d)
         out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
         img.crop(box).save(out)
 
@@ -164,6 +181,9 @@ for filename in os.listdir(source_dir):
     if function_type == 'tile':
         print("Patching", filename)
         tile(filename, source_dir, output_patches_dir, patch_size)
+    elif function_type == 'tile_overlap':
+        print("Patching with overlap", filename)
+        tile_overlap(filename, source_dir, output_patches_dir, patch_size, overlap)
     elif function_type == 'tile_annotations':
         print("Binarizing and Patching Annotated", filename)
         tile_annotations(filename, source_dir, output_patches_dir, patch_size)
