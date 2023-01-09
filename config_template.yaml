@@ -20,7 +20,7 @@ patch_creator:
     # patch_size is taken as a square
     patch_size: 256
 
-    use_overlap: True
+    # Overlap factor
     overlap: 2
 
 
