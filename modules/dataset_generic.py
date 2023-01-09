@@ -406,7 +406,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
                 patch_annot = load_pkl(patch_annot_path)
                 patch_annot = patch_annot['bin_scores']
             elif label == 0:
-                patch_annot = [False]*24
+                patch_annot = [False]*77
 
         if type(self.data_dir) == dict:
             source = self.slide_data['source'][idx]
