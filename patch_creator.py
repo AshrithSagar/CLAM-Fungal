@@ -132,6 +132,48 @@ def tile_annotations(filename, dir_in, dir_out, d):
     save_pkl(save_path, save_object)
 
 
+def tile_annotations_overlap(filename, dir_in, dir_out, d, overlap):
+    if not os.path.isdir(dir_out):
+        os.mkdir(dir_out)
+
+    patch_scores = []
+    name, ext = os.path.splitext(filename)
+    img_cv = cv2.imread(os.path.join(dir_in, filename))
+    img_cv_gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    # Thresholding options: ['THRESH_BINARY', 'THRESH_BINARY_INV', 'THRESH_TOZERO ', 'THRESH_TOZERO_INV', 'THRESH_OTSU']
+    ret, img_cv_binarized = cv2.threshold(img_cv_gray, thresholds['annotations'], 255, cv2.THRESH_TOZERO)  # Apply thresholding
+    img_pil_binarized = cv2.cvtColor(img_cv_binarized, cv2.COLOR_BGR2RGB)  # Convert to RGB, for PIL Image
+    img_pil_binarized = Image.fromarray(img_pil_binarized)  # Convert to PIL Image
+    w, h = img_pil_binarized.size
+
+    grid = product(range(0, h-h%d-int(d/overlap), int(d/overlap)), range(0, w-w%d-int(d/overlap), int(d/overlap)))
+    for i, j in grid:
+        box = (j, i, j+d, i+d)
+        out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')
+
+        img_patch = img_pil_binarized.crop(box)
+
+        img_patch_np = np.asarray(img_patch)  # Convert to Numpy array
+        patch_non_zero = np.count_nonzero(img_patch_np)
+        patch_scores.append(patch_non_zero)
+
+        img_patch.save(out)  # Save patch image
+
+    print("P", patch_scores)
+
+    bin_scores = []
+    for score in patch_scores:
+        bin_score = (score > thresholds['patch_positive']) if 1 else 0
+        bin_scores.append(bin_score)
+
+    save_path = os.path.join(dir_out, name+".pkl")
+    save_object = {
+        "patch_scores": patch_scores,
+        "bin_scores": bin_scores
+    }
+    save_pkl(save_path, save_object)
+
+
 def artefact_annotations(filename, dir_in, dir_out, d):
     patch_scores = []
     name, ext = os.path.splitext(filename)
@@ -187,6 +229,9 @@ for filename in os.listdir(source_dir):
     elif function_type == 'tile_annotations':
         print("Binarizing and Patching Annotated", filename)
         tile_annotations(filename, source_dir, output_patches_dir, patch_size)
+    elif function_type == 'tile_annotations_overlap':
+        print("Binarizing and Patching Annotated", filename)
+        tile_annotations_overlap(filename, source_dir, output_patches_dir, patch_size, overlap)
     elif function_type == 'artefact_annotations':
         print("Binarizing and Patching Artefacts", filename)
         artefact_annotations(filename, source_dir, patch_dir, patch_size)
