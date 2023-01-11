@@ -189,7 +189,7 @@ for i in folds:
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
-    results, test_auc, val_auc, test_acc, val_acc, cm_val, cm_test, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings)
+    results, test_auc, val_auc, test_acc, val_acc, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings)
     all_test_auc.append(test_auc)
     all_val_auc.append(val_auc)
     all_test_acc.append(test_acc)
@@ -214,6 +214,20 @@ for i in folds:
     ROC_data = {"val": [fpr_val, tpr_val], "test": [fpr_test, tpr_test]}
     filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC.pkl'.format(i))
     save_pkl(filename, ROC_data)
+
+    plt.clf()
+    plt.imshow(cm_val_disp)
+    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_CM_val.png'.format(i))
+    plt.savefig(filename)
+
+    plt.clf()
+    plt.imshow(cm_test_disp)
+    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_CM_test.png'.format(i))
+    plt.savefig(filename)
+
+    CM_data = {"val": CM_val, "test": CM_test}
+    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_CM.pkl'.format(i))
+    save_pkl(filename, CM_data)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
     'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc, "cm_val": all_cm_val, "cm_test": all_cm_test })

@@ -6,7 +6,7 @@ from modules.dataset_generic import save_splits
 from modules.model_mil import MIL_fc, MIL_fc_mc
 from modules.model_clam import CLAM_MB, CLAM_SB
 from sklearn.preprocessing import label_binarize
-from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix
+from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import auc as calc_auc
 
 class Accuracy_Logger(object):
@@ -230,10 +230,10 @@ def train(datasets, cur, settings):
     else:
         torch.save(model.state_dict(), os.path.join(split_dir, "s_{}_checkpoint.pt".format(cur)))
 
-    _, val_error, val_auc, _, cm_val, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
+    _, val_error, val_auc, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger, cm_test, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'])
+    results_dict, test_error, test_auc, acc_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
     for i in range(settings['n_classes']):
@@ -249,7 +249,7 @@ def train(datasets, cur, settings):
         writer.add_scalar('final/test_error', test_error, 0)
         writer.add_scalar('final/test_auc', test_auc, 0)
         writer.close()
-    return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, fpr_val, tpr_val, fpr_test, tpr_test
+    return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
 
 
 def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
@@ -481,9 +481,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
         aucs = []
-        # print("__labels__", labels)
-        # print("__prob__", prob[:, 1])
-        cm = confusion_matrix(labels, (prob[:, 1] > 0.5))
 
     else:
         aucs = []
@@ -567,6 +564,8 @@ def summary(model, loader, n_classes):
         aucs = []
         cm = confusion_matrix(all_labels, (all_probs[:, 1] > 0.5))
         fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
+        cm_disp = ConfusionMatrixDisplay(cm, display=["nonfungal", "fungal"])
+        CM_data = {"labels": labels, "preds": prob[:, 1]}
 
     else:
         aucs = []
@@ -582,7 +581,7 @@ def summary(model, loader, n_classes):
 
         cm = []
 
-    return patient_results, test_error, auc, acc_logger, cm, fpr, tpr
+    return patient_results, test_error, auc, acc_logger, cm, CM_data, cm_disp, fpr, tpr
 
 def get_alpha_weight(epoch, T1, T2, af):
     if epoch < T1:
