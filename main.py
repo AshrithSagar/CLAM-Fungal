@@ -178,6 +178,8 @@ all_test_auc = []
 all_val_auc = []
 all_test_acc = []
 all_val_acc = []
+all_cm_val = []
+all_cm_test = []
 folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
