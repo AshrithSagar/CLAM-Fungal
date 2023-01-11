@@ -201,13 +201,12 @@ for i in folds:
     save_pkl(filename, results)
 
     plt.clf()
-    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC_val.png'.format(i))
-    plt.plot(fpr_val, tpr_val)
-    plt.savefig(filename)
-
-    plt.clf()
-    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC_test.png'.format(i))
-    plt.plot(fpr_test, tpr_test)
+    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC.png'.format(i))
+    plt.title('ROC Curve')
+    plt.plot(fpr_val, tpr_val, color='green', linewidth=2, data="Validation")
+    plt.plot(fpr_test, tpr_test, color='red', linewidth=2, data="Test")
+    plt.xlabel('FPR (1 - Specificity)')
+    plt.ylabel('TPR (Sensitivity)')
     plt.savefig(filename)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
