@@ -216,12 +216,14 @@ for i in folds:
     save_pkl(filename, ROC_data)
 
     plt.clf()
-    plt.imshow(cm_val_disp)
+    cm_val_disp.plot()
+#     plt.imshow(plt.imread(cm_val_disp))
     filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_CM_val.png'.format(i))
     plt.savefig(filename)
 
     plt.clf()
-    plt.imshow(cm_test_disp)
+    cm_test_disp.plot()
+#     plt.imshow(plt.imread(cm_test_disp))
     filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_CM_test.png'.format(i))
     plt.savefig(filename)
 

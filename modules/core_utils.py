@@ -564,8 +564,8 @@ def summary(model, loader, n_classes):
         aucs = []
         cm = confusion_matrix(all_labels, (all_probs[:, 1] > 0.5))
         fpr, tpr, _ = roc_curve(all_labels, all_probs[:, 1])
-        cm_disp = ConfusionMatrixDisplay(cm, display=["nonfungal", "fungal"])
-        CM_data = {"labels": labels, "preds": prob[:, 1]}
+        cm_disp = ConfusionMatrixDisplay(cm, display_labels=["nonfungal", "fungal"])
+        CM_data = {"labels": all_labels, "preds": all_probs[:, 1]}
 
     else:
         aucs = []
