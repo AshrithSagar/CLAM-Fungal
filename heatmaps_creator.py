@@ -179,7 +179,8 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
 
         dataset = []
         count = 0
-        grid = product(range(0, h-h%d-int(d*(1-overlap)), int(d*(1-overlap))), range(0, w-w%d-int(d*(1-overlap)), int(d*(1-overlap))))
+        step = int(d*(1-overlap))
+        grid = product(range(0, h-h%d-d, step), range(0, w-w%d-d, step))
         for i, j in grid:
             box = (j, i, j+d, i+d)
             count += 1
