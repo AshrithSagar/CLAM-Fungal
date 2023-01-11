@@ -565,7 +565,7 @@ def summary(model, loader, n_classes):
     if n_classes == 2:
         auc = roc_auc_score(all_labels, all_probs[:, 1])
         aucs = []
-        cm = confusion_matrix(labels, (prob[:, 1] > 0.5))
+        cm = confusion_matrix(all_labels, (all_probs[:, 1] > 0.5))
     else:
         aucs = []
         binary_labels = label_binarize(all_labels, classes=[i for i in range(n_classes)])
