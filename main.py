@@ -203,10 +203,11 @@ for i in folds:
     plt.clf()
     filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC.png'.format(i))
     plt.title('ROC Curve')
-    plt.plot(fpr_val, tpr_val, color='green', data="Validation")
-    plt.plot(fpr_test, tpr_test, color='red', data="Test")
+    plt.plot(fpr_val, tpr_val, color='green')
+    plt.plot(fpr_test, tpr_test, color='red')
     plt.xlabel('FPR (1 - Specificity)')
     plt.ylabel('TPR (Sensitivity)')
+    plt.legend(('Validation', 'Test'))
     plt.subplots_adjust(left=0.15)  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(filename)
 
