@@ -211,6 +211,10 @@ for i in folds:
     plt.subplots_adjust(left=0.15)  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(filename)
 
+    ROC_data = {"val": [fpr_val, tpr_val], "test": [fpr_test, tpr_test]}
+    filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_ROC.pkl'.format(i))
+    save_pkl(filename, ROC_data)
+
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
     'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc, "cm_val": all_cm_val, "cm_test": all_cm_test })
 
