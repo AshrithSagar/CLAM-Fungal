@@ -481,13 +481,9 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
         aucs = []
-        print("__labels__", labels)
-        print("__prob__", prob[:, 1])
+        # print("__labels__", labels)
+        # print("__prob__", prob[:, 1])
         cm = confusion_matrix(labels, (prob[:, 1] > 0.5))
-        print("__cm__", cm)
-        # fpr, tpr, _ = roc_curve(labels, prob[:, 1])
-        # print("__fpr__", fpr)
-        # print("__tpr__", tpr)
 
     else:
         aucs = []
@@ -569,7 +565,7 @@ def summary(model, loader, n_classes):
     if n_classes == 2:
         auc = roc_auc_score(all_labels, all_probs[:, 1])
         aucs = []
-        cm = confusion_matrix(labels, prob[:, 1])
+        cm = confusion_matrix(labels, (prob[:, 1] > 0.5))
     else:
         aucs = []
         binary_labels = label_binarize(all_labels, classes=[i for i in range(n_classes)])
