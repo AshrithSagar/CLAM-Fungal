@@ -207,6 +207,7 @@ for i in folds:
     plt.plot(fpr_test, tpr_test, color='red', data="Test")
     plt.xlabel('FPR (1 - Specificity)')
     plt.ylabel('TPR (Sensitivity)')
+    plt.subplots_adjust(left=0.15)  # Tweak spacing to prevent clipping of ylabel
     plt.savefig(filename)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
