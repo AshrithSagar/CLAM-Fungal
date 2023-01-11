@@ -230,10 +230,10 @@ def train(datasets, cur, settings):
     else:
         torch.save(model.state_dict(), os.path.join(split_dir, "s_{}_checkpoint.pt".format(cur)))
 
-    _, val_error, val_auc, _= summary(model, val_loader, settings['n_classes'])
+    _, val_error, val_auc, _, cm_val = summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger = summary(model, test_loader, settings['n_classes'])
+    results_dict, test_error, test_auc, acc_logger, cm_test = summary(model, test_loader, settings['n_classes'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
     for i in range(settings['n_classes']):
@@ -249,7 +249,7 @@ def train(datasets, cur, settings):
         writer.add_scalar('final/test_error', test_error, 0)
         writer.add_scalar('final/test_auc', test_auc, 0)
         writer.close()
-    return results_dict, test_auc, val_auc, 1-test_error, 1-val_error
+    return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test
 
 
 def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
@@ -481,6 +481,8 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
         aucs = []
+        cm = confusion_matrix(labels, prob[:, 1])
+
     else:
         aucs = []
         binary_labels = label_binarize(labels, classes=[i for i in range(n_classes)])
@@ -561,6 +563,7 @@ def summary(model, loader, n_classes):
     if n_classes == 2:
         auc = roc_auc_score(all_labels, all_probs[:, 1])
         aucs = []
+        cm = confusion_matrix(labels, prob[:, 1])
     else:
         aucs = []
         binary_labels = label_binarize(all_labels, classes=[i for i in range(n_classes)])
@@ -573,8 +576,9 @@ def summary(model, loader, n_classes):
 
         auc = np.nanmean(np.array(aucs))
 
+        cm = []
 
-    return patient_results, test_error, auc, acc_logger
+    return patient_results, test_error, auc, acc_logger, cm
 
 def get_alpha_weight(epoch, T1, T2, af):
     if epoch < T1:

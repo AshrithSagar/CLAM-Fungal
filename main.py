@@ -186,17 +186,19 @@ for i in folds:
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
-    results, test_auc, val_auc, test_acc, val_acc  = train(datasets, i, settings)
+    results, test_auc, val_auc, test_acc, val_acc, cm_val, cm_test = train(datasets, i, settings)
     all_test_auc.append(test_auc)
     all_val_auc.append(val_auc)
     all_test_acc.append(test_acc)
     all_val_acc.append(val_acc)
+    all_cm_val.append(cm_val)
+    all_cm_test.append(cm_test)
     #write results to pkl
     filename = os.path.join(args['results_dir'], "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
     save_pkl(filename, results)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
-    'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc})
+    'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc, "cm_val": all_cm_val, "cm_test": all_cm_test })
 
 if len(folds) != args['k']:
     save_name = 'summary_partial_{}_{}.csv'.format(start, end)
