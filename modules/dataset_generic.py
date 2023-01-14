@@ -265,8 +265,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
         return split
 
     def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot']):
-        train_split = all_splits['train']
-        annot_split = all_splits['annot']
+        train_split = all_splits[split_keys[0]]
+        annot_split = all_splits[split_keys[1]]
 
         if len(train_split) > 0:
             mask = self.slide_data['slide_id'].isin(train_split)
