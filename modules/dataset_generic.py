@@ -60,6 +60,8 @@ def save_splits(split_datasets, column_keys, filename, annot_frac=None, annot_po
         splits.insert(1, true_annot_set)
 
     if not boolean_style:
+        if not annot_create:
+            splits.insert(1, split_datasets[o].slide_data['annot'])
         df = pd.concat(splits, ignore_index=True, axis=1)
         df.columns = column_keys
     else:
