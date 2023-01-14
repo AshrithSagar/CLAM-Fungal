@@ -187,7 +187,7 @@ for i in folds:
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
             csv_path='{}/splits_{}.csv'.format(args['split_dir'], i))
 
-    datasets = (train_dataset, val_dataset, test_dataset)
+    datasets = [train_dataset, val_dataset, test_dataset]
 
     results, test_auc, val_auc, test_acc, val_acc, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings)
     all_test_auc.append(test_auc)
