@@ -451,3 +451,7 @@ class Generic_Split(Generic_MIL_Dataset):
 
     def __len__(self):
         return len(self.slide_data)
+
+    def get_annot_col(self):
+        """ Return annot column from df_slice. """
+        return self.slide_data['annot']
