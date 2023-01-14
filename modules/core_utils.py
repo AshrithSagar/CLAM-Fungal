@@ -131,7 +131,7 @@ def train(datasets, cur, settings):
 
     print('\nInit train/val/test splits...', end=' ')
     train_split, val_split, test_split = datasets
-    datasets['annot'] = train_split.slide_data['annot']
+    datasets = train_split, train_split.slide_data['annot'], val_split, test_split
     save_splits(datasets, ['train', 'annot', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(cur)), annot_create=False)
     print('Done!')
     print("Training on {} samples".format(len(train_split)))
