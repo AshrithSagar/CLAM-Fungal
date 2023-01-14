@@ -265,7 +265,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     inst_count = 0
 
     print('\n')
-    for batch_idx, (slide_id, data, label, bool_annot, patch_annot) in enumerate(loader):
+    for batch_idx, (data, slide_id, label, bool_annot, patch_annot) in enumerate(loader):
         data = data.float()
         model = model.float()
         data, label = data.to(device), label.to(device)
