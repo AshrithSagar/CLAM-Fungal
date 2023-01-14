@@ -421,7 +421,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
             if self.data_dir:
                 full_path = os.path.join(data_dir, '{}.pt'.format(slide_id))
                 features = torch.load(full_path)
-                return features, slide_id, label, bool_annot, patch_annot
+                return features, idx, label, bool_annot, patch_annot
                 # return features, label
 
             else:
