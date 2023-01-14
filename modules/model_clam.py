@@ -130,6 +130,9 @@ class CLAM_SB(nn.Module):
 
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
 
+        if bool_annot:
+            bool_annot = bool_annot.item()
+
         # Get target labels
         if semi_supervised and bool_annot:
             p_targets = torch.index_select(patch_annot.squeeze(), dim=0, index=top_p_ids).long()
@@ -142,7 +145,9 @@ class CLAM_SB(nn.Module):
 #         print("logits", logits.shape)
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
+
         if alpha_weight and not bool_annot:
+            print("Loss is multiplied with alpha weight")
             instance_loss *= weight_alpha
         return instance_loss, all_preds, all_targets
 
