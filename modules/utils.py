@@ -39,8 +39,8 @@ def collate_MIL(batch):
 
 def collate_MIL_annot(batch):
 	img = torch.cat([item[0] for item in batch], dim = 0)
-	slide_id = torch.LongTensor([item[1] for item in batch])
-	label = torch.LongTensor([item[2] for item in batch])
+	label = torch.LongTensor([item[1] for item in batch])
+	slide_id = torch.LongTensor([item[2] for item in batch])
 	bool_annot = torch.LongTensor([item[3] for item in batch])
 	patch_annot = torch.LongTensor([item[4] for item in batch])
 	return [img, slide_id, label, bool_annot, patch_annot]
