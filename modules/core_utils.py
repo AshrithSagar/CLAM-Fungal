@@ -271,7 +271,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         data, label = data.to(device), label.to(device)
         bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
         # print("data.shape", data.shape)
-        print(slide_id)
+        # print(slide_id)
         logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=bool_annot, patch_annot=patch_annot, label=label, semi_supervised=semi_supervised, alpha_weight=alpha_weight, weight_alpha=weight_alpha, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
