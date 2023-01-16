@@ -66,7 +66,8 @@ def tile_overlap(filename, dir_in, dir_out, d, overlap):
     img = Image.open(os.path.join(dir_in, filename))
     w, h = img.size
 
-    grid = product(range(0, h-h%d-int(d/overlap), int(d/overlap)), range(0, w-w%d-int(d/overlap), int(d/overlap)))
+    step = int(d*(1-overlap))
+    grid = product(range(0, h-h%d-d+1, step), range(0, w-w%d-d+1, step))
     for i, j in grid:
         box = (j, i, j+d, i+d)
         out = os.path.join(dir_out, f'{name}_{int(i)}_{int(j)}{ext}')

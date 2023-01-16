@@ -21,7 +21,7 @@ patch_creator:
     patch_size: 256
 
     # Overlap factor
-    overlap: 2
+    overlap: 0.5
 
 
 extract_features_resnet_torch:
