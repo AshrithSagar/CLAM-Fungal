@@ -141,7 +141,7 @@ class CLAM_SB(nn.Module):
 
         # Get target labels
         if semi_supervised and bool_annot:
-            all_targets = torch.Tensor(patch_annot.squeeze())
+            all_targets = patch_annot[0]
         else:
             p_targets = self.create_positive_targets(self.k_sample, device)
             n_targets = self.create_negative_targets(self.k_sample, device)
