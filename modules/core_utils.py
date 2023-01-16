@@ -211,7 +211,6 @@ def train(datasets, cur, settings):
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
             train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'],
                 settings['bag_weight'], writer, loss_fn,
-                semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
                 early_stopping, writer, loss_fn, settings['results_dir'])
@@ -253,7 +252,7 @@ def train(datasets, cur, settings):
     return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
 
 
-def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
+def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None, alpha_weight=False, weight_alpha=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -265,14 +264,14 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     inst_count = 0
 
     print('\n')
-    for batch_idx, (data, label, slide_id, bool_annot, patch_annot) in enumerate(loader):
+    for batch_idx, (data, label) in enumerate(loader):
         data = data.float()
         model = model.float()
         data, label = data.to(device), label.to(device)
         bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
         # print("data.shape", data.shape)
         # print(slide_id)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, bool_annot=bool_annot, patch_annot=patch_annot, label=label, semi_supervised=semi_supervised, alpha_weight=alpha_weight, weight_alpha=weight_alpha, instance_eval=True)
+        logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, alpha_weight=alpha_weight, weight_alpha=weight_alpha, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)

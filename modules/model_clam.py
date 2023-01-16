@@ -113,44 +113,32 @@ class CLAM_SB(nn.Module):
         return torch.full((length, ), 0, device=device).long()
 
     #instance-level evaluation for in-the-class attention branch
-    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha):
+    def inst_eval(self, A, h, classifier, alpha_weight, weight_alpha):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
 
         # Get instance
-        if semi_supervised and bool_annot:
-            all_instances = h
-        else:
-            top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
-            top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
-            top_p = torch.index_select(h, dim=0, index=top_p_ids)
-            top_n = torch.index_select(h, dim=0, index=top_n_ids)
-            all_instances = torch.cat([top_p, top_n], dim=0)
+        top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
+        top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
+        top_p = torch.index_select(h, dim=0, index=top_p_ids)
+        top_n = torch.index_select(h, dim=0, index=top_n_ids)
+        all_instances = torch.cat([top_p, top_n], dim=0)
 
         logits = classifier(all_instances)
 
-        if semi_supervised and bool_annot:
-            logits = logits.view(len(h), 2)
-        else:
-            logits = logits.view(2*self.k_sample, 2)
+        logits = logits.view(2*self.k_sample, 2)
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
 
-        if bool_annot:
-            bool_annot = bool_annot.item()
-
         # Get target labels
-        if semi_supervised and bool_annot:
-            all_targets = patch_annot[0]
-        else:
-            p_targets = self.create_positive_targets(self.k_sample, device)
-            n_targets = self.create_negative_targets(self.k_sample, device)
-            all_targets = torch.cat([p_targets, n_targets], dim=0)
+        p_targets = self.create_positive_targets(self.k_sample, device)
+        n_targets = self.create_negative_targets(self.k_sample, device)
+        all_targets = torch.cat([p_targets, n_targets], dim=0)
 #         print("logits", logits.shape)
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
-        if alpha_weight and not bool_annot:
+        if alpha_weight:
             print("Loss is multiplied with alpha weight")
             instance_loss *= weight_alpha
         return instance_loss, all_preds, all_targets
@@ -171,7 +159,7 @@ class CLAM_SB(nn.Module):
         instance_loss = self.instance_loss_fn(logits.squeeze(), p_targets)
         return instance_loss, p_preds, p_targets
 
-    def forward(self, h, bool_annot=None, patch_annot=None, semi_supervised=False, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
+    def forward(self, h, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
         device = h.device
 #         print("h.shape", h.shape)
         A, h = self.attention_net(h)  # NxK
@@ -193,7 +181,7 @@ class CLAM_SB(nn.Module):
 #                 print("inst_label", inst_label)
                 classifier = self.instance_classifiers[i]
                 if inst_label == 1: #in-the-class:
-                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha)
+                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, alpha_weight, weight_alpha)
 #                     print("1, preds", preds.shape)
 #                     print("1, targets", targets.shape)
                     all_preds.extend(preds.cpu().numpy())
