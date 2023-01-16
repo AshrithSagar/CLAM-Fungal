@@ -119,15 +119,21 @@ class CLAM_SB(nn.Module):
             A = A.view(1, -1)
 
         # Get instance
-        top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
-        top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
-        top_p = torch.index_select(h, dim=0, index=top_p_ids)
-        top_n = torch.index_select(h, dim=0, index=top_n_ids)
-        all_instances = torch.cat([top_p, top_n], dim=0)
+        if semi_supervised and bool_annot:
+            all_instances = h
+        else:
+            top_p_ids = torch.topk(A.squeeze(), self.k_sample)[1]
+            top_n_ids = torch.topk(-A.squeeze(), self.k_sample)[1]
+            top_p = torch.index_select(h, dim=0, index=top_p_ids)
+            top_n = torch.index_select(h, dim=0, index=top_n_ids)
+            all_instances = torch.cat([top_p, top_n], dim=0)
 
         logits = classifier(all_instances)
-        logits = logits.view(2*self.k_sample, 2)  # Shape is [24, 2]; B=12
 
+        if semi_supervised and bool_annot:
+            logits = logits.view(len(h), 2)
+        else:
+            logits = logits.view(2*self.k_sample, 2)
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
 
         if bool_annot:
@@ -135,13 +141,11 @@ class CLAM_SB(nn.Module):
 
         # Get target labels
         if semi_supervised and bool_annot:
-            p_targets = torch.index_select(patch_annot.squeeze(), dim=0, index=top_p_ids).long()
-            n_targets = torch.index_select(patch_annot.squeeze(), dim=0, index=top_n_ids).long()
+            all_targets = torch.Tensor(patch_annot.squeeze())
         else:
             p_targets = self.create_positive_targets(self.k_sample, device)
             n_targets = self.create_negative_targets(self.k_sample, device)
-
-        all_targets = torch.cat([p_targets, n_targets], dim=0)
+            all_targets = torch.cat([p_targets, n_targets], dim=0)
 #         print("logits", logits.shape)
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
