@@ -274,8 +274,8 @@ class Generic_WSI_Classification_Dataset(Dataset):
         if len(train_split) > 0:
             mask = self.slide_data['slide_id'].isin(train_split)
             df_slice = self.slide_data[mask].reset_index(drop=True)
-
-            mask = train_split.isin(df_slice['slide_id'].tolist())
+    
+            mask = df_slice.get_loc(train_split)
             df_slice['annot'] = annot_split[mask]
 
             split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
@@ -402,8 +402,8 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
-        bool_annot = bool(self.slide_data['annot'][idx])
-        print("__get_item__", slide_id, idx, label, bool_annot)
+        bool_annot = (self.slide_data['annot'][idx] == "True")
+        print("__get_item__", slide_id, idx, label, bool_annot, self.slide_data['annot'][idx], type(self.slide_data['annot'][idx]))
         if bool_annot:
             if label == 1:
                 patch_annot_path = os.path.join(self.annot_dir, slide_id, slide_id+'.pkl')
@@ -412,7 +412,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
             elif label == 0:
                 patch_annot = [False]*77
         else: 
-            patch_annot = [None]*77
+            patch_annot = [False]*77
 
         if type(self.data_dir) == dict:
             source = self.slide_data['source'][idx]
