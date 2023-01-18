@@ -264,14 +264,15 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
     inst_count = 0
 
     print('\n')
-    for batch_idx, (data, label, idx) in enumerate(loader):
+    for batch_idx, (data, label, idx, bool_annot, patch_annot) in enumerate(loader):
         data = data.float()
         model = model.float()
         data, label = data.to(device), label.to(device)
+        bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
         idx = idx.to(device)
         # print("data.shape", data.shape)
         # print(slide_id)
-        print("Index:", idx.item(), "Label:", label.item())
+        print("Index:", idx.item(), "Label:", label.item(), "bool_annot:", bool_annot, "patch_annot:", patch_annot)
         logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, alpha_weight=alpha_weight, weight_alpha=weight_alpha, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
