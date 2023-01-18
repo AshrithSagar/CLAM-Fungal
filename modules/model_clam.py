@@ -159,7 +159,8 @@ class CLAM_SB(nn.Module):
         instance_loss = self.instance_loss_fn(logits.squeeze(), p_targets)
         return instance_loss, p_preds, p_targets
 
-    def forward(self, h, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
+    def forward(self, h, alpha_weight=False, weight_alpha=None, label=None, bool_annot=None, patch_annot=None, instance_eval=False, return_features=False, attention_only=False):
+        print("Label:", label.item(), "bool_annot:", bool_annot, "patch_annot:", patch_annot)
         device = h.device
 #         print("h.shape", h.shape)
         A, h = self.attention_net(h)  # NxK
