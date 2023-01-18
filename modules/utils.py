@@ -37,6 +37,12 @@ def collate_MIL(batch):
 	label = torch.LongTensor([item[1] for item in batch])
 	return [img, label]
 
+def collate_MIL_mod(batch):
+	img = torch.cat([item[0] for item in batch], dim = 0)
+	label = torch.LongTensor([item[1] for item in batch])
+	idx = torch.LongTensor([item[2] for item in batch])
+	return [img, label, idx]
+
 def collate_MIL_annot(batch):
 	img = torch.cat([item[0] for item in batch], dim = 0)
 	label = torch.LongTensor([item[1] for item in batch])
@@ -68,7 +74,7 @@ def get_split_loader(split_dataset, training = False, testing = False, weighted 
 				loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate_MIL, **kwargs)
 			else:
 
-				loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate_MIL, **kwargs)
+				loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate_MIL_mod, **kwargs)
 		else:
 			loader = DataLoader(split_dataset, batch_size=1, sampler = SequentialSampler(split_dataset), collate_fn = collate_MIL, **kwargs)
 
