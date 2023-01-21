@@ -281,7 +281,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
             annot_data = []
             for index, train_data in enumerate(df_slice['slide_id']):
-                annot_datas.append(split_dict[train_data])
+                annot_data.append(split_dict[train_data])
             df_slice['annot'] = annot_data
 
             split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
