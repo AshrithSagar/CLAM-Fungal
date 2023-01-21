@@ -274,9 +274,15 @@ class Generic_WSI_Classification_Dataset(Dataset):
         if len(train_split) > 0:
             mask = self.slide_data['slide_id'].isin(train_split)
             df_slice = self.slide_data[mask].reset_index(drop=True)
-    
-            mask = df_slice.get_loc(train_split)
-            df_slice['annot'] = annot_split[mask]
+
+            split_dict = {}
+            for index, train in enumerate(train_split):
+                split_dict.update({train: annot_split[index]})
+
+            annot_data = []
+            for index, train_data in enumerate(df_slice['slide_id']):
+                annot_datas.append(split_dict[train_data])
+            df_slice['annot'] = annot_data
 
             split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes)
         else:
@@ -411,7 +417,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
                 patch_annot = patch_annot['bin_scores']
             elif label == 0:
                 patch_annot = [False]*77
-        else: 
+        else:
             patch_annot = [False]*77
 
         if type(self.data_dir) == dict:
