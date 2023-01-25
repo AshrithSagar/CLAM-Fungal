@@ -91,7 +91,8 @@ settings = {
     'semi_supervised': args['semi_supervised'],
     'T1': args['T1'],
     'T2': args['T2'],
-    'af': args['af']
+    'af': args['af'],
+    'correction': args['correction']
 }
 print('\nLoad Dataset')
 
