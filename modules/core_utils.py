@@ -207,7 +207,7 @@ def train(datasets, cur, settings):
 
     for epoch in range(settings['max_epochs']):
         weight_alpha = get_alpha_weight(epoch, settings['T1'], settings['T2'], settings['af'], settings['correction'])
-        print("Weight alpha", weight_alpha)
+        print("\nWeight alpha", weight_alpha)
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
             train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'],
                 settings['bag_weight'], writer, loss_fn,
@@ -589,7 +589,6 @@ def summary(model, loader, n_classes):
 def get_alpha_weight(epoch, T1, T2, af, correction):
     is_correction = not (epoch % correction)
     if is_correction:
-        print()
         print("Correction epoch at epoch", epoch)
 
     if is_correction or (epoch < T1):
