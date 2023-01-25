@@ -152,7 +152,7 @@ class CLAM_SB(nn.Module):
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
-        if alpha_weight:
+        if alpha_weight and not bool_annot:
             # print("Loss is multiplied with alpha weight")
             instance_loss *= weight_alpha
         return instance_loss, all_preds, all_targets
