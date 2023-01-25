@@ -589,7 +589,8 @@ def summary(model, loader, n_classes):
 def get_alpha_weight(epoch, T1, T2, af, correction):
     is_correction = not (epoch % correction)
     if is_correction:
-        print("Correction epoch:", epoch)
+        print()
+        print("Correction epoch at epoch", epoch)
 
     if is_correction or (epoch < T1):
         sup = 1.0
