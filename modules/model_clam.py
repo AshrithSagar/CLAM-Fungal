@@ -118,6 +118,9 @@ class CLAM_SB(nn.Module):
         if len(A.shape) == 1:
             A = A.view(1, -1)
 
+        if bool_annot:
+            bool_annot = bool_annot.item()
+
         # Get instance
         if semi_supervised and bool_annot:
             all_instances = h
@@ -135,9 +138,6 @@ class CLAM_SB(nn.Module):
         else:
             logits = logits.view(2*self.k_sample, 2)
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
-
-        if bool_annot:
-            bool_annot = bool_annot.item()
 
         # Get target labels
         if semi_supervised and bool_annot:
