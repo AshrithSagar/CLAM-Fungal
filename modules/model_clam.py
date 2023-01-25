@@ -113,13 +113,15 @@ class CLAM_SB(nn.Module):
         return torch.full((length, ), 0, device=device).long()
 
     #instance-level evaluation for in-the-class attention branch
-    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha):
+    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
 
-        if bool_annot:
+        if training:
             bool_annot = bool_annot.item()
+        else:
+            bool_annot = None
 
         # Get instance
         if semi_supervised and bool_annot:
@@ -171,7 +173,7 @@ class CLAM_SB(nn.Module):
         instance_loss = self.instance_loss_fn(logits.squeeze(), p_targets)
         return instance_loss, p_preds, p_targets
 
-    def forward(self, h, bool_annot=None, patch_annot=None, semi_supervised=False, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False):
+    def forward(self, h, bool_annot=None, patch_annot=None, semi_supervised=False, alpha_weight=False, weight_alpha=None, label=None, instance_eval=False, return_features=False, attention_only=False, training=True):
         device = h.device
 #         print("h.shape", h.shape)
         A, h = self.attention_net(h)  # NxK
@@ -193,7 +195,7 @@ class CLAM_SB(nn.Module):
 #                 print("inst_label", inst_label)
                 classifier = self.instance_classifiers[i]
                 if inst_label == 1: #in-the-class:
-                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha)
+                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 #                     print("1, preds", preds.shape)
 #                     print("1, targets", targets.shape)
                     all_preds.extend(preds.cpu().numpy())

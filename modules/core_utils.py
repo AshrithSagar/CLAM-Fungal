@@ -273,7 +273,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         idx = idx.to(device)
         # print("data.shape", data.shape)
         # print("Index:", idx.item(), "Label:", label.item(), "bool_annot:", bool_annot, "patch_annot:", patch_annot)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, alpha_weight=alpha_weight, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, weight_alpha=weight_alpha, instance_eval=True)
+        logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, alpha_weight=alpha_weight, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, weight_alpha=weight_alpha, instance_eval=True, training=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)
@@ -455,7 +455,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device), label.to(device)
-            logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
+            logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True, training=False)
             acc_logger.log(Y_hat, label)
 
             loss = loss_fn(logits.view(1, 2), label)
