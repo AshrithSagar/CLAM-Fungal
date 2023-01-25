@@ -152,8 +152,11 @@ class CLAM_SB(nn.Module):
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
-        if alpha_weight and not bool_annot:
-            instance_loss *= weight_alpha
+        if alpha_weight:
+            if bool_annot:
+                instance_loss *= weight_alpha[0]
+            else:
+                instance_loss *= weight_alpha[1]
         return instance_loss, all_preds, all_targets
 
     #instance-level evaluation for out-of-the-class attention branch

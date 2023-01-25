@@ -206,7 +206,7 @@ def train(datasets, cur, settings):
     print('Done!')
 
     for epoch in range(settings['max_epochs']):
-        weight_alpha = get_alpha_weight(epoch, settings['T1'], settings['T2'], settings['af'])
+        weight_alpha = get_alpha_weight(epoch, settings['T1'], settings['T2'], settings['af'], settings['correction'])
         print("Weight alpha", weight_alpha)
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
             train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'],
@@ -586,10 +586,17 @@ def summary(model, loader, n_classes):
 
     return patient_results, test_error, auc, acc_logger, cm, CM_data, cm_disp, fpr, tpr
 
-def get_alpha_weight(epoch, T1, T2, af):
-    if epoch < T1:
-        return 0.0
+def get_alpha_weight(epoch, T1, T2, af, correction):
+    is_correction = not (epoch % correction)
+
+    if is_correction or (epoch < T1):
+        sup = 1.0
+        unsup = 0.0
     elif epoch > T2:
-        return af
+        sup = 0.0
+        unsup = af
     else:
-         return ((epoch-T1) / (T2-T1))*af
+        sup = 1.0
+        unsup = ((epoch-T1) / (T2-T1))*af
+
+    return sup, unsup

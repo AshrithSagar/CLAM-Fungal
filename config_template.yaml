@@ -102,6 +102,7 @@ main:
     T1: 50
     T2: 150
     af: 1.0
+    correction: 10
 
 
 heatmaps_creator:
