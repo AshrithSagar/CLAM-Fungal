@@ -119,7 +119,7 @@ def train(datasets, cur, settings):
         os.mkdir(split_dir)
 
     if settings['log_data']:
-        writer_dir = os.path.join(exp_dir, "logs", str(cur))
+        writer_dir = os.path.join(split_dir, "logs")
         if not os.path.isdir(writer_dir):
             os.mkdir(writer_dir)
 
