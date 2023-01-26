@@ -120,7 +120,7 @@ if args['task'] == 'task_fungal_vs_nonfungal':
     dataset = Generic_MIL_Dataset(csv_path=args['dataset_csv'],
                                   data_dir=args['feat_dir'],
                                   annot_dir=args['annot_dir'],
-                                  results_dir=args['exp_dir'],
+                                  results_dir=exp_dir,
                                   shuffle=False,
                                   seed=args['seed'],
                                   print_info=True,
