@@ -162,7 +162,7 @@ elif task == 'task_2_tumor_subtyping':
 else:
     raise NotImplementedError
 
-with open(args['exp_dir'] + '/experiment_{}.txt'.format(args['exp_code']), 'w') as f:
+with open(exp_dir + '/experiment_{}.txt'.format(args['exp_code']), 'w') as f:
     print(settings, file=f)
 f.close()
 
@@ -197,11 +197,11 @@ for i in folds:
     all_cm_val.append(cm_val)
     all_cm_test.append(cm_test)
     #write results to pkl
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
     save_pkl(filename, results)
 
     plt.clf()
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_ROC.png'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_ROC.png'.format(i))
     plt.title('ROC Curve')
     plt.plot(fpr_val, tpr_val, color='green')
     plt.plot(fpr_test, tpr_test, color='red')
@@ -212,23 +212,23 @@ for i in folds:
     plt.savefig(filename)
 
     ROC_data = {"val": [fpr_val, tpr_val], "test": [fpr_test, tpr_test]}
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_ROC.pkl'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_ROC.pkl'.format(i))
     save_pkl(filename, ROC_data)
 
     plt.clf()
     cm_val_disp.plot()
 #     plt.imshow(plt.imread(cm_val_disp))
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_CM_val.png'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_CM_val.png'.format(i))
     plt.savefig(filename)
 
     plt.clf()
     cm_test_disp.plot()
 #     plt.imshow(plt.imread(cm_test_disp))
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_CM_test.png'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_CM_test.png'.format(i))
     plt.savefig(filename)
 
     CM_data = {"val": CM_val, "test": CM_test}
-    filename = os.path.join(args['exp_dir'], "splits_{}".format(i), 'split_{}_CM.pkl'.format(i))
+    filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_CM.pkl'.format(i))
     save_pkl(filename, CM_data)
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
@@ -238,4 +238,4 @@ if len(folds) != args['k']:
     save_name = 'summary_partial_{}_{}.csv'.format(start, end)
 else:
     save_name = 'summary.csv'
-final_df.to_csv(os.path.join(args['exp_dir'], save_name))
+final_df.to_csv(os.path.join(exp_dir, save_name))
