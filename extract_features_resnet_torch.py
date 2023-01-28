@@ -65,14 +65,14 @@ for folder in sorted(os.listdir(patch_dir)):
         print("Skipping File:", filename)
         continue
     print("Running on File:", filename)
-    
+
     patch_folder = os.path.join(patch_dir, folder)
     if str(patch_folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
         continue
 
     dataset = []
     for patch_file in sorted(os.listdir(patch_folder)):
-        if patch_file == "pt_files":
+        if not patch_file.endswith(".tif"):
             continue
 
         img_path = os.path.join(patch_folder, patch_file)
