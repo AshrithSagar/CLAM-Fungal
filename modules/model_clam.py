@@ -90,8 +90,7 @@ class CLAM_SB(nn.Module):
         fc.append(attention_net)
         self.attention_net = nn.Sequential(*fc)
         self.classifiers = nn.Linear(size[1], n_classes)
-        instance_classifiers = [nn.Linear(size[1], 2) for i in range(n_classes)]
-        self.instance_classifiers = nn.ModuleList(instance_classifiers)
+        self.instance_classifier = nn.Linear(size[1], 2)
         self.k_sample = k_sample
         self.instance_loss_fn = instance_loss_fn
         self.n_classes = n_classes
@@ -103,7 +102,7 @@ class CLAM_SB(nn.Module):
         device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.attention_net = self.attention_net.to(device)
         self.classifiers = self.classifiers.to(device)
-        self.instance_classifiers = self.instance_classifiers.to(device)
+        self.instance_classifier = self.instance_classifier.to(device)
 
     @staticmethod
     def create_positive_targets(length, device):
@@ -188,56 +187,17 @@ class CLAM_SB(nn.Module):
         A = F.softmax(A, dim=1)  # softmax over N
 
         if instance_eval:
-            total_inst_loss = 0.0
-            all_preds = []
-            all_targets = []
-            inst_labels = F.one_hot(label, num_classes=self.n_classes).squeeze() #binarize label
-            for i in range(len(self.instance_classifiers)):
-                inst_label = inst_labels[i].item()
-#                 print("inst_label", inst_label)
-                classifier = self.instance_classifiers[i]
-                if inst_label == 1: #in-the-class:
-                    instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
-#                     print("1, preds", preds.shape)
-#                     print("1, targets", targets.shape)
-                    all_preds.extend(preds.cpu().numpy())
-                    all_targets.extend(targets.cpu().numpy())
-                else: #out-of-the-class
-                    if self.subtyping:
-                        instance_loss, preds, targets = self.inst_eval_out(A, h, classifier)
-#                         print("0, preds", preds.shape)
-#                         print("0, targets", targets.shape)
-#                         print("0, all_preds", all_preds)
-#                         print("0, all_targets", all_targets)
-                        all_preds.extend(preds.squeeze().cpu().numpy())
-                        all_targets.extend(targets.cpu().numpy())
-#                         print("0, all_preds", all_preds)
-#                         print("0, all_targets", all_targets)
-                    else:
-                        continue
-                total_inst_loss += instance_loss
-
-            if self.subtyping:
-                total_inst_loss /= len(self.instance_classifiers)
+            classifier = self.instance_classifier
+            instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         M = torch.mm(A.view(1, 77), h.view(77, 512))
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
-#         print("logits", logits)
-#         print("logits.shape", logits.shape)
-#         print("Y_hat", Y_hat)
-#         print("Y_hat.shape", Y_hat.shape)
-
-#         print("all_targets", all_targets)
-#         print("all_targets shape", len(all_targets))
-#         print("all_preds", all_preds)
-#         print("all_preds shape", len(all_preds))
         Y_prob = F.softmax(logits, dim = 1)
-#         print("Y_prob.shape", Y_prob.shape)
-#         print("Y_prob", logits)
+
         if instance_eval:
-            results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(all_targets),
-            'inst_preds': np.array(all_preds)}
+            results_dict = {'instance_loss': instance_loss, 'inst_labels': np.array(targets),
+            'inst_preds': np.array(preds)}
         else:
             results_dict = {}
         if return_features:
