@@ -196,8 +196,8 @@ class CLAM_SB(nn.Module):
         Y_prob = F.softmax(logits, dim = 1)
 
         if instance_eval:
-            results_dict = {'instance_loss': instance_loss, 'inst_labels': np.array(targets),
-            'inst_preds': np.array(preds)}
+            results_dict = {'instance_loss': instance_loss, 'inst_labels': np.array(targets.cpu().numpy()),
+            'inst_preds': np.array(preds.cpu().numpy())}
         else:
             results_dict = {}
         if return_features:
