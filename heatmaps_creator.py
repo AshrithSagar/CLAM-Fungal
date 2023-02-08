@@ -259,6 +259,7 @@ def generate_heatmap_dict(use_overlap=True):
         feature_extractor = nn.DataParallel(feature_extractor, device_ids=device_ids).to('cuda:0')
     else:
         feature_extractor = feature_extractor.to(device)
+    feature_extractor.eval()
 
     # Load model
     model_dict = {"dropout": drop_out, 'n_classes': n_classes}
