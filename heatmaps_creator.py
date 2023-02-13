@@ -217,7 +217,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
 
                 if attn_save_path is not None:
                     A = model(features, attention_only=True)
-                    # A = F.softmax(A, dim=1)  # softmax over N
+                    A = F.softmax(A, dim=1)  # softmax over N
 
                     if A.size(0) > 1: #CLAM multi-branch attention
                         if clam_pred:
