@@ -217,7 +217,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
 
                 if attn_save_path is not None:
                     A = model(features, attention_only=True)
-                    A = F.softmax(A, dim=1)  # softmax over N
+                    # A = F.softmax(A, dim=1)  # softmax over N
 
                     if A.size(0) > 1: #CLAM multi-branch attention
                         if clam_pred:
@@ -296,7 +296,13 @@ def generate_heatmap_dict(use_overlap=True):
             if 'instance_loss_fn' in key:
                 continue
             ckpt_clean.update({key.replace('.module', ''):ckpt[key]})
-        model.load_state_dict(ckpt_clean, strict=False)
+
+        # Replace 3 with 2.
+        ckpt_clean_2 = {}
+        for key, value in ckpt_clean.items():
+            new_key = key.replace("3", "2") if "3" in key else key
+            ckpt_clean_2[new_key] = value
+        model.load_state_dict(ckpt_clean_2, strict=True)
 
         model.relocate()
         model.eval()
