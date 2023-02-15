@@ -112,7 +112,7 @@ class CLAM_SB(nn.Module):
         return torch.full((length, ), 0, device=device).long()
 
     #instance-level evaluation for in-the-class attention branch
-    def inst_eval(self, A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training):
+    def inst_eval(self, A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training):
         device=h.device
         if len(A.shape) == 1:
             A = A.view(1, -1)
@@ -144,8 +144,11 @@ class CLAM_SB(nn.Module):
         if semi_supervised and bool_annot:
             all_targets = patch_annot[0]
         else:
-            p_targets = self.create_positive_targets(self.k_sample, device)
-            n_targets = self.create_negative_targets(self.k_sample, device)
+            if label:
+                p_targets = self.create_positive_targets(self.k_sample, device)  # 1's
+            else:
+                p_targets = self.create_negative_targets(self.k_sample, device)  # 0's
+            n_targets = self.create_negative_targets(self.k_sample, device)  # 0's
             all_targets = torch.cat([p_targets, n_targets], dim=0)
 #         print("logits", logits.shape)
 #         print("all_targets", all_targets.shape)
@@ -188,7 +191,7 @@ class CLAM_SB(nn.Module):
 
         if instance_eval:
             classifier = self.instance_classifier
-            instance_loss, preds, targets = self.inst_eval(A, h, classifier, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
+            instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         M = torch.mm(A.view(1, 77), h.view(77, 512))
         logits = self.classifiers(M)
