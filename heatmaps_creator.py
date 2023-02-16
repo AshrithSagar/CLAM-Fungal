@@ -37,7 +37,7 @@ if __name__ == '__main__':
     splits = args['splits']
     model_type = args['model_type']
     model_size = args['model_size']
-    exp_code = args['exp_code']
+    exp_codes = args['exp_codes']
     results_dir = args['results_dir']
 
     data_dir = args['data_dir']
@@ -246,7 +246,7 @@ def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=N
     return heatmap_dict
 
 
-def generate_heatmap_dict(use_overlap=True):
+def generate_heatmap_dict(exp_code, use_overlap=True):
     """
     Run saved model on select images for generating heatmap info.
     """
@@ -319,7 +319,7 @@ def generate_heatmap_dict(use_overlap=True):
     print("Done!")
 
 
-def draw_heatmaps(cmap='coolwarm'):
+def draw_heatmaps(exp_code, cmap='coolwarm'):
     """
     Plot and save the heatmaps.
     """
@@ -401,7 +401,7 @@ def draw_heatmaps(cmap='coolwarm'):
         print()
 
 
-def draw_heatmaps_overlap(cmap='coolwarm'):
+def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
     """
     Plot and save the heatmaps. Overlap method.
     """
@@ -498,10 +498,12 @@ def draw_heatmaps_overlap(cmap='coolwarm'):
 
 # ------------------------------------------------------
 if use_overlap:
-    generate_heatmap_dict(use_overlap)
-    if not heatmap_dict_only:
-        draw_heatmaps_overlap(cmap)
+    for exp_code in exp_codes:
+        generate_heatmap_dict(exp_code, use_overlap)
+        if not heatmap_dict_only:
+            draw_heatmaps_overlap(exp_code, cmap)
 else:
-    generate_heatmap_dict()
-    if not heatmap_dict_only:
-        draw_heatmaps(cmap)
+    for exp_code in exp_codes:
+        generate_heatmap_dict(exp_code)
+        if not heatmap_dict_only:
+            draw_heatmaps(exp_code, cmap)
