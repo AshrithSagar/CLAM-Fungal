@@ -154,7 +154,7 @@ class CLAM_SB(nn.Module):
 #         print("all_targets", all_targets.shape)
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
-        if alpha_weight:
+        if alpha_weight and semi_supervised:
             if bool_annot:
                 instance_loss *= weight_alpha[0]
             else:
