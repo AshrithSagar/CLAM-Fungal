@@ -273,7 +273,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         idx = idx.to(device)
         # print("data.shape", data.shape)
         # print("Index:", idx.item(), "Label:", label.item(), "bool_annot:", bool_annot, "patch_annot:", patch_annot)
-        logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, alpha_weight=alpha_weight, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, weight_alpha=weight_alpha, instance_eval=True, training=True)
+        logits, Y_prob, Y_hat, _, instance_dict, attention_labels_loss = model(data, label=label, alpha_weight=alpha_weight, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, weight_alpha=weight_alpha, instance_eval=True, training=True)
 
         acc_logger.log(Y_hat, label)
         loss = loss_fn(logits.view(1, 2), label)
@@ -285,6 +285,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         train_inst_loss += instance_loss_value
 
         total_loss = bag_weight * loss + (1-bag_weight) * instance_loss
+        if attention_labels_loss is not None:
+            total_loss += attention_labels_loss
 
         inst_preds = instance_dict['inst_preds']
         inst_labels = instance_dict['inst_labels']

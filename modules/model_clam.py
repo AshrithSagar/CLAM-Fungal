@@ -193,6 +193,11 @@ class CLAM_SB(nn.Module):
             classifier = self.instance_classifier
             instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
+        if bool_annot:
+            attention_labels_loss = nn.CrossEntropyLoss(A_raw, targets)
+        else:
+            attention_labels_loss = None
+
         M = torch.mm(A.view(1, 77), h.view(77, 512))
         logits = self.classifiers(M)
         Y_hat = torch.topk(logits, 1, dim = 1)[1]
@@ -206,7 +211,7 @@ class CLAM_SB(nn.Module):
         if return_features:
             results_dict.update({'features': M})
 #         print("Y_hat shape", Y_hat.shape)
-        return logits, Y_prob, Y_hat, A_raw, results_dict
+        return logits, Y_prob, Y_hat, A_raw, results_dict, attention_labels_loss
 
 class CLAM_MB(CLAM_SB):
     def __init__(self, gate = True, size_arg = "small", dropout = False, k_sample=8, n_classes=2,
