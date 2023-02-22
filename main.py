@@ -92,7 +92,8 @@ settings = {
     'T1': args['T1'],
     'T2': args['T2'],
     'af': args['af'],
-    'correction': args['correction']
+    'correction': args['correction'],
+    'attention_labels_loss': args['attention_labels_loss']
 }
 print('\nLoad Dataset')
 

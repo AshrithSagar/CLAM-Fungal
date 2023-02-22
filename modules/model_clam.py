@@ -76,7 +76,7 @@ args:
 """
 class CLAM_SB(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, k_sample=8, n_classes=2,
-        instance_loss_fn=nn.CrossEntropyLoss(), subtyping=False):
+        instance_loss_fn=nn.CrossEntropyLoss(), attention_labels_loss_fn=None, subtyping=False):
         super(CLAM_SB, self).__init__()
         self.size_dict = {"small": [1024, 512, 256], "big": [1024, 512, 384]}
         size = self.size_dict[size_arg]
@@ -93,6 +93,7 @@ class CLAM_SB(nn.Module):
         self.instance_classifier = nn.Linear(size[1], 2)
         self.k_sample = k_sample
         self.instance_loss_fn = instance_loss_fn
+        self.attention_labels_loss_fn = attention_labels_loss_fn
         self.n_classes = n_classes
         self.subtyping = subtyping
 
@@ -194,7 +195,7 @@ class CLAM_SB(nn.Module):
             instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         if bool_annot:
-            attention_labels_loss = nn.CrossEntropyLoss(A_raw, targets)
+            attention_labels_loss = self.attention_labels_loss_fn(A_raw, targets)
         else:
             attention_labels_loss = None
 

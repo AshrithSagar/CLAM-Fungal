@@ -147,6 +147,11 @@ def train(datasets, cur, settings):
         loss_fn = nn.CrossEntropyLoss()
     print('Done!')
 
+    if settings['attention_labels_loss'] == 'ce':
+        attention_labels_loss_fn = nn.CrossEntropyLoss()
+    else:
+        attention_labels_loss_fn = None
+
     print('\nInit Model...', end=' ')
     model_dict = {"dropout": settings['dropout'], 'n_classes': settings['n_classes']}
     if settings['model_type'] == 'clam' and settings['subtyping']:
@@ -171,9 +176,9 @@ def train(datasets, cur, settings):
             instance_loss_fn = nn.CrossEntropyLoss()
 
         if settings['model_type'] =='clam_sb':
-            model = CLAM_SB(**model_dict, instance_loss_fn=instance_loss_fn)
+            model = CLAM_SB(**model_dict, instance_loss_fn=instance_loss_fn, attention_labels_loss_fn=attention_labels_loss_fn)
         elif settings['model_type'] == 'clam_mb':
-            model = CLAM_MB(**model_dict, instance_loss_fn=instance_loss_fn)
+            model = CLAM_MB(**model_dict, instance_loss_fn=instance_loss_fn, attention_labels_loss_fn=attention_labels_loss_fn)
         else:
             raise NotImplementedError
 
