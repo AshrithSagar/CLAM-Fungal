@@ -104,6 +104,9 @@ main:
     af: 1.0
     correction: 10
 
+    semi_supervised: true
+    attention_labels_loss: 'ce'
+
 
 heatmaps_creator:
     drop_out : False
