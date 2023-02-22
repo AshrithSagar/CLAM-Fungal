@@ -194,10 +194,9 @@ class CLAM_SB(nn.Module):
             instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         if bool_annot:
-#             A_attention_labels = A_raw.view([77, 1])
-#             print(A_attention_labels.shape, targets.shape)
-#             attention_labels_loss = self.attention_labels_loss_fn(A_attention_labels, targets)
-            attention_labels_loss = None
+            A_attention_labels = A_raw.view([77, 1])
+            print(A_attention_labels.shape, targets.shape)
+            attention_labels_loss = self.attention_labels_loss_fn(A_attention_labels, targets)
         else:
             attention_labels_loss = None
 

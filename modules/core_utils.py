@@ -462,7 +462,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device), label.to(device)
-            logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True, training=False)
+            logits, Y_prob, Y_hat, _, instance_dict, _ = model(data, label=label, instance_eval=True, training=False)
             acc_logger.log(Y_hat, label)
 
             loss = loss_fn(logits.view(1, 2), label)
@@ -556,7 +556,7 @@ def summary(model, loader, n_classes):
         data, label = data.to(device), label.to(device)
         slide_id = slide_ids.iloc[batch_idx]
         with torch.no_grad():
-            logits, Y_prob, Y_hat, _, _ = model(data)
+            logits, Y_prob, Y_hat, _, _, _ = model(data)
 
         acc_logger.log(Y_hat, label)
         probs = Y_prob.cpu().numpy()
