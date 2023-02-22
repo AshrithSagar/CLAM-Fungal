@@ -151,8 +151,7 @@ class CLAM_SB(nn.Module):
                 p_targets = self.create_negative_targets(self.k_sample, device)  # 0's
             n_targets = self.create_negative_targets(self.k_sample, device)  # 0's
             all_targets = torch.cat([p_targets, n_targets], dim=0)
-#         print("logits", logits.shape)
-#         print("all_targets", all_targets.shape)
+        
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
         if alpha_weight and semi_supervised:
@@ -195,7 +194,10 @@ class CLAM_SB(nn.Module):
             instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         if bool_annot:
-            attention_labels_loss = self.attention_labels_loss_fn(A_raw, targets)
+#             A_attention_labels = A_raw.view([77, 1])
+#             print(A_attention_labels.shape, targets.shape)
+#             attention_labels_loss = self.attention_labels_loss_fn(A_attention_labels, targets)
+            attention_labels_loss = None
         else:
             attention_labels_loss = None
 
