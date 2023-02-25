@@ -299,6 +299,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
             total_loss += attention_labels_loss_value
             train_attention_labels_loss += attention_labels_loss_value
             labeled_count += 1
+        else:
+            attention_labels_loss = -1.
 
         inst_preds = instance_dict['inst_preds']
         inst_labels = instance_dict['inst_labels']
