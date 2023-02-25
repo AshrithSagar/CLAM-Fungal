@@ -83,7 +83,7 @@ settings = {
     'no_inst_cluster': args['no_inst_cluster'],
     'subtyping': args['subtyping'],
     'exp_code': args['exp_code'],
-    'bag_weight': args['bag_weight'],
+    'loss_weights': args['loss_weights'],
     'inst_loss': args['inst_loss'],
     'B': args['B'],
     'annot_dir': args['annot_dir'],

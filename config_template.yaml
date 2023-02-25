@@ -87,7 +87,10 @@ main:
     no_inst_cluster : False
     inst_loss : 'svm'  # ['svm', 'ce', None]
     subtyping : False
-    bag_weight : 0.5
+    loss_weights :
+        bag: 0.65
+        instance: 0.35
+        attention_labels: 1
     B : 12
 
     exp_code : "exp_00"  # Experiment name

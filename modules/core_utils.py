@@ -217,7 +217,7 @@ def train(datasets, cur, settings):
         print("\nWeight alpha", weight_alpha)
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
             train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'],
-                settings['bag_weight'], writer, loss_fn,
+                settings['loss_weights'], writer, loss_fn,
                 semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
@@ -260,7 +260,7 @@ def train(datasets, cur, settings):
     return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
 
 
-def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
+def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -291,9 +291,9 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writ
         instance_loss_value = instance_loss.item()
         train_inst_loss += instance_loss_value
 
-        total_loss = bag_weight * loss + (1-bag_weight) * instance_loss
+        total_loss = loss_weights['bag'] * loss + loss_weights['instance'] * instance_loss
         if attention_labels_loss is not None:
-            total_loss += attention_labels_loss
+            total_loss += loss_weights['attention_labels'] * attention_labels_loss
 
         inst_preds = instance_dict['inst_preds']
         inst_labels = instance_dict['inst_labels']
