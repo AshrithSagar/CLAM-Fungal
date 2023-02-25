@@ -325,7 +325,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
     # calculate loss and error for epoch
     train_loss /= len(loader)
     train_error /= len(loader)
-    train_attention_labels_loss /= len(labeled_count)
+    train_attention_labels_loss /= labeled_count
 
     if inst_count > 0:
         train_inst_loss /= inst_count
