@@ -149,6 +149,8 @@ def train(datasets, cur, settings):
 
     if settings['attention_labels_loss'] == 'ce':
         attention_labels_loss_fn = nn.CrossEntropyLoss()
+    elif settings['attention_labels_loss'] == 'bce':
+        attention_labels_loss_fn = nn.BCELoss()
     else:
         attention_labels_loss_fn = None
 
