@@ -325,7 +325,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
     # calculate loss and error for epoch
     train_loss /= len(loader)
     train_error /= len(loader)
-    train_attention_labels_loss /= labeled_count
+    if labeled_count != 0:
+        train_attention_labels_loss /= labeled_count
 
     if inst_count > 0:
         train_inst_loss /= inst_count
@@ -345,7 +346,8 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
         writer.add_scalar('train/loss', train_loss, epoch)
         writer.add_scalar('train/error', train_error, epoch)
         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
-        writer.add_scalar('train/attention_labels_loss', train_attention_labels_loss, epoch)
+        if labeled_count != 0:
+            writer.add_scalar('train/attention_labels_loss', train_attention_labels_loss, epoch)
 
 def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
