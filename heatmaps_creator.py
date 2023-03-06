@@ -317,7 +317,8 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
         if only_test_split:
             csv_path = '{}/splits_{}.csv'.format(split_dir, split)
             df = pd.read_csv(csv_path)
-            test_split = df['test']
+            test_split = df[df['test'].notnull()]['test']
+            test_split = list(test_split)
         else:
             test_split = None
 
