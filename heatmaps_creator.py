@@ -5,6 +5,7 @@ draw_heatmaps: Using cv2 weighted overlay
 from PIL import Image
 import torch
 import os
+import shutil
 import yaml
 import argparse
 import numpy as np
@@ -422,7 +423,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
         ckpt_path = "s_"+str(split)+"_checkpoint.pt"
         save_path = os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmaps")
         if delete_previous:
-            os.remove(save_path)
+            shutil.rmtree(save_path)
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
