@@ -20,6 +20,7 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from skimage.color import label2rgb
 import cv2 as cv
+import pandas as pd
 
 
 if __name__ == '__main__':
@@ -44,10 +45,12 @@ if __name__ == '__main__':
     image_ext = args['image_ext']
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']
+    split_dir = args['split_dir']
 
     select_image = args['select_image']
     heatmap_dict_only = args['heatmap_dict_only']
     delete_previous = args['delete_previous']
+    only_test_split = args['only_test_split']
     use_overlap = args['use_overlap']
     overlap = args['overlap']
     show_labels = args['show_labels']
@@ -161,9 +164,12 @@ def compute_from_patches(clam_pred=None, model=None, feature_extractor=None, bat
 
 
 def compute_from_patches_overlap(clam_pred=None, model=None, feature_extractor=None, batch_size=512,
-    attn_save_path=None, ref_scores=None, feat_save_path=None):
+    attn_save_path=None, ref_scores=None, feat_save_path=None, test_split=None):
 
     heatmap_dict = []
+
+    if only_test_split:
+        select_image = test_split
 
     # Load the dataset
     # Create dataset from the image patches
@@ -307,8 +313,15 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
         model.relocate()
         model.eval()
 
+        if only_test_split:
+            csv_path = '{}/splits_{}.csv'.format(split_dir, split)
+            df = pd.read_csv(csv_path)
+            test_split = df['test']
+        else:
+            test_split = None
+
         if use_overlap:
-            heatmap_dict = compute_from_patches_overlap(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
+            heatmap_dict = compute_from_patches_overlap(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path, ref_scores=ref_scores, test_split=test_split)
         else:
             heatmap_dict = compute_from_patches(model=model, feature_extractor=feature_extractor, batch_size=512, attn_save_path=save_path,  ref_scores=ref_scores)
 
