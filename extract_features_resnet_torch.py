@@ -105,12 +105,12 @@ for folder in sorted(os.listdir(patch_dir)):
         dataset.append([imgs, coord])
 
     loader = DataLoader(dataset=dataset, batch_size=1)
-    features = []
+    all_features = []
     for count, data in enumerate(loader):
         with torch.no_grad():
             coord = data[1]
             batches = data[0]
-            batches_features = []
+            batch_features = []
             for batch in batches:
                 batch = torch.unsqueeze(batch, 0)
                 batch = batch.reshape([1, 3, 256, 256])
@@ -123,18 +123,18 @@ for folder in sorted(os.listdir(patch_dir)):
                 feature = np.expand_dims(feature, 0)
 
                 # Group the features, for augmentations of a single patch
-                batches_features.append(feature)
+                batch_features.append(feature)
 
             # Group the features, for all patches
-            features.append(batches_features)
+            all_features.append(batch_features)
 
     # To Tensor
-    features = np.asarray(features, dtype="float32")
-    features = torch.tensor(features)
+    all_features = np.asarray(all_features, dtype="float32")
+    all_features = torch.tensor(all_features)
 
-#     print(features, " || ", filePath)
-#     print("Features size: ", features.shape)
-    torch.save(features, filePath)
+#     print(all_features, " || ", filePath)
+#     print("Features size: ", all_features.shape)
+    torch.save(all_features, filePath)
 
     # Save the .hdf5
     # hf = h5py.File('data.h5', 'w')
