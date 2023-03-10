@@ -429,9 +429,16 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
         if not self.use_h5:
             if self.data_dir:
                 full_path = os.path.join(data_dir, '{}.pt'.format(slide_id))
-                features = torch.load(full_path)
+                all_features = torch.load(full_path)
                 # print("__get_item__", slide_id, idx, label, bool_annot, patch_annot)
-                return features, label, idx, bool_annot, patch_annot
+
+                image_features = []
+                for patch in all_features:
+                    combination = np.randint(0, 6) if self.training else 0
+                    patch_feature = all_features[combination]
+                    image_features.append(patch_feature)
+
+                return image_features, label, idx, bool_annot, patch_annot
                 # return features, label
                 # return features, label, idx
 
