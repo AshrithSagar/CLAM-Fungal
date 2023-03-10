@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from PIL import Image
+import imgaug.augmenters as iaa
 import h5py
 
 from modules.resnet_custom import resnet50_baseline
@@ -83,8 +84,16 @@ for folder in sorted(os.listdir(patch_dir)):
         # img_arr = np.expand_dims(img_arr, 0)
         # img_PIL = Image.fromarray(img_arr)
 
+        imgs_0 = img_arr  # Original patch
+        imgs_1 = iaa.Fliplr(p=1.0).augment_image(img_arr)
+        imgs_2 = iaa.Flipud(p=1.0).augment_image(img_arr)
+        imgs_3 = iaa.Rotate((90, 90)).augment_image(img_arr)
+        imgs_4 = iaa.Rotate((180, 180)).augment_image(img_arr)
+        imgs_5 = iaa.Rotate((270, 270)).augment_image(img_arr)
+
         # Create the dataset loader
-        imgs = torch.tensor(img_arr)
+        imgs = [torch.tensor(imgs_0), torch.tensor(imgs_1), torch.tensor(imgs_2),
+                torch.tensor(imgs_3), torch.tensor(imgs_4), torch.tensor(imgs_5)]
 
         # Get coord in [x, y] format
         coord = img_path.split("/")
@@ -100,19 +109,24 @@ for folder in sorted(os.listdir(patch_dir)):
     for count, data in enumerate(loader):
         with torch.no_grad():
             coord = data[1]
-            batch = data[0]
-            batch = torch.unsqueeze(batch, 0)
-            batch = batch.reshape([1, 3, 256, 256])
-            batch = batch.to(device, non_blocking=True)
-            batch = batch.float()
+            batches = data[0]
+            batches_features = []
+            for batch in batches:
+                batch = torch.unsqueeze(batch, 0)
+                batch = batch.reshape([1, 3, 256, 256])
+                batch = batch.to(device, non_blocking=True)
+                batch = batch.float()
 
-            feature = model(batch)
-            feature = feature.cpu().numpy()
-            feature = torch.from_numpy(feature)
-            feature = np.expand_dims(feature, 0)
+                feature = model(batch)
+                feature = feature.cpu().numpy()
+                feature = torch.from_numpy(feature)
+                feature = np.expand_dims(feature, 0)
 
-            # Group the features
-            features.append(feature)
+                # Group the features, for augmentations of a single patch
+                batches_features.append(feature)
+
+            # Group the features, for all patches
+            features.append(batches_features)
 
     # To Tensor
     features = np.asarray(features, dtype="float32")
