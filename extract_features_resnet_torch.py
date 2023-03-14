@@ -92,8 +92,8 @@ for folder in sorted(os.listdir(patch_dir)):
         imgs_5 = iaa.Rotate((270, 270)).augment_image(img_arr)
 
         # Create the dataset loader
-        imgs = [torch.tensor(imgs_0), torch.tensor(imgs_1), torch.tensor(imgs_2),
-                torch.tensor(imgs_3), torch.tensor(imgs_4), torch.tensor(imgs_5)]
+        imgs = [torch.tensor(imgs_0.copy()), torch.tensor(imgs_1.copy()), torch.tensor(imgs_2.copy()),
+                torch.tensor(imgs_3.copy()), torch.tensor(imgs_4.copy()), torch.tensor(imgs_5.copy())]
 
         # Get coord in [x, y] format
         coord = img_path.split("/")
