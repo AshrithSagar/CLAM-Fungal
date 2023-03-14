@@ -439,6 +439,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
                     combination = np.random.randint(0, 6) if self.training else 0
                     patch_feature = all_features[combination]
                     image_features.append(patch_feature)
+                image_features = torch.Tensor(image_features)
 
                 return image_features, label, idx, bool_annot, patch_annot
                 # return features, label
