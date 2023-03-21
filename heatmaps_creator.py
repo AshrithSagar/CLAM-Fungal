@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 from skimage.color import label2rgb
 import cv2 as cv
 import pandas as pd
+from sklearn.metrics import accuracy_score
 
 
 if __name__ == '__main__':
@@ -47,6 +48,7 @@ if __name__ == '__main__':
     patch_dir = args['patch_dir']
     feat_dir = args['feat_dir']
     split_dir = args['split_dir']
+    annot_dir = args['annot_dir']
 
     select_image = args['select_image']
     heatmap_dict_only = args['heatmap_dict_only']
@@ -428,6 +430,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
+        patch_accuracies = {}
         heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
 
         for image_file in heatmap_dict:
@@ -456,6 +459,14 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             # print(scores)
             # print()
             # print(percentiles)
+
+            patch_annot_path = os.path.join(annot_dir, image_name, image_name+'.pkl')
+            patch_annot = load_pkl(patch_annot_path)
+            patch_annot = patch_annot['bin_scores']
+
+            preds = [1 if x >= 0.5 else 0 for x in percentiles]
+            acc = accuracy_score(patch_annot, preds)
+            patch_accuracies.update({'filename': image_name, 'accuracy_score': acc})
 
             heatmap_mask = np.zeros([1024, 1536, 3])
             counter = np.zeros([1024, 1536, 3])
@@ -509,6 +520,9 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             plt.savefig(img_heatmap_filename)
             print("Saved", img_heatmap_filename)
         print()
+
+        acc_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "acc_dict.pkl")
+        save_pkl(acc_dict_save, patch_accuracies)
 
 
 # ------------------------------------------------------
