@@ -51,7 +51,8 @@ if __name__ == '__main__':
     annot_dir = args['annot_dir']
 
     select_image = args['select_image']
-    heatmap_dict_only = args['heatmap_dict_only']
+    run_heatmap_dict = args['run_heatmap_dict']
+    run_draw_heatmaps = args['run_draw_heatmaps']
     delete_previous = args['delete_previous']
     only_test_split = args['only_test_split']
     use_overlap = args['use_overlap']
@@ -528,11 +529,13 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
 # ------------------------------------------------------
 if use_overlap:
     for exp_code in exp_codes:
-        generate_heatmap_dict(exp_code, use_overlap)
-        if not heatmap_dict_only:
+        if run_heatmap_dict:
+            generate_heatmap_dict(exp_code, use_overlap)
+        if run_draw_heatmaps:
             draw_heatmaps_overlap(exp_code, cmap)
 else:
     for exp_code in exp_codes:
-        generate_heatmap_dict(exp_code)
-        if not heatmap_dict_only:
+        if run_heatmap_dict:
+            generate_heatmap_dict(exp_code)
+        if run_draw_heatmaps:
             draw_heatmaps(exp_code, cmap)
