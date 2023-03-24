@@ -148,8 +148,8 @@ class CLAM_SB(nn.Module):
             all_targets = patch_annot[0]
 
             if label:
-                postive_patch_ids = np.where(patch_annot == 1)[0]
-                negative_patch_ids = np.where(patch_annot == 0)[0]
+                postive_patch_ids = np.where(patch_annot.cpu() == 1)[0]
+                negative_patch_ids = np.where(patch_annot.cpu() == 0)[0]
 
                 positive_preds = [A[idx] for idx in postive_patch_ids]
                 negative_preds = [A[idx] for idx in negative_patch_ids]
