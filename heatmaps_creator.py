@@ -465,7 +465,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             if "F" in image_name:
                 patch_annot = load_pkl(patch_annot_path)
                 patch_annot = patch_annot['bin_scores']
-            elif "N" in image_name::
+            elif "N" in image_name:
                 patch_annot = [1]*len(scores)
 
             preds = [1 if x >= 0.5 else 0 for x in percentiles]
