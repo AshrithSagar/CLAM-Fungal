@@ -94,6 +94,8 @@ class CLAM_SB(nn.Module):
         self.k_sample = k_sample
         self.instance_loss_fn = instance_loss_fn
         self.attention_labels_loss_fn = attention_labels_loss_fn
+        self.attention_loss_positive = nn.L1Loss(reduction='sum')
+        self.attention_loss_negative = nn.L1Loss(reduction='sum')
         self.n_classes = n_classes
         self.subtyping = subtyping
 
@@ -144,6 +146,19 @@ class CLAM_SB(nn.Module):
         # Get target labels
         if semi_supervised and bool_annot:
             all_targets = patch_annot[0]
+
+            if label:
+                postive_patch_ids = np.where(patch_annot == 1)[0]
+                negative_patch_ids = np.where(patch_annot == 0)[0]
+
+                positive_preds = [A[idx] for idx in postive_patch_ids]
+                negative_preds = [A[idx] for idx in negative_patch_ids]
+                loss_pos_L1 = attention_loss_positive(positive_preds, np.ones((len(postive_patch_ids),), dtype=int))
+                loss_neg_L1 = attention_loss_negative(negative_preds, np.ones((len(negative_patch_ids),), dtype=int))
+            else:
+                loss_pos_L1 = None
+                loss_neg_L1 = None
+
         else:
             if label:
                 p_targets = self.create_positive_targets(self.k_sample, device)  # 1's
@@ -152,6 +167,9 @@ class CLAM_SB(nn.Module):
             n_targets = self.create_negative_targets(self.k_sample, device)  # 0's
             all_targets = torch.cat([p_targets, n_targets], dim=0)
 
+            loss_pos_L1 = None
+            loss_neg_L1 = None
+
         instance_loss = self.instance_loss_fn(logits, all_targets)
 
         if alpha_weight and semi_supervised:
@@ -159,7 +177,7 @@ class CLAM_SB(nn.Module):
                 instance_loss *= weight_alpha[0]
             else:
                 instance_loss *= weight_alpha[1]
-        return instance_loss, all_preds, all_targets
+        return instance_loss, all_preds, all_targets, loss_pos, loss_neg
 
     #instance-level evaluation for out-of-the-class attention branch
     def inst_eval_out(self, A, h, classifier):
@@ -191,7 +209,7 @@ class CLAM_SB(nn.Module):
 
         if instance_eval:
             classifier = self.instance_classifier
-            instance_loss, preds, targets = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
+            instance_loss, preds, targets, loss_pos, loss_neg = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         if semi_supervised and bool_annot:
             A_attention_preds = A.view([77])
@@ -205,7 +223,9 @@ class CLAM_SB(nn.Module):
         Y_prob = F.softmax(logits, dim = 1)
 
         if instance_eval:
-            results_dict = {'instance_loss': instance_loss, 'inst_labels': np.array(targets.cpu().numpy()),
+            results_dict = {'instance_loss': instance_loss,
+            'loss_pos_L1': loss_pos_L1, 'loss_neg_L1': loss_neg_L1,
+            'inst_labels': np.array(targets.cpu().numpy()),
             'inst_preds': np.array(preds.cpu().numpy())}
         else:
             results_dict = {}

@@ -288,12 +288,17 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
         loss = loss_fn(logits.view(1, 2), label)
         loss_value = loss.item()
 
+        loss_pos_L1 = instance_dict['loss_pos_L1']
+        loss_neg_L1 = instance_dict['loss_neg_L1']
+
         instance_loss = instance_dict['instance_loss']
         inst_count+=1
         instance_loss_value = instance_loss.item()
         train_inst_loss += instance_loss_value
 
         total_loss = loss_weights['bag'] * loss + loss_weights['instance'] * instance_loss
+        if (loss_neg_L1 is not None) and (loss_pos_L1 is not None):
+            total_loss += loss_neg_L1 - loss_pos_L1
         if attention_labels_loss is not None:
             attention_labels_loss_value = loss_weights['attention_labels'] * attention_labels_loss
             total_loss += attention_labels_loss_value
