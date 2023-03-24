@@ -431,7 +431,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
-        patch_accuracies = {}
+        patch_accuracies = []
         heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
 
         for image_file in heatmap_dict:
@@ -471,7 +471,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             preds = [1 if x >= 0.5 else 0 for x in percentiles]
             acc_sc = accuracy_score(patch_annot, preds)
             f1_sc = f1_score(patch_annot, preds, average='macro')
-            patch_accuracies.update({
+            patch_accuracies.append({
                 'filename': image_name,
                 'accuracy_score': acc_sc,
                 'f1_score': f1_sc})
