@@ -153,8 +153,8 @@ class CLAM_SB(nn.Module):
 
                 positive_preds = [A[idx] for idx in postive_patch_ids]
                 negative_preds = [A[idx] for idx in negative_patch_ids]
-                loss_pos_L1 = self.attention_loss_positive(positive_preds, np.ones(len(postive_patch_ids)))
-                loss_neg_L1 = self.attention_loss_negative(negative_preds, np.ones(len(negative_patch_ids)))
+                loss_pos_L1 = self.attention_loss_positive(positive_preds, self.create_positive_targets(len(postive_patch_ids), device))
+                loss_neg_L1 = self.attention_loss_negative(negative_preds, self.create_negative_targets(len(negative_patch_ids), device))
             else:
                 loss_pos_L1 = None
                 loss_neg_L1 = None
