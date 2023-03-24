@@ -209,7 +209,7 @@ class CLAM_SB(nn.Module):
 
         if instance_eval:
             classifier = self.instance_classifier
-            instance_loss, preds, targets, loss_pos, loss_neg = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
+            instance_loss, preds, targets, loss_pos_L1, loss_neg_L1 = self.inst_eval(A, h, classifier, label, bool_annot, patch_annot, semi_supervised, alpha_weight, weight_alpha, training)
 
         if semi_supervised and bool_annot:
             A_attention_preds = A.view([77])
