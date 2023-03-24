@@ -187,7 +187,7 @@ folds = np.arange(start, end)
 for i in folds:
     seed_torch(args['seed'])
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
-            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i), use_augmentation=use_augmentation)
+            csv_path='{}/splits_{}.csv'.format(args['split_dir'], i), use_augmentation=args['use_augmentation'])
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
