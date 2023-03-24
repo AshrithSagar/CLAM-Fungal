@@ -177,7 +177,7 @@ class CLAM_SB(nn.Module):
                 instance_loss *= weight_alpha[0]
             else:
                 instance_loss *= weight_alpha[1]
-        return instance_loss, all_preds, all_targets, loss_pos, loss_neg
+        return instance_loss, all_preds, all_targets, loss_pos_L1, loss_neg_L1
 
     #instance-level evaluation for out-of-the-class attention branch
     def inst_eval_out(self, A, h, classifier):
