@@ -267,7 +267,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
         return split
 
-    def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot'], training=False):
+    def get_overlap_split_from_df(self, all_splits, split_keys=['train', 'annot'], training=False, use_augmentation=True):
         train_split = all_splits[split_keys[0]]
         annot_split = all_splits[split_keys[1]]
 
@@ -284,14 +284,14 @@ class Generic_WSI_Classification_Dataset(Dataset):
                 annot_data.append(split_dict[train_data])
             df_slice['annot'] = annot_data
 
-            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes, training=training)
+            split = Generic_Split(df_slice, data_dir=self.data_dir, annot_dir=self.annot_dir, num_classes=self.num_classes, training=training, use_augmentation=use_augmentation)
         else:
             split = None
 
         return split
 
 
-    def return_splits(self, from_id=True, csv_path=None):
+    def return_splits(self, from_id=True, csv_path=None, use_augmentation=True):
 
 
         if from_id:
@@ -320,9 +320,9 @@ class Generic_WSI_Classification_Dataset(Dataset):
         else:
             assert csv_path
             all_splits = pd.read_csv(csv_path, dtype=self.slide_data['slide_id'].dtype)  # Without "dtype=self.slide_data['slide_id'].dtype", read_csv() will convert all-number columns to a numerical type. Even if we convert numerical columns back to objects later, we may lose zero-padding in the process; the columns must be correctly read in from the get-go. When we compare the individual train/val/test columns to self.slide_data['slide_id'] in the get_split_from_df() method, we cannot compare objects (strings) to numbers or even to incorrectly zero-padded objects/strings. An example of this breaking is shown in https://github.com/andrew-weisman/clam_analysis/tree/main/datatype_comparison_bug-2021-12-01.
-            train_split = self.get_overlap_split_from_df(all_splits, ['train', 'annot'], training=True)
-            val_split = self.get_overlap_split_from_df(all_splits, ['val', 'annot'])
-            test_split = self.get_overlap_split_from_df(all_splits, ['test', 'annot'])
+            train_split = self.get_overlap_split_from_df(all_splits, ['train', 'annot'], training=True, use_augmentation=use_augmentation)
+            val_split = self.get_overlap_split_from_df(all_splits, ['val', 'annot'], use_augmentation=use_augmentation)
+            test_split = self.get_overlap_split_from_df(all_splits, ['test', 'annot'], use_augmentation=use_augmentation)
             # train_split = self.get_split_from_df(all_splits, 'train')
             # val_split = self.get_split_from_df(all_splits, 'val')
             # test_split = self.get_split_from_df(all_splits, 'test')
@@ -396,6 +396,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
         data_dir,
         annot_dir=None,
         training=False,
+        use_augmentation=True,
         **kwargs):
 
         super(Generic_MIL_Dataset, self).__init__(**kwargs)
@@ -403,6 +404,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
         self.annot_dir = annot_dir
         self.use_h5 = False
         self.training = training
+        self.use_augmentation = use_augmentation
 
     def load_from_h5(self, toggle):
         self.use_h5 = toggle
@@ -436,7 +438,7 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
 
                 image_features = []
                 for patch in all_features:
-                    combination = np.random.randint(0, 6) if self.training else 0
+                    combination = np.random.randint(0, 6) if (self.training and self.use_augmentation) else 0
                     patch_feature = patch[combination]
                     image_features.append(patch_feature.numpy())
                 image_features = torch.Tensor(image_features)
@@ -463,12 +465,13 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
 
 
 class Generic_Split(Generic_MIL_Dataset):
-    def __init__(self, slide_data, annot_dir=None, data_dir=None, num_classes=2, training=False):
+    def __init__(self, slide_data, annot_dir=None, data_dir=None, num_classes=2, training=False, use_augmentation=True):
         self.use_h5 = False
         self.slide_data = slide_data
         self.data_dir = data_dir
         self.annot_dir = annot_dir
         self.training = training
+        self.use_augmentation = use_augmentation
         self.num_classes = num_classes
         self.slide_cls_ids = [[] for i in range(self.num_classes)]
         for i in range(self.num_classes):

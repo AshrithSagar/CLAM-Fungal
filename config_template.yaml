@@ -109,6 +109,7 @@ main:
 
     semi_supervised: true
     attention_labels_loss: 'ce'
+    use_augmentation: True
 
 
 heatmaps_creator:
