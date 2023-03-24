@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 from skimage.color import label2rgb
 import cv2 as cv
 import pandas as pd
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 
 
 if __name__ == '__main__':
@@ -466,8 +466,12 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             patch_annot = patch_annot['bin_scores']
 
             preds = [1 if x >= 0.5 else 0 for x in percentiles]
-            acc = accuracy_score(patch_annot, preds)
-            patch_accuracies.update({'filename': image_name, 'accuracy_score': acc})
+            acc_sc = accuracy_score(patch_annot, preds)
+            f1_sc = f1_score(patch_annot, preds, average='macro')
+            patch_accuracies.update({
+                'filename': image_name,
+                'accuracy_score': acc_sc,
+                'f1_score': f1_sc})
 
             heatmap_mask = np.zeros([1024, 1536, 3])
             counter = np.zeros([1024, 1536, 3])
