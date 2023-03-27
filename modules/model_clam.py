@@ -151,10 +151,15 @@ class CLAM_SB(nn.Module):
                 postive_patch_ids = np.where(patch_annot.cpu().numpy() == 1)[1]
                 negative_patch_ids = np.where(patch_annot.cpu().numpy() == 0)[1]
 
-                positive_preds = torch.tensor([A.view(77)[idx].item() for idx in postive_patch_ids])
-                negative_preds = torch.tensor([A.view(77)[idx].item() for idx in negative_patch_ids])
-                loss_pos_L1 = self.attention_loss_positive(positive_preds, self.create_positive_targets(len(postive_patch_ids), device))
-                loss_neg_L1 = self.attention_loss_negative(negative_preds, self.create_negative_targets(len(negative_patch_ids), device))
+                positive_preds = torch.tensor([A.view(77)[idx].item() for idx in postive_patch_ids], device=device)
+                negative_preds = torch.tensor([A.view(77)[idx].item() for idx in negative_patch_ids], device=device)
+
+                pos_targets_L1 = torch.full((len(postive_patch_ids), ), 1, device=device)
+                neg_targets_L1 = torch.full((len(negative_patch_ids), ), 0, device=device)
+
+                loss_pos_L1 = self.attention_loss_positive(positive_preds, pos_targets_L1)
+                loss_neg_L1 = self.attention_loss_negative(negative_preds, neg_targets_L1)
+
             else:
                 loss_pos_L1 = None
                 loss_neg_L1 = None
