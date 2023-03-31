@@ -473,6 +473,8 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
     val_inst_loss = 0.
     val_inst_acc = 0.
     inst_count=0
+    labeled_count = 0. # Labelled images
+    val_attention_labels_loss = 0.
 
     prob = np.zeros((len(loader), n_classes))
     labels = np.zeros(len(loader))
@@ -480,10 +482,16 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
     with torch.no_grad():
         for batch_idx, (data, label) in enumerate(loader):
             data, label = data.to(device), label.to(device)
-            logits, Y_prob, Y_hat, _, instance_dict, _ = model(data, label=label, instance_eval=True, training=False)
+            logits, Y_prob, Y_hat, _, instance_dict, attention_labels_loss = model(data, label=label, instance_eval=True, training=False)
             acc_logger.log(Y_hat, label)
 
             loss = loss_fn(logits.view(1, 2), label)
+
+            if attention_labels_loss is not None:
+                val_attention_labels_loss += attention_labels_loss
+                labeled_count += 1
+            else:
+                attention_labels_loss = -1.
 
             val_loss += loss.item()
 
@@ -505,6 +513,8 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
 
     val_error /= len(loader)
     val_loss /= len(loader)
+    if labeled_count != 0:
+        val_attention_labels_loss /= labeled_count
 
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
@@ -534,6 +544,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
         writer.add_scalar('val/auc', auc, epoch)
         writer.add_scalar('val/error', val_error, epoch)
         writer.add_scalar('val/inst_loss', val_inst_loss, epoch)
+        writer.add_scalar('val/attention_labels_loss', val_attention_labels_loss, epoch)
 
 
     for i in range(n_classes):
