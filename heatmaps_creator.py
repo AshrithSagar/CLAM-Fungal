@@ -58,6 +58,7 @@ if __name__ == '__main__':
     use_overlap = args['use_overlap']
     overlap = args['overlap']
     show_labels = args['show_labels']
+    get_patch_acc = args['get_patch_acc']
 
     ### Draw heatmaps config
     patch_size = args['patch_size']
@@ -431,10 +432,11 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
-        patch_accuracies = []
-        avg_positive_acc_sc = 0
-        avg_positive_f1_sc = 0
-        avg_positive_sc_counter = 0
+        if get_patch_acc:
+            patch_accuracies = []
+            avg_positive_acc_sc = 0
+            avg_positive_f1_sc = 0
+            avg_positive_sc_counter = 0
         heatmap_dict = load_pkl(os.path.join(results_dir, exp_code, "splits_"+str(split), "heatmap_dict.pkl"))
 
         for image_file in heatmap_dict:
@@ -464,25 +466,26 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             # print()
             # print(percentiles)
 
-            patch_annot_path = os.path.join(annot_dir, image_name, image_name+'.pkl')
-            if "F" in image_name:
-                patch_annot = load_pkl(patch_annot_path)
-                patch_annot = patch_annot['bin_scores']
-            elif "N" in image_name:
-                patch_annot = [1]*len(scores)
+            if get_patch_acc:
+                patch_annot_path = os.path.join(annot_dir, image_name, image_name+'.pkl')
+                if "F" in image_name:
+                    patch_annot = load_pkl(patch_annot_path)
+                    patch_annot = patch_annot['bin_scores']
+                elif "N" in image_name:
+                    patch_annot = [1]*len(scores)
 
-            preds = [1 if x >= 0.5 else 0 for x in percentiles]
-            acc_sc = accuracy_score(patch_annot, preds)
-            f1_sc = f1_score(patch_annot, preds, average='macro')
-            patch_accuracies.append({
-                'filename': image_name,
-                'accuracy_score': acc_sc,
-                'f1_score': f1_sc})
-            
-            if "F" in image_name:
-                avg_positive_acc_sc += acc_sc
-                avg_positive_f1_sc += f1_sc
-                avg_positive_sc_counter += 1
+                preds = [1 if x >= 0.5 else 0 for x in percentiles]
+                acc_sc = accuracy_score(patch_annot, preds)
+                f1_sc = f1_score(patch_annot, preds, average='macro')
+                patch_accuracies.append({
+                    'filename': image_name,
+                    'accuracy_score': acc_sc,
+                    'f1_score': f1_sc})
+
+                if "F" in image_name:
+                    avg_positive_acc_sc += acc_sc
+                    avg_positive_f1_sc += f1_sc
+                    avg_positive_sc_counter += 1
 
             heatmap_mask = np.zeros([1024, 1536, 3])
             counter = np.zeros([1024, 1536, 3])
@@ -537,15 +540,16 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             print("Saved", img_heatmap_filename)
         print()
 
-        avg_positive_acc_sc /= avg_positive_sc_counter
-        avg_positive_f1_sc /= avg_positive_sc_counter
-        patch_accuracies.append({
-            'avg_positive_acc_sc': avg_positive_acc_sc,
-            'avg_positive_f1_sc': avg_positive_f1_sc
-            })
+        if get_patch_acc:
+            avg_positive_acc_sc /= avg_positive_sc_counter
+            avg_positive_f1_sc /= avg_positive_sc_counter
+            patch_accuracies.append({
+                'avg_positive_acc_sc': avg_positive_acc_sc,
+                'avg_positive_f1_sc': avg_positive_f1_sc
+                })
 
-        acc_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "acc_dict.pkl")
-        save_pkl(acc_dict_save, patch_accuracies)
+            acc_dict_save = os.path.join(results_dir, exp_code, "splits_"+str(split), "acc_dict.pkl")
+            save_pkl(acc_dict_save, patch_accuracies)
 
 
 # ------------------------------------------------------
