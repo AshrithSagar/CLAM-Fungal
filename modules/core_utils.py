@@ -221,7 +221,9 @@ def train(datasets, cur, settings):
                 semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
-                settings, early_stopping, writer, loss_fn, settings['results_dir'])
+                settings, early_stopping, writer, loss_fn,
+                semi_supervised=settings['semi_supervised'],
+                settings['results_dir'])
 
         else:
             train_loop(epoch, model, train_loader, optimizer, settings['n_classes'], writer, loss_fn)
@@ -462,7 +464,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
     return False
 
-def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, results_dir = None):
+def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, semi_supervised=False, results_dir = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -480,9 +482,13 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
     labels = np.zeros(len(loader))
     sample_size = model.k_sample
     with torch.no_grad():
-        for batch_idx, (data, label) in enumerate(loader):
+        for batch_idx, (data, label, idx, bool_annot, patch_annot) in enumerate(loader):
+            data = data.float()
+            model = model.float()
             data, label = data.to(device), label.to(device)
-            logits, Y_prob, Y_hat, _, instance_dict, attention_labels_loss = model(data, label=label, instance_eval=True, training=False)
+            bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
+            idx = idx.to(device)
+            logits, Y_prob, Y_hat, _, instance_dict, attention_labels_loss = model(data, label=label, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, instance_eval=True, training=False)
             acc_logger.log(Y_hat, label)
 
             loss = loss_fn(logits.view(1, 2), label)
