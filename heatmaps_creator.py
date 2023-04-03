@@ -499,7 +499,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
                 counter[x:x+patch_size[0], y:y+patch_size[1], :] += 1
 
                 if show_labels:
-                    plt.text(y+0.25*patch_size[1], x+0.25*patch_size[0], str(round(percentiles[index], 4))+"\n"+str(round(scores[index], 4)), fontsize='x-small')
+                    plt.text(y+0.5*patch_size[1], x+0.5*patch_size[0], str(math.floor(percentiles[index] * 100))+"\n"+str(math.floor(scores[index] * 1e4)), fontsize='x-small')
             # print(heatmap_mask.shape)
 
             # Average
