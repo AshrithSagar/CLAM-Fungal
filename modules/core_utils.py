@@ -221,9 +221,8 @@ def train(datasets, cur, settings):
                 semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
-                settings, early_stopping, writer, loss_fn,
-                semi_supervised=settings['semi_supervised'],
-                settings['results_dir'])
+                settings, early_stopping, writer, loss_fn, settings['results_dir'],
+                semi_supervised=settings['semi_supervised'])
 
         else:
             train_loop(epoch, model, train_loader, optimizer, settings['n_classes'], writer, loss_fn)
