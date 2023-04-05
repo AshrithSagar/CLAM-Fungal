@@ -412,7 +412,10 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __getitem__(self, idx):
         slide_id = self.slide_data['slide_id'][idx]
         label = self.slide_data['label'][idx]
-        bool_annot = (self.slide_data['annot'][idx] == "True")
+        if self.training:
+            bool_annot = (self.slide_data['annot'][idx] == "True")
+        else:
+            bool_annot = True
         # print("__get_item__", slide_id, idx, label, bool_annot, self.slide_data['annot'][idx], type(self.slide_data['annot'][idx]))
         if bool_annot:
             if label == 1:
