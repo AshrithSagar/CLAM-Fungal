@@ -144,6 +144,7 @@ class CLAM_SB(nn.Module):
         all_preds = torch.topk(logits, 1, dim = 1)[1].squeeze(1)
 
         # Get target labels
+        print("__", semi_supervised, bool_annot)
         if semi_supervised and bool_annot:
             all_targets = patch_annot[0]
 

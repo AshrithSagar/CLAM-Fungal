@@ -221,8 +221,7 @@ def train(datasets, cur, settings):
                 semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
-                settings, early_stopping, writer, loss_fn, settings['results_dir'],
-                semi_supervised=settings['semi_supervised'])
+                settings, early_stopping, writer, loss_fn, settings['results_dir'], semi_supervised=settings['semi_supervised'])
 
         else:
             train_loop(epoch, model, train_loader, optimizer, settings['n_classes'], writer, loss_fn)
@@ -463,7 +462,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
     return False
 
-def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, semi_supervised=False, results_dir = None):
+def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, results_dir = None, semi_supervised=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
