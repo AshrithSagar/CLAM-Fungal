@@ -123,7 +123,7 @@ class CLAM_SB(nn.Module):
         if training:
             bool_annot = bool_annot.item()
         else:
-            bool_annot = None
+            bool_annot = True
 
         # Get instance
         if semi_supervised and bool_annot:
