@@ -585,7 +585,7 @@ def summary(model, loader, n_classes):
     slide_ids = loader.dataset.slide_data['slide_id']
     patient_results = {}
 
-    for batch_idx, (data, label) in enumerate(loader):
+    for batch_idx, (data, label, idx, bool_annot, patch_annot) in enumerate(loader):
         data, label = data.to(device), label.to(device)
         slide_id = slide_ids.iloc[batch_idx]
         with torch.no_grad():
