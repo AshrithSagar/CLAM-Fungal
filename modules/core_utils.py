@@ -26,30 +26,12 @@ class Accuracy_Logger(object):
         self.data[Y]["correct"] += (Y_hat == Y)
 
     def log_batch(self, Y_hat, Y):
-#         print("Y_hat", Y_hat)
         Y_hat = np.array(Y_hat).astype(int)
         Y = np.array(Y).astype(int)
         for label_class in np.unique(Y):
             cls_mask = Y == label_class
-#             print("B-Log Y_hat", Y_hat)
-#             print("B-Log Y_hat.shape", Y_hat.shape)
-#             print("B-Log Y.shape", Y.shape)
-#             print("B-0", sum(cls_mask))
-#             print("B-1", sum(Y_hat[cls_mask] == Y[cls_mask]))
-            self.data[label_class]["count"] += sum(cls_mask)
-            self.data[label_class]["correct"] += sum(Y_hat[cls_mask] == Y[cls_mask])
-
-#         Y_hat = np.array(Y_hat).astype(int)
-#         Y_hat = np.reshape(Y_hat, (16, 2))
-#         Y_hat = Y_hat[:, 0]
-#         Y = np.array(Y).astype(int)
-#         for label_class in np.unique(Y):
-#             cls_mask = [Y == label_class]
-#             self.data[label_class]["count"] += sum(cls_mask)
-#             self.data[label_class]["correct"] += sum(tuple([(Y_hat[cls_mask] == Y[cls_mask]) ]) )
-
-#             print("B count:", self.data[label_class]["count"])
-#             print("B correct:", self.data[label_class]["correct"])
+            self.data[label_class]["count"] += cls_mask.sum()
+            self.data[label_class]["correct"] += (Y_hat[cls_mask] == Y[cls_mask]).sum()
 
     def get_summary(self, c):
         count = self.data[c]["count"]
