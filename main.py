@@ -235,9 +235,15 @@ for i in folds:
 
 final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
     'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc, "cm_val": all_cm_val, "cm_test": all_cm_test })
+mean_df = final_df.mean(axis=0).to_frame().T.drop(["folds", "cm_val", "cm_test"], axis=1)
+std_df = final_df.std(axis=0).to_frame().T.drop(["folds", "cm_val", "cm_test"], axis=1)
+final_mean_std = pd.concat([mean_df, std_df], ignore_index=True)
 
 if len(folds) != args['k']:
     save_name = 'summary_partial_{}_{}.csv'.format(start, end)
 else:
     save_name = 'summary.csv'
 final_df.to_csv(os.path.join(exp_dir, save_name))
+final_mean_std.to_csv(
+    os.path.join(exp_dir, "summary_avg.csv"), index=False
+)
