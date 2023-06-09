@@ -63,12 +63,6 @@ class Accuracy_Logger(object):
 
         return precision
 
-    def get_auc(self):
-        y_prob = np.hstack(self.probs["y_prob"])
-        y_true = np.hstack(self.probs["y_true"])
-        print("__ auc", roc_auc_score(y_true, y_prob))
-        return roc_auc_score(y_true, y_prob)
-
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
@@ -222,11 +216,11 @@ def train(datasets, cur, settings):
 
     train_metrics = {
         "slide_loss": [], "inst_loss": [], "error": [], "inst_recall": [],
-        "inst_precision": [], "inst_specificity": [], "inst_auc": []
+        "inst_precision": [], "inst_specificity": []
     }
     valid_metrics = {
         "total_loss": [], "inst_loss": [], "error": [], "inst_recall": [],
-        "inst_precision": [], "inst_specificity": [], "inst_auc": []
+        "inst_precision": [], "inst_specificity": []
     }
 
     for epoch in range(settings['max_epochs']):
@@ -379,7 +373,6 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
     metrics_dict["inst_recall"].append(inst_logger.get_recall())
     metrics_dict["inst_precision"].append(inst_logger.get_precision())
     metrics_dict["inst_specificity"].append(inst_logger.get_specificity())
-    metrics_dict["inst_auc"].append(inst_logger.get_auc())
 
     if writer:
         writer.add_scalar('train/loss', train_loss, epoch)
@@ -391,7 +384,7 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
         writer.add_scalar('train/inst_recall', inst_logger.get_recall(), epoch)
         writer.add_scalar('train/inst_precision', inst_logger.get_precision(), epoch)
         writer.add_scalar('train/inst_specificity', inst_logger.get_specificity(), epoch)
-        writer.add_scalar('train/inst_auc', inst_logger.get_auc(), epoch)
+
 
 def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -588,7 +581,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, metrics_dict =
     metrics_dict["inst_recall"].append(inst_logger.get_recall())
     metrics_dict["inst_precision"].append(inst_logger.get_precision())
     metrics_dict["inst_specificity"].append(inst_logger.get_specificity())
-    metrics_dict["inst_auc"].append(inst_logger.get_auc())
 
     if writer:
         writer.add_scalar('val/loss', val_loss, epoch)
@@ -600,7 +592,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, metrics_dict =
         writer.add_scalar('val/inst_recall', inst_logger.get_recall(), epoch)
         writer.add_scalar('val/inst_precision', inst_logger.get_precision(), epoch)
         writer.add_scalar('val/inst_specificity', inst_logger.get_specificity(), epoch)
-        writer.add_scalar('val/inst_auc', inst_logger.get_auc(), epoch)
 
 
     for i in range(n_classes):
