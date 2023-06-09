@@ -494,7 +494,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
     return False
 
-def validate_clam(cur, epoch, model, loader, n_classes, settings, metrics_dict = None, early_stopping = None, writer = None, loss_fn = None, results_dir = None, semi_supervised=False):
+def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, results_dir = None, metrics_dict = None, semi_supervised=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
