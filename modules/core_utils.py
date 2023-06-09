@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from modules.utils import *
 import os
+import pandas as pd
 from modules.dataset_generic import save_splits
 from modules.model_mil import MIL_fc, MIL_fc_mc
 from modules.model_clam import CLAM_MB, CLAM_SB
@@ -43,6 +44,31 @@ class Accuracy_Logger(object):
             acc = float(correct) / count
 
         return acc, correct, count
+
+    def get_recall(self):
+        recall, _, _ = self.get_summary(1)
+        return recall
+
+    def get_specificity(self):
+        specificity, _, _ = self.get_summary(0)
+        return specificity
+
+    def get_precision(self):
+        tp = self.data[1]["correct"]
+        fp = self.data[0]["count"] - self.data[0]["correct"]
+        if tp + fp:
+            precision = tp / (tp + fp)
+        else:
+            precision = 0.
+
+        return precision
+
+    def get_auc(self):
+        y_prob = np.hstack(self.probs["y_prob"])
+        y_true = np.hstack(self.probs["y_true"])
+        print("__ auc", roc_auc_score(y_true, y_prob))
+        return roc_auc_score(y_true, y_prob)
+
 
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
@@ -194,16 +220,25 @@ def train(datasets, cur, settings):
         early_stopping = None
     print('Done!')
 
+    train_metrics = {
+        "slide_loss": [], "inst_loss": [], "error": [], "inst_recall": [],
+        "inst_precision": [], "inst_specificity": [], "inst_auc": []
+    }
+    valid_metrics = {
+        "total_loss": [], "inst_loss": [], "error": [], "inst_recall": [],
+        "inst_precision": [], "inst_specificity": [], "inst_auc": []
+    }
+
     for epoch in range(settings['max_epochs']):
         weight_alpha = get_alpha_weight(epoch, settings['T1'], settings['T2'], settings['af'], settings['correction'])
         print("\nWeight alpha", weight_alpha)
         if settings['model_type'] in ['clam_sb', 'clam_mb'] and not settings['no_inst_cluster']:
             train_loop_clam(epoch, model, train_loader, optimizer, settings['n_classes'],
                 settings['loss_weights'], writer, loss_fn,
-                semi_supervised=settings['semi_supervised'],
+                metrics_dict=train_metrics, semi_supervised=settings['semi_supervised'],
                 alpha_weight=settings['alpha_weight'], weight_alpha=weight_alpha)
             stop = validate_clam(cur, epoch, model, val_loader, settings['n_classes'],
-                settings, early_stopping, writer, loss_fn, settings['results_dir'], semi_supervised=settings['semi_supervised'])
+                settings, early_stopping, writer, loss_fn, settings['results_dir'], metrics_dict=valid_metrics, semi_supervised=settings['semi_supervised'])
 
         else:
             train_loop(epoch, model, train_loader, optimizer, settings['n_classes'], writer, loss_fn)
@@ -219,6 +254,15 @@ def train(datasets, cur, settings):
         model.load_state_dict(torch.load(os.path.join(split_dir, "s_{}_checkpoint.pt".format(cur))))
     else:
         torch.save(model.state_dict(), os.path.join(split_dir, "s_{}_checkpoint.pt".format(cur)))
+
+    pd.DataFrame(train_metrics).to_csv(
+        os.path.join(split_dir, f"train_metrics_fold_{cur}.csv"),
+        index=False
+    )
+    pd.DataFrame(valid_metrics).to_csv(
+        os.path.join(split_dir, f"valid_metrics_fold_{cur}.csv"),
+        index=False
+    )
 
     _, val_error, val_auc, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
@@ -242,7 +286,7 @@ def train(datasets, cur, settings):
     return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
 
 
-def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, writer = None, loss_fn = None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
+def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, writer = None, loss_fn = None, metrics_dict=None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.train()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -329,12 +373,25 @@ def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, wr
         if writer and acc is not None:
             writer.add_scalar('train/class_{}_acc'.format(i), acc, epoch)
 
+    metrics_dict["slide_loss"].append(train_loss)
+    metrics_dict["inst_loss"].append(train_inst_loss)
+    metrics_dict["error"].append(train_error)
+    metrics_dict["inst_recall"].append(inst_logger.get_recall())
+    metrics_dict["inst_precision"].append(inst_logger.get_precision())
+    metrics_dict["inst_specificity"].append(inst_logger.get_specificity())
+    metrics_dict["inst_auc"].append(inst_logger.get_auc())
+
     if writer:
         writer.add_scalar('train/loss', train_loss, epoch)
         writer.add_scalar('train/error', train_error, epoch)
         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
         if labeled_count != 0:
             writer.add_scalar('train/attention_labels_loss', train_attention_labels_loss, epoch)
+
+        writer.add_scalar('train/inst_recall', inst_logger.get_recall(), epoch)
+        writer.add_scalar('train/inst_precision', inst_logger.get_precision(), epoch)
+        writer.add_scalar('train/inst_specificity', inst_logger.get_specificity(), epoch)
+        writer.add_scalar('train/inst_auc', inst_logger.get_auc(), epoch)
 
 def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -444,7 +501,7 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
     return False
 
-def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping = None, writer = None, loss_fn = None, results_dir = None, semi_supervised=False):
+def validate_clam(cur, epoch, model, loader, n_classes, settings, metrics_dict = None, early_stopping = None, writer = None, loss_fn = None, results_dir = None, semi_supervised=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.eval()
     acc_logger = Accuracy_Logger(n_classes=n_classes)
@@ -525,12 +582,25 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
             acc, correct, count = inst_logger.get_summary(i)
             print('class {} clustering acc {}: correct {}/{}'.format(i, acc, correct, count))
 
+    metrics_dict["total_loss"].append(val_loss)
+    metrics_dict["inst_loss"].append(val_inst_loss)
+    metrics_dict["error"].append(val_error)
+    metrics_dict["inst_recall"].append(inst_logger.get_recall())
+    metrics_dict["inst_precision"].append(inst_logger.get_precision())
+    metrics_dict["inst_specificity"].append(inst_logger.get_specificity())
+    metrics_dict["inst_auc"].append(inst_logger.get_auc())
+
     if writer:
         writer.add_scalar('val/loss', val_loss, epoch)
         writer.add_scalar('val/auc', auc, epoch)
         writer.add_scalar('val/error', val_error, epoch)
         writer.add_scalar('val/inst_loss', val_inst_loss, epoch)
         writer.add_scalar('val/attention_labels_loss', val_attention_labels_loss, epoch)
+
+        writer.add_scalar('val/inst_recall', inst_logger.get_recall(), epoch)
+        writer.add_scalar('val/inst_precision', inst_logger.get_precision(), epoch)
+        writer.add_scalar('val/inst_specificity', inst_logger.get_specificity(), epoch)
+        writer.add_scalar('val/inst_auc', inst_logger.get_auc(), epoch)
 
 
     for i in range(n_classes):
