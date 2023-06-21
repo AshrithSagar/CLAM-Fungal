@@ -107,7 +107,7 @@ class EarlyStopping:
         torch.save(model.state_dict(), ckpt_name)
         self.val_loss_min = val_loss
 
-def train(datasets, cur, settings):
+def train(datasets, cur, settings, test_metrics):
     """
         train for a single fold
     """
@@ -258,10 +258,10 @@ def train(datasets, cur, settings):
         index=False
     )
 
-    _, val_error, val_auc, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
+    _, val_error, val_auc, _, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'])
+    results_dict, test_error, test_auc, acc_logger, inst_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
     for i in range(settings['n_classes']):
@@ -271,13 +271,38 @@ def train(datasets, cur, settings):
         if writer:
             writer.add_scalar('final/test_class_{}_acc'.format(i), acc, 0)
 
+    for i in range(settings['n_classes']):
+        acc, correct, count = inst_logger.get_summary(i)
+        print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+
+        if writer:
+            writer.add_scalar('final/test_inst_class_{}_acc'.format(i), acc, 0)
+
+    test_recall = acc_logger.get_recall()
+    test_precision = acc_logger.get_precision()
+    test_inst_recall = inst_logger.get_recall()
+    test_inst_precision = inst_logger.get_precision()
+
+    test_metrics["test_auc"].append(test_auc)
+    test_metrics["test_acc"].append(1 - test_error)
+    test_metrics["test_precision"].append(test_precision)
+    test_metrics["test_recall"].append(test_recall)
+    test_metrics["val_auc"].append(val_auc)
+    test_metrics["val_acc"].append(1 - val_error)
+    test_metrics["cm_val"].append(cm_val)
+    test_metrics["cm_test"].append(cm_test)
+    test_metrics["test_precision"].append(test_precision)
+    test_metrics["test_recall"].append(test_recall)
+    test_metrics["test_inst_recall"].append(test_inst_recall)
+    test_metrics["test_inst_precision"].append(test_inst_precision)
+
     if writer:
         writer.add_scalar('final/val_error', val_error, 0)
         writer.add_scalar('final/val_auc', val_auc, 0)
         writer.add_scalar('final/test_error', test_error, 0)
         writer.add_scalar('final/test_auc', test_auc, 0)
         writer.close()
-    return results_dict, test_auc, val_auc, 1-test_error, 1-val_error, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
+    return results_dict, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test
 
 
 def train_loop_clam(epoch, model, loader, optimizer, n_classes, loss_weights, writer = None, loss_fn = None, metrics_dict=None, semi_supervised=False, alpha_weight=False, weight_alpha=None):
@@ -618,6 +643,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
 def summary(model, loader, n_classes):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     acc_logger = Accuracy_Logger(n_classes=n_classes)
+    inst_logger = Accuracy_Logger(n_classes=n_classes)
     model.eval()
     test_loss = 0.
     test_error = 0.
@@ -632,12 +658,14 @@ def summary(model, loader, n_classes):
         data, label = data.to(device), label.to(device)
         slide_id = slide_ids.iloc[batch_idx]
         with torch.no_grad():
-            logits, Y_prob, Y_hat, _, _, _ = model(data)
+            logits, Y_prob, Y_hat, _, instance_dict, _ = model(data)
 
         acc_logger.log(Y_hat, label)
         probs = Y_prob.cpu().numpy()
         all_probs[batch_idx] = probs
         all_labels[batch_idx] = label.item()
+
+        inst_logger.log_batch(instance_dict["inst_preds"], instance_dict["inst_labels"])
 
         patient_results.update({slide_id: {'slide_id': np.array(slide_id), 'prob': probs, 'label': label.item()}})
         error = calculate_error(Y_hat, label)
@@ -667,7 +695,7 @@ def summary(model, loader, n_classes):
 
         cm = []
 
-    return patient_results, test_error, auc, acc_logger, cm, CM_data, cm_disp, fpr, tpr
+    return patient_results, test_error, auc, acc_logger, inst_logger, cm, CM_data, cm_disp, fpr, tpr
 
 def get_alpha_weight(epoch, T1, T2, af, correction):
     is_correction = not (epoch % correction)

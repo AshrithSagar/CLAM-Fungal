@@ -177,13 +177,12 @@ for key, val in settings.items():
 start = 0 if args['k_start'] == -1 else args['k_start']
 end = args['k'] if args['k_end'] == -1 else args['k_end']
 
-all_test_auc = []
-all_val_auc = []
-all_test_acc = []
-all_val_acc = []
-all_cm_val = []
-all_cm_test = []
 folds = np.arange(start, end)
+final_metrics = {
+    "folds": folds, "test_auc": [], "val_auc": [], "test_acc": [],
+    "val_acc": [], "test_recall": [], "test_precision": [], "test_f1": [],
+    "test_a_loss_tum": [], "test_a_loss_norm": [], "cm_val": [], "cm_test": []
+}
 for i in folds:
     seed_torch(args['seed'])
     train_dataset, val_dataset, test_dataset = dataset.return_splits(from_id=False,
@@ -191,13 +190,18 @@ for i in folds:
 
     datasets = (train_dataset, val_dataset, test_dataset)
 
-    results, test_auc, val_auc, test_acc, val_acc, cm_val, cm_test, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings)
-    all_test_auc.append(test_auc)
-    all_val_auc.append(val_auc)
-    all_test_acc.append(test_acc)
-    all_val_acc.append(val_acc)
-    all_cm_val.append(cm_val)
-    all_cm_test.append(cm_test)
+    results, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings, final_metrics)
+
+    # add f1-score based on precision and recall results
+    final_metrics["test_f1"].append(f1_score(
+        final_metrics["test_precision"][-1],
+        final_metrics["test_recall"][-1]
+    ))
+    final_metrics["test_inst_f1"].append(f1_score(
+        final_metrics["test_inst_precision"][-1],
+        final_metrics["test_inst_recall"][-1]
+    ))
+
     #write results to pkl
     filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
     save_pkl(filename, results)
@@ -233,8 +237,7 @@ for i in folds:
     filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_CM.pkl'.format(i))
     save_pkl(filename, CM_data)
 
-final_df = pd.DataFrame({'folds': folds, 'test_auc': all_test_auc,
-    'val_auc': all_val_auc, 'test_acc': all_test_acc, 'val_acc' : all_val_acc, "cm_val": all_cm_val, "cm_test": all_cm_test })
+final_df = pd.DataFrame(final_metrics)
 mean_df = final_df.mean(axis=0).to_frame().T.drop("folds", axis=1)
 std_df = final_df.std(axis=0).to_frame().T.drop("folds", axis=1)
 final_mean_std = pd.concat([mean_df, std_df], ignore_index=True, sort=False)

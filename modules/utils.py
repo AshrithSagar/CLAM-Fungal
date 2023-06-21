@@ -67,7 +67,7 @@ def get_split_loader(split_dataset, training = False, testing = False, weighted 
                 weights = make_weights_for_balanced_classes_split(split_dataset)
                 loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate_MIL, **kwargs)
             else:
- 
+
                 loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate_MIL_annot, **kwargs)
         else:
             loader = DataLoader(split_dataset, batch_size=1, sampler = SequentialSampler(split_dataset), collate_fn = collate_MIL_annot, **kwargs)
@@ -173,3 +173,10 @@ def initialize_weights(module):
             nn.init.constant_(m.weight, 1)
             nn.init.constant_(m.bias, 0)
 
+
+def f1_score(prec, rec):
+    try:
+        f1 = 2 * prec * rec / (prec + rec)
+    except:
+        f1 = 0
+    return f1
