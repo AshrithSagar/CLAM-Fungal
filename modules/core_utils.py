@@ -655,10 +655,14 @@ def summary(model, loader, n_classes):
     patient_results = {}
 
     for batch_idx, (data, label, idx, bool_annot, patch_annot) in enumerate(loader):
+        data = data.float()
+        model = model.float()
         data, label = data.to(device), label.to(device)
+        bool_annot, patch_annot = bool_annot.to(device), patch_annot.to(device)
+        idx = idx.to(device)
         slide_id = slide_ids.iloc[batch_idx]
         with torch.no_grad():
-            logits, Y_prob, Y_hat, _, instance_dict, _ = model(data)
+            logits, Y_prob, Y_hat, _, instance_dict, attention_labels_loss = model(data, label=label, semi_supervised=semi_supervised, bool_annot=bool_annot, patch_annot=patch_annot, instance_eval=True)
 
         acc_logger.log(Y_hat, label)
         probs = Y_prob.cpu().numpy()
