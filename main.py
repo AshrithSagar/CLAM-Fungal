@@ -181,7 +181,7 @@ folds = np.arange(start, end)
 final_metrics = {
     "folds": folds, "test_auc": [], "val_auc": [], "test_acc": [],
     "val_acc": [], "test_recall": [], "test_precision": [], "test_f1": [],
-    "test_a_loss_tum": [], "test_a_loss_norm": [], "cm_val": [], "cm_test": [],
+    "cm_val": [], "cm_test": [],
     "test_inst_precision": [], "test_inst_recall": [], "test_inst_f1": []
 }
 for i in folds:
