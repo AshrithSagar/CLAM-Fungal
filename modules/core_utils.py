@@ -258,10 +258,10 @@ def train(datasets, cur, settings, test_metrics):
         index=False
     )
 
-    _, val_error, val_auc, _, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'])
+    _, val_error, val_auc, _, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger, inst_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'])
+    results_dict, test_error, test_auc, acc_logger, inst_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
     for i in range(settings['n_classes']):
@@ -640,7 +640,7 @@ def validate_clam(cur, epoch, model, loader, n_classes, settings, early_stopping
 
     return False
 
-def summary(model, loader, n_classes):
+def summary(model, loader, n_classes, semi_supervised=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     acc_logger = Accuracy_Logger(n_classes=n_classes)
     inst_logger = Accuracy_Logger(n_classes=n_classes)
