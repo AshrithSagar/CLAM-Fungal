@@ -179,10 +179,10 @@ end = args['k'] if args['k_end'] == -1 else args['k_end']
 
 folds = np.arange(start, end)
 final_metrics = {
-    "folds": folds, "test_auc": [], "val_auc": [], "test_acc": [],
-    "val_acc": [], "test_recall": [], "test_precision": [], "test_f1": [],
-    "cm_val": [], "cm_test": [],
-    "test_inst_precision": [], "test_inst_recall": [], "test_inst_f1": []
+    "folds": list(folds), "test_auc": [], "val_auc": [], "test_acc": [],
+    "val_acc": [], "test_recall": [], "test_precision": [],
+    # "cm_val": [], "cm_test": [],
+    "test_inst_precision": [], "test_inst_recall": []
 }
 for i in folds:
     seed_torch(args['seed'])
@@ -192,16 +192,17 @@ for i in folds:
     datasets = (train_dataset, val_dataset, test_dataset)
 
     results, CM_val, CM_test, cm_val_disp, cm_test_disp, fpr_val, tpr_val, fpr_test, tpr_test = train(datasets, i, settings, final_metrics)
-
+    
+    print("__ test_metrics", final_metrics)
     # add f1-score based on precision and recall results
-    final_metrics["test_f1"].append(f1_score(
-        final_metrics["test_precision"][-1],
-        final_metrics["test_recall"][-1]
-    ))
-    final_metrics["test_inst_f1"].append(f1_score(
-        final_metrics["test_inst_precision"][-1],
-        final_metrics["test_inst_recall"][-1]
-    ))
+#     final_metrics["test_f1"].append(f1_score(
+#         final_metrics["test_precision"][-1],
+#         final_metrics["test_recall"][-1]
+#     ))
+#     final_metrics["test_inst_f1"].append(f1_score(
+#         final_metrics["test_inst_precision"][-1],
+#         final_metrics["test_inst_recall"][-1]
+#     ))
 
     #write results to pkl
     filename = os.path.join(exp_dir, "splits_{}".format(i), 'split_{}_results.pkl'.format(i))
