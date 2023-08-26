@@ -291,8 +291,6 @@ def train(datasets, cur, settings, test_metrics):
     test_metrics["val_acc"].append(1 - val_error)
     # test_metrics["cm_val"].append(cm_val)
     # test_metrics["cm_test"].append(cm_test)
-    test_metrics["test_precision"].append(test_precision)
-    test_metrics["test_recall"].append(test_recall)
     test_metrics["test_inst_recall"].append(test_inst_recall)
     test_metrics["test_inst_precision"].append(test_inst_precision)
 
