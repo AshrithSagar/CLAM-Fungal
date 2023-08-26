@@ -180,7 +180,7 @@ end = args['k'] if args['k_end'] == -1 else args['k_end']
 folds = np.arange(start, end)
 final_metrics = {
     "folds": list(folds), "test_auc": [], "val_auc": [], "test_acc": [],
-    "val_acc": [], "test_recall": [], "test_precision": [],
+    "val_acc": [], "test_recall": [], "test_precision": [], "test_f1": [],
     # "cm_val": [], "cm_test": [],
     "test_inst_precision": [], "test_inst_recall": []
 }
