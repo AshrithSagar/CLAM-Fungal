@@ -264,19 +264,27 @@ def train(datasets, cur, settings, test_metrics):
     results_dict, test_error, test_auc, acc_logger, inst_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
+    total_correct, total_count = 0, 0
     for i in range(settings['n_classes']):
         acc, correct, count = acc_logger.get_summary(i)
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        total_correct += correct
+        total_count += count
 
         if writer:
             writer.add_scalar('final/test_class_{}_acc'.format(i), acc, 0)
+    slide_acc = total_correct / total_count
 
+    total_correct, total_count = 0, 0
     for i in range(settings['n_classes']):
         acc, correct, count = inst_logger.get_summary(i)
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        total_correct += correct
+        total_count += count
 
         if writer:
             writer.add_scalar('final/test_inst_class_{}_acc'.format(i), acc, 0)
+    patch_acc = total_correct / total_count
 
     test_recall = acc_logger.get_recall()
     test_precision = acc_logger.get_precision()
@@ -285,12 +293,14 @@ def train(datasets, cur, settings, test_metrics):
 
     test_metrics["test_auc"].append(test_auc)
     test_metrics["test_acc"].append(1 - test_error)
+    test_metrics["test_acc_2"].append(slide_acc)
     test_metrics["test_precision"].append(test_precision)
     test_metrics["test_recall"].append(test_recall)
     test_metrics["val_auc"].append(val_auc)
     test_metrics["val_acc"].append(1 - val_error)
     # test_metrics["cm_val"].append(cm_val)
     # test_metrics["cm_test"].append(cm_test)
+    test_metrics["test_inst_acc"].append(patch_acc)
     test_metrics["test_inst_recall"].append(test_inst_recall)
     test_metrics["test_inst_precision"].append(test_inst_precision)
 
