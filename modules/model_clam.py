@@ -231,7 +231,8 @@ class CLAM_SB(nn.Module):
             results_dict = {'instance_loss': instance_loss,
             'loss_pos_L1': loss_pos_L1, 'loss_neg_L1': loss_neg_L1,
             'inst_labels': np.array(targets.cpu().numpy()),
-            'inst_preds': np.array(preds.cpu().numpy())}
+            'inst_preds': np.array(preds.cpu().numpy()),
+            'inst_preds_all': h}
         else:
             results_dict = {}
         if return_features:

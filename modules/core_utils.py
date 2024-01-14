@@ -701,9 +701,10 @@ def summary(model, loader, n_classes, semi_supervised=False):
         all_labels[batch_idx] = label.item()
 
         inst_preds = instance_dict['inst_preds']
+        inst_preds_all = instance_dict['inst_preds_all']
         inst_labels = instance_dict['inst_labels']
         inst_logger.log_batch(inst_preds, inst_labels)
-        inst_logger_gt.log_batch(inst_preds, patch_annot)
+        inst_logger_gt.log_batch(inst_preds_all, patch_annot.cpu().numpy().squeeze())
 
         patient_results.update({slide_id: {'slide_id': np.array(slide_id), 'prob': probs, 'label': label.item()}})
         error = calculate_error(Y_hat, label)
