@@ -182,8 +182,10 @@ final_metrics = {
     "folds": list(folds), "test_auc": [], "val_auc": [], "test_acc": [],
     "test_acc_2": [], "val_acc": [], "test_recall": [], "test_precision": [],
     # "cm_val": [], "cm_test": [],
-    "test_inst_acc": [],
-    "test_inst_precision": [], "test_inst_recall": []
+    "test_specificity": [], "test_inst_acc": [],
+    "test_inst_precision": [], "test_inst_recall": [], "test_inst_specificity": [],
+    "test_inst_acc_gt": [], "test_inst_precision_gt": [],
+    "test_inst_recall_gt": [], "test_inst_specificity_gt": []
 }
 for i in folds:
     seed_torch(args['seed'])
