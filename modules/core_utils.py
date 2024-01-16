@@ -258,10 +258,10 @@ def train(datasets, cur, settings, test_metrics):
         index=False
     )
 
-    _, val_error, val_auc, _, _, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
+    _, val_error, val_auc, _, _, cm_val, CM_val, cm_val_disp, fpr_val, tpr_val = summary(model, val_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
     print('Val error: {:.4f}, ROC AUC: {:.4f}'.format(val_error, val_auc))
 
-    results_dict, test_error, test_auc, acc_logger, inst_logger, inst_logger_gt, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
+    results_dict, test_error, test_auc, acc_logger, inst_logger, cm_test, CM_test, cm_test_disp, fpr_test, tpr_test = summary(model, test_loader, settings['n_classes'], semi_supervised=settings['semi_supervised'])
     print('Test error: {:.4f}, ROC AUC: {:.4f}'.format(test_error, test_auc))
 
     total_correct, total_count = 0, 0
@@ -284,47 +284,25 @@ def train(datasets, cur, settings, test_metrics):
 
         if writer:
             writer.add_scalar('final/test_inst_class_{}_acc'.format(i), acc, 0)
-    test_inst_acc = total_correct / total_count
-
-    total_correct, total_count = 0, 0
-    for i in range(settings['n_classes']):
-        acc, correct, count = inst_logger_gt.get_summary(i)
-        print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
-        total_correct += correct
-        total_count += count
-
-        if writer:
-            writer.add_scalar('final/test_inst_class_{}_acc_gt'.format(i), acc, 0)
-    test_inst_acc_gt = total_correct / total_count
+    patch_acc = total_correct / total_count
 
     test_recall = acc_logger.get_recall()
     test_precision = acc_logger.get_precision()
-    test_specificity = acc_logger.get_specificity()
     test_inst_recall = inst_logger.get_recall()
     test_inst_precision = inst_logger.get_precision()
-    test_inst_specificity = inst_logger.get_specificity()
-    test_inst_recall_gt = inst_logger_gt.get_recall()
-    test_inst_precision_gt = inst_logger_gt.get_precision()
-    test_inst_specificity_gt = inst_logger_gt.get_specificity()
 
     test_metrics["test_auc"].append(test_auc)
     test_metrics["test_acc"].append(1 - test_error)
     test_metrics["test_acc_2"].append(slide_acc)
-    test_metrics["test_recall"].append(test_recall)
     test_metrics["test_precision"].append(test_precision)
-    test_metrics["test_specificity"].append(test_specificity)
+    test_metrics["test_recall"].append(test_recall)
     test_metrics["val_auc"].append(val_auc)
     test_metrics["val_acc"].append(1 - val_error)
     # test_metrics["cm_val"].append(cm_val)
     # test_metrics["cm_test"].append(cm_test)
-    test_metrics["test_inst_acc"].append(test_inst_acc)
+    test_metrics["test_inst_acc"].append(patch_acc)
     test_metrics["test_inst_recall"].append(test_inst_recall)
     test_metrics["test_inst_precision"].append(test_inst_precision)
-    test_metrics["test_inst_specificity"].append(test_inst_specificity)
-    test_metrics["test_inst_acc_gt"].append(test_inst_acc_gt)
-    test_metrics["test_inst_recall_gt"].append(test_inst_recall_gt)
-    test_metrics["test_inst_precision_gt"].append(test_inst_precision_gt)
-    test_metrics["test_inst_specificity_gt"].append(test_inst_specificity_gt)
 
     if writer:
         writer.add_scalar('final/val_error', val_error, 0)
@@ -674,7 +652,6 @@ def summary(model, loader, n_classes, semi_supervised=False):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
     acc_logger = Accuracy_Logger(n_classes=n_classes)
     inst_logger = Accuracy_Logger(n_classes=n_classes)
-    inst_logger_gt = Accuracy_Logger(n_classes=n_classes)
     model.eval()
     test_loss = 0.
     test_error = 0.
@@ -701,10 +678,8 @@ def summary(model, loader, n_classes, semi_supervised=False):
         all_labels[batch_idx] = label.item()
 
         inst_preds = instance_dict['inst_preds']
-        inst_preds_all = instance_dict['inst_preds_all']
         inst_labels = instance_dict['inst_labels']
         inst_logger.log_batch(inst_preds, inst_labels)
-        inst_logger_gt.log_batch(inst_preds_all, patch_annot.cpu().numpy().squeeze())
 
         patient_results.update({slide_id: {'slide_id': np.array(slide_id), 'prob': probs, 'label': label.item()}})
         error = calculate_error(Y_hat, label)
@@ -734,7 +709,7 @@ def summary(model, loader, n_classes, semi_supervised=False):
 
         cm = []
 
-    return patient_results, test_error, auc, acc_logger, inst_logger, inst_logger_gt, cm, CM_data, cm_disp, fpr, tpr
+    return patient_results, test_error, auc, acc_logger, inst_logger, cm, CM_data, cm_disp, fpr, tpr
 
 def get_alpha_weight(epoch, T1, T2, af, correction):
     is_correction = not (epoch % correction)
