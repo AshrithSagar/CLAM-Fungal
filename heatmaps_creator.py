@@ -526,16 +526,16 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             beta = 0.25
             gamma = 0.0
             eps = 1e-8
-            
-            blank = np.ones([1024, 1536, 3])
-            # img_heatmap = cv.addWeighted(blank, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
-            img_heatmap = heatmap_mask.copy()
+
+            # blank = np.ones([1024, 1536, 3])
+            img_heatmap = cv.addWeighted(orig_img, alpha, heatmap_mask, beta, gamma, dtype=cv.CV_64F)
+            # img_heatmap = heatmap_mask.copy()
             # img_heatmap = orig_img.copy()
 
             # Normalise
-#             numer = img_heatmap - np.min(img_heatmap)
-#             denom = (img_heatmap.max() - img_heatmap.min()) + eps
-#             img_heatmap = numer / denom
+            # numer = img_heatmap - np.min(img_heatmap)
+            # denom = (img_heatmap.max() - img_heatmap.min()) + eps
+            # img_heatmap = numer / denom
 
             plt.imshow(img_heatmap)
             plt.savefig(img_heatmap_filename)
