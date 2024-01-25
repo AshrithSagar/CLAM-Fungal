@@ -288,14 +288,17 @@ def train(datasets, cur, settings, test_metrics):
 
     test_recall = acc_logger.get_recall()
     test_precision = acc_logger.get_precision()
+    test_specificity = acc_logger.get_specificity()
     test_inst_recall = inst_logger.get_recall()
     test_inst_precision = inst_logger.get_precision()
+    test_inst_specificity = inst_logger.get_specificity()
 
     test_metrics["test_auc"].append(test_auc)
     test_metrics["test_acc"].append(1 - test_error)
     test_metrics["test_acc_2"].append(slide_acc)
     test_metrics["test_precision"].append(test_precision)
     test_metrics["test_recall"].append(test_recall)
+    test_metrics["test_specificity"].append(test_specificity)
     test_metrics["val_auc"].append(val_auc)
     test_metrics["val_acc"].append(1 - val_error)
     # test_metrics["cm_val"].append(cm_val)
@@ -303,6 +306,7 @@ def train(datasets, cur, settings, test_metrics):
     test_metrics["test_inst_acc"].append(patch_acc)
     test_metrics["test_inst_recall"].append(test_inst_recall)
     test_metrics["test_inst_precision"].append(test_inst_precision)
+    test_metrics["test_inst_specificity"].append(test_inst_specificity)
 
     if writer:
         writer.add_scalar('final/val_error', val_error, 0)
