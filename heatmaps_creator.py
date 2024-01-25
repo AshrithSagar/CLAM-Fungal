@@ -510,7 +510,7 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
             heatmap_mask[~zero_mask] = heatmap_mask[~zero_mask] / counter[~zero_mask]
             del counter
 
-            # Normalise
+            # # Normalise
             eps = 1e-8
             numer = heatmap_mask - np.min(heatmap_mask)
             denom = (heatmap_mask.max() - heatmap_mask.min()) + eps
@@ -555,15 +555,16 @@ def draw_heatmaps_overlap(exp_code, cmap='coolwarm'):
 
 
 # ------------------------------------------------------
-if use_overlap:
-    for exp_code in exp_codes:
-        if run_heatmap_dict:
-            generate_heatmap_dict(exp_code, use_overlap)
-        if run_draw_heatmaps:
-            draw_heatmaps_overlap(exp_code, cmap)
-else:
-    for exp_code in exp_codes:
-        if run_heatmap_dict:
-            generate_heatmap_dict(exp_code)
-        if run_draw_heatmaps:
-            draw_heatmaps(exp_code, cmap)
+if __name__ == "__main__":
+    if use_overlap:
+        for exp_code in exp_codes:
+            if run_heatmap_dict:
+                generate_heatmap_dict(exp_code, use_overlap)
+            if run_draw_heatmaps:
+                draw_heatmaps_overlap(exp_code, cmap)
+    else:
+        for exp_code in exp_codes:
+            if run_heatmap_dict:
+                generate_heatmap_dict(exp_code)
+            if run_draw_heatmaps:
+                draw_heatmaps(exp_code, cmap)
