@@ -26,6 +26,50 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Visualise heatmaps")
+    parser.add_argument("-c", "--config", type=str, help="Path to the config file")
+
+    args = parser.parse_args()
+    if args.config:
+        config = yaml.safe_load(open(args.config, "r"))
+        args = config["heatmaps_creator"]
+
+    drop_out = args["drop_out"]
+    n_classes = args["n_classes"]
+    splits = args["splits"]
+    model_type = args["model_type"]
+    model_size = args["model_size"]
+    exp_codes = args["exp_codes"]
+    results_dir = args["results_dir"]
+
+    data_dir = args["data_dir"]
+    image_ext = args["image_ext"]
+    patch_dir = args["patch_dir"]
+    feat_dir = args["feat_dir"]
+    split_dir = args["split_dir"]
+    annot_dir = args["annot_dir"]
+
+    select_image = args["select_image"]
+    run_heatmap_dict = args["run_heatmap_dict"]
+    run_draw_heatmaps = args["run_draw_heatmaps"]
+    delete_previous = args["delete_previous"]
+    only_test_split = args["only_test_split"]
+    use_overlap = args["use_overlap"]
+    overlap = args["overlap"]
+    show_labels = args["show_labels"]
+    get_patch_acc = args["get_patch_acc"]
+
+    ### Draw heatmaps config
+    patch_size = args["patch_size"]
+    blur = args["blur"]
+    alpha = args["alpha"]
+    beta = args["beta"]
+    gamma = args["gamma"]
+    cmap = args["cmap"]
+    threshold = args["threshold"]
+
+
 def score2percentile(score, ref):
     percentile = percentileofscore(ref, score)
     return percentile
@@ -611,58 +655,15 @@ def draw_heatmaps_overlap(exp_code, cmap="coolwarm"):
 
 
 # ------------------------------------------------------
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Visualise heatmaps")
-    parser.add_argument("-c", "--config", type=str, help="Path to the config file")
-
-    args = parser.parse_args()
-    if args.config:
-        config = yaml.safe_load(open(args.config, "r"))
-        args = config["heatmaps_creator"]
-
-    drop_out = args["drop_out"]
-    n_classes = args["n_classes"]
-    splits = args["splits"]
-    model_type = args["model_type"]
-    model_size = args["model_size"]
-    exp_codes = args["exp_codes"]
-    results_dir = args["results_dir"]
-
-    data_dir = args["data_dir"]
-    image_ext = args["image_ext"]
-    patch_dir = args["patch_dir"]
-    feat_dir = args["feat_dir"]
-    split_dir = args["split_dir"]
-    annot_dir = args["annot_dir"]
-
-    select_image = args["select_image"]
-    run_heatmap_dict = args["run_heatmap_dict"]
-    run_draw_heatmaps = args["run_draw_heatmaps"]
-    delete_previous = args["delete_previous"]
-    only_test_split = args["only_test_split"]
-    use_overlap = args["use_overlap"]
-    overlap = args["overlap"]
-    show_labels = args["show_labels"]
-    get_patch_acc = args["get_patch_acc"]
-
-    ### Draw heatmaps config
-    patch_size = args["patch_size"]
-    blur = args["blur"]
-    alpha = args["alpha"]
-    beta = args["beta"]
-    gamma = args["gamma"]
-    cmap = args["cmap"]
-    threshold = args["threshold"]
-
-    if use_overlap:
-        for exp_code in exp_codes:
-            if run_heatmap_dict:
-                generate_heatmap_dict(exp_code, use_overlap)
-            if run_draw_heatmaps:
-                draw_heatmaps_overlap(exp_code, cmap)
-    else:
-        for exp_code in exp_codes:
-            if run_heatmap_dict:
-                generate_heatmap_dict(exp_code)
-            if run_draw_heatmaps:
-                draw_heatmaps(exp_code, cmap)
+if use_overlap:
+    for exp_code in exp_codes:
+        if run_heatmap_dict:
+            generate_heatmap_dict(exp_code, use_overlap)
+        if run_draw_heatmaps:
+            draw_heatmaps_overlap(exp_code, cmap)
+else:
+    for exp_code in exp_codes:
+        if run_heatmap_dict:
+            generate_heatmap_dict(exp_code)
+        if run_draw_heatmaps:
+            draw_heatmaps(exp_code, cmap)
