@@ -83,6 +83,7 @@ def compute_from_patches(
     attn_save_path=None,
     ref_scores=None,
     feat_save_path=None,
+    select_image=None,
 ):
 
     heatmap_dict = []
@@ -192,6 +193,7 @@ def compute_from_patches_overlap(
     ref_scores=None,
     feat_save_path=None,
     test_split=None,
+    select_image=None,
 ):
 
     heatmap_dict = []
@@ -373,6 +375,7 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
                 attn_save_path=save_path,
                 ref_scores=ref_scores,
                 test_split=test_split,
+                select_image=select_image,
             )
         else:
             heatmap_dict = compute_from_patches(
@@ -381,6 +384,7 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
                 batch_size=512,
                 attn_save_path=save_path,
                 ref_scores=ref_scores,
+                select_image=select_image,
             )
 
         heatmap_dict_save = os.path.join(
