@@ -85,7 +85,6 @@ def compute_from_patches(
     feat_save_path=None,
     select_image=None,
 ):
-
     heatmap_dict = []
 
     # Load the dataset
@@ -195,7 +194,6 @@ def compute_from_patches_overlap(
     test_split=None,
     select_image=None,
 ):
-
     heatmap_dict = []
 
     if only_test_split:
@@ -452,9 +450,9 @@ def draw_heatmaps(exp_code, cmap="coolwarm"):
 
                 raw_block = np.ones([256, 256])
                 color_block = cmap(raw_block * block_score)[:, :, :3]
-                heatmap_mask[x : x + patch_size[0], y : y + patch_size[1], :] = (
-                    color_block.copy()
-                )
+                heatmap_mask[
+                    x : x + patch_size[0], y : y + patch_size[1], :
+                ] = color_block.copy()
 
                 if index % 4 == 0:
                     plt.text(

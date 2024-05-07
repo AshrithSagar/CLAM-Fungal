@@ -1,40 +1,47 @@
-import os
-import numpy as np
-import cv2 as cv
+"""
+extract_features_resnet_torch.py
+"""
+
 import argparse
-import yaml
+import os
+
+import cv2 as cv
+import h5py
+import imgaug.augmenters as iaa
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from PIL import Image
-import imgaug.augmenters as iaa
-import h5py
-
+import yaml
 from modules.resnet_custom import resnet50_baseline
-from modules.utils import print_network, collate_features
+from modules.utils import collate_features, print_network
+from PIL import Image
+from torch.utils.data import DataLoader
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract features using RESNET')
-    parser.add_argument('-c', '--config', type = str,
-                        help='Path to the config file')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract features using RESNET")
+    parser.add_argument("-c", "--config", type=str, help="Path to the config file")
 
-    parser.add_argument('--patch_dir', type = str,
-        help='Path to folder containing the image folders of patches')
-    parser.add_argument('--feat_dir', type = str,
-        help='Path to folder for storing the feature vectors')
+    parser.add_argument(
+        "--patch_dir",
+        type=str,
+        help="Path to folder containing the image folders of patches",
+    )
+    parser.add_argument(
+        "--feat_dir", type=str, help="Path to folder for storing the feature vectors"
+    )
 
     args = parser.parse_args()
     if args.config:
-        config = yaml.safe_load(open(args.config, 'r'))
-        args = config['extract_features_resnet_torch']
+        config = yaml.safe_load(open(args.config, "r"))
+        args = config["extract_features_resnet_torch"]
 
-    patch_dir = args['patch_dir']
-    feat_dir = args['feat_dir']
+    patch_dir = args["patch_dir"]
+    feat_dir = args["feat_dir"]
 
 
 # ----------------------------------------------------------------
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 # Create feat_dir if not exists.
 # Not properly fixed
@@ -60,7 +67,7 @@ model.eval()
 # Create dataset from the image patches
 for folder in sorted(os.listdir(patch_dir)):
     filename = str(folder).split("/")[-1]
-    filePath = os.path.join(feat_dir, filename+'.pt')
+    filePath = os.path.join(feat_dir, filename + ".pt")
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
         print("Skipping File:", filename)
@@ -92,15 +99,21 @@ for folder in sorted(os.listdir(patch_dir)):
         imgs_5 = iaa.Rotate((270, 270)).augment_image(img_arr)
 
         # Create the dataset loader
-        imgs = [torch.tensor(imgs_0.copy()), torch.tensor(imgs_1.copy()), torch.tensor(imgs_2.copy()),
-                torch.tensor(imgs_3.copy()), torch.tensor(imgs_4.copy()), torch.tensor(imgs_5.copy())]
+        imgs = [
+            torch.tensor(imgs_0.copy()),
+            torch.tensor(imgs_1.copy()),
+            torch.tensor(imgs_2.copy()),
+            torch.tensor(imgs_3.copy()),
+            torch.tensor(imgs_4.copy()),
+            torch.tensor(imgs_5.copy()),
+        ]
 
         # Get coord in [x, y] format
         coord = img_path.split("/")
         coord = coord[-1]
         coord = coord.split(".")[-2]
         coord = coord.split("_")
-        coord = [int(coord[-2])/256, int(coord[-1])/256]
+        coord = [int(coord[-2]) / 256, int(coord[-1]) / 256]
 
         dataset.append([imgs, coord])
 
@@ -132,11 +145,11 @@ for folder in sorted(os.listdir(patch_dir)):
     all_features = np.asarray(all_features, dtype="float32")
     all_features = torch.tensor(all_features)
 
-#     print(all_features, " || ", filePath)
-#     print("Features size: ", all_features.shape)
+    #     print(all_features, " || ", filePath)
+    #     print("Features size: ", all_features.shape)
     torch.save(all_features, filePath)
 
     # Save the .hdf5
     # hf = h5py.File('data.h5', 'w')
 
-    print("="*15)
+    print("=" * 15)

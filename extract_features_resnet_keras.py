@@ -1,44 +1,48 @@
-import os
-import yaml
+"""
+extract_features_resnet_keras.py
+"""
+
 import argparse
+import os
 
 # import h5py
 import cv2
 import numpy as np
-from PIL import Image
-
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.utils.np_utils import to_categorical
-
-from tensorflow.keras.applications.resnet50 import ResNet50
-from tensorflow.keras.applications.resnet50 import preprocess_input
-
-from tensorflow.keras.utils import img_to_array
-from tensorflow.keras.preprocessing.image import load_img
+import yaml
 from keras.callbacks import ModelCheckpoint
-
-from sklearn.utils import shuffle
+from keras.layers import Dense
+from keras.models import Sequential
+from keras.utils.np_utils import to_categorical
+from PIL import Image
 from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.utils import shuffle
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+from tensorflow.keras.preprocessing.image import load_img
+from tensorflow.keras.utils import img_to_array
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract features using RESNET | Keras Implementation')
-    parser.add_argument('-c', '--config', type = str,
-                        help='Path to the config file')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Extract features using RESNET | Keras Implementation"
+    )
+    parser.add_argument("-c", "--config", type=str, help="Path to the config file")
 
-    parser.add_argument('--patch_dir', type = str,
-        help='Path to folder containing the image folders of patches')
-    parser.add_argument('--feat_dir', type = str,
-        help='Path to folder for storing the feature vectors')
+    parser.add_argument(
+        "--patch_dir",
+        type=str,
+        help="Path to folder containing the image folders of patches",
+    )
+    parser.add_argument(
+        "--feat_dir", type=str, help="Path to folder for storing the feature vectors"
+    )
 
     args = parser.parse_args()
     if args.config:
-        config = yaml.safe_load(open(args.config, 'r'))
-        args = config['extract_features_resnet_keras']
+        config = yaml.safe_load(open(args.config, "r"))
+        args = config["extract_features_resnet_keras"]
 
-    patch_dir = args['patch_dir']
-    feat_dir = args['feat_dir']
+    patch_dir = args["patch_dir"]
+    feat_dir = args["feat_dir"]
 
 
 # ----------------------------------------------------------------
@@ -52,7 +56,7 @@ if not os.path.exists(feat_dir):
         print("ERROR: Cannot create the Features directory")
 
 # Loading ResNet50 wit imagenet weights, include_top means that we loading model without last fully connected layers
-model = ResNet50(weights = 'imagenet', include_top = False)
+model = ResNet50(weights="imagenet", include_top=False)
 
 # patch_folders = [os.path.join(patch_dir, folder) for folder in sorted(os.listdir(patch_dir))]
 # patches_per_image = len(os.listdir(patch_folders[0]))
@@ -61,7 +65,7 @@ model = ResNet50(weights = 'imagenet', include_top = False)
 # Create dataset from the image patches
 for folder in sorted(os.listdir(patch_dir)):
     filename = str(folder).split("/")[-1]
-    filePath = os.path.join(feat_dir, filename+'.pt')
+    filePath = os.path.join(feat_dir, filename + ".pt")
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
         print("Skipping File:", filename)
@@ -78,7 +82,7 @@ for folder in sorted(os.listdir(patch_dir)):
         coord = coord[-1]
         coord = coord.split(".")[-2]
         coord = coord.split("_")
-        coord = [int(coord[-2])/256, int(coord[-1])/256]
+        coord = [int(coord[-2]) / 256, int(coord[-1]) / 256]
 
         # Read image
         orig = cv2.imread(img_path)
@@ -102,5 +106,5 @@ for folder in sorted(os.listdir(patch_dir)):
         features.append(feature)
 
         break
-    print("="*15)
+    print("=" * 15)
     break
