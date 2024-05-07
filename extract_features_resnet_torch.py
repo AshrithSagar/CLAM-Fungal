@@ -36,6 +36,7 @@ if __name__ == "__main__":
         "--verbose",
         action="store_true",
         help="Enable output verbosity",
+        default=False,
     )
 
     args = parser.parse_args()
