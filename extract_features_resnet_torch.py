@@ -45,6 +45,7 @@ if __name__ == "__main__":
 
     patch_dir = args["patch_dir"]
     feat_dir = args["feat_dir"]
+    verbose = args["verbose"]
 
 
 # ----------------------------------------------------------------
@@ -72,7 +73,7 @@ for folder in tqdm(
     filePath = os.path.join(feat_dir, filename + ".pt")
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
-        if args.verbose:
+        if verbose:
             tqdm.write(f"Skipping File: {filename}")
         continue
 
