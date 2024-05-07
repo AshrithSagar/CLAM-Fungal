@@ -16,6 +16,7 @@ from modules.resnet_custom import resnet50_baseline
 from modules.utils import collate_features, print_network
 from PIL import Image
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 if __name__ == "__main__":
@@ -58,21 +59,24 @@ model.eval()
 # print(patches_per_image)
 
 # Create dataset from the image patches
-for folder in sorted(os.listdir(patch_dir)):
+for folder in tqdm(
+    sorted(os.listdir(patch_dir)), desc="Running on slides", unit="slide"
+):
     filename = str(folder).split("/")[-1]
     filePath = os.path.join(feat_dir, filename + ".pt")
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
-        print("Skipping File:", filename)
+        tqdm.write(f"Skipping File: {filename}")
         continue
-    print("Running on File:", filename)
 
     patch_folder = os.path.join(patch_dir, folder)
     if str(patch_folder).split("/")[-1] == "fungal_vs_nonfungal_resnet_features":
         continue
 
     dataset = []
-    for patch_file in sorted(os.listdir(patch_folder)):
+    for patch_file in tqdm(
+        sorted(os.listdir(patch_folder)), desc="Processing patches", unit="patch"
+    ):
         if not patch_file.endswith(".tif"):
             continue
 
@@ -112,7 +116,7 @@ for folder in sorted(os.listdir(patch_dir)):
 
     loader = DataLoader(dataset=dataset, batch_size=1)
     all_features = []
-    for count, data in enumerate(loader):
+    for count, data in enumerate(tqdm(loader, desc="Computing features", unit="batch")):
         with torch.no_grad():
             coord = data[1]
             batches = data[0]
@@ -144,5 +148,3 @@ for folder in sorted(os.listdir(patch_dir)):
 
     # Save the .hdf5
     # hf = h5py.File('data.h5', 'w')
-
-    print("=" * 15)
