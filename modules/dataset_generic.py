@@ -488,13 +488,7 @@ class Generic_WSI_Classification_Dataset(Dataset):
 
 class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
     def __init__(
-        self,
-        data_dir,
-        annot_dir=None,
-        training=False,
-        use_augmentation=True,
-        num_patches=88,
-        **kwargs
+        self, data_dir, annot_dir=None, training=False, use_augmentation=True, **kwargs
     ):
         super(Generic_MIL_Dataset, self).__init__(**kwargs)
         self.data_dir = data_dir
@@ -502,7 +496,6 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
         self.use_h5 = False
         self.training = training
         self.use_augmentation = use_augmentation
-        self.num_patches = num_patches
 
     def load_from_h5(self, toggle):
         self.use_h5 = toggle
@@ -523,9 +516,9 @@ class Generic_MIL_Dataset(Generic_WSI_Classification_Dataset):
                 patch_annot = load_pkl(patch_annot_path)
                 patch_annot = patch_annot["bin_scores"]
             elif label == 0:
-                patch_annot = [False] * self.num_patches
+                patch_annot = [False] * 88
         else:
-            patch_annot = [False] * self.num_patches
+            patch_annot = [False] * 88
 
         if type(self.data_dir) == dict:
             source = self.slide_data["source"][idx]
