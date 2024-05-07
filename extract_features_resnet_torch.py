@@ -120,7 +120,7 @@ for folder in tqdm(
     loader = DataLoader(dataset=dataset, batch_size=1)
     all_features = []
     for count, data in enumerate(
-        tqdm(loader, desc="Computing features", unit="batch"), leave=False
+        tqdm(loader, desc="Computing features", unit="batch", leave=False)
     ):
         with torch.no_grad():
             coord = data[1]
