@@ -43,14 +43,7 @@ if __name__ == "__main__":
 # ----------------------------------------------------------------
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-# Create feat_dir if not exists.
-# Not properly fixed
-if not os.path.exists(feat_dir):
-    try:
-        print("Features directory doesn't exist. Creating ...")
-        os.mkdir(feat_dir, exist_ok=True)
-    except:
-        print("ERROR: Cannot create the Features directory")
+os.makedirs(feat_dir, exist_ok=True)
 
 model = resnet50_baseline(pretrained=True)
 model = model.to(device)
