@@ -40,13 +40,14 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    verbose = args.verbose
+
     if args.config:
         config = yaml.safe_load(open(args.config, "r"))
         args = config["extract_features_resnet_torch"]
 
     patch_dir = args["patch_dir"]
     feat_dir = args["feat_dir"]
-    verbose = args["verbose"]
 
 
 # ----------------------------------------------------------------
