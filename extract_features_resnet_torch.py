@@ -31,6 +31,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--feat_dir", type=str, help="Path to folder for storing the feature vectors"
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable output verbosity",
+    )
 
     args = parser.parse_args()
     if args.config:
@@ -66,7 +72,8 @@ for folder in tqdm(
     filePath = os.path.join(feat_dir, filename + ".pt")
     # Run only if file doesn't already exist
     if os.path.exists(filePath):
-        tqdm.write(f"Skipping File: {filename}")
+        if args.verbose:
+            tqdm.write(f"Skipping File: {filename}")
         continue
 
     patch_folder = os.path.join(patch_dir, folder)
