@@ -75,7 +75,10 @@ for folder in tqdm(
 
     dataset = []
     for patch_file in tqdm(
-        sorted(os.listdir(patch_folder)), desc="Processing patches", unit="patch"
+        sorted(os.listdir(patch_folder)),
+        desc="Processing patches",
+        unit="patch",
+        leave=False,
     ):
         if not patch_file.endswith(".tif"):
             continue
@@ -116,7 +119,9 @@ for folder in tqdm(
 
     loader = DataLoader(dataset=dataset, batch_size=1)
     all_features = []
-    for count, data in enumerate(tqdm(loader, desc="Computing features", unit="batch")):
+    for count, data in enumerate(
+        tqdm(loader, desc="Computing features", unit="batch"), leave=False
+    ):
         with torch.no_grad():
             coord = data[1]
             batches = data[0]
