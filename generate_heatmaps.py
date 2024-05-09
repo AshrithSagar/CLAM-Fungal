@@ -198,7 +198,7 @@ if __name__ == "__main__":
             orig_img = np.asarray(orig_img)
 
             heatmap = superimpose(
-                orig_img, tilemap, alpha=args["alpha"], blur=args["blur"]
+                orig_img, tilemap, alpha=args["alpha"], blur=tuple(args["blur"])
             )
             filename = os.path.join(
                 heatmap_dir, f"{image_name}_heatmap.{args['save_ext']}"
