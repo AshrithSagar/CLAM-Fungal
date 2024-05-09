@@ -203,11 +203,13 @@ def compute_from_patches_overlap(
 
     # Load the dataset
     # Create dataset from the image patches
-    for index, image_file in tqdm(
-        enumerate(sorted(os.listdir(data_dir))),
-        desc="Slides",
-        unit="slide",
-        leave=False,
+    for index, image_file in enumerate(
+        tqdm(
+            sorted(os.listdir(data_dir)),
+            desc="Computing attention scores",
+            unit="slide",
+            leave=False,
+        )
     ):
         # if index not in select_image:
         #     continue
