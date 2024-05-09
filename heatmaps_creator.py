@@ -3,27 +3,29 @@ heatmaps_creator: Save in .pkl format
 draw_heatmaps: Using cv2 weighted overlay
 """
 
-from PIL import Image
-import torch
-import os
-import shutil
-import yaml
 import argparse
-import numpy as np
+import os
 import pickle
+import shutil
 from itertools import product
-from modules.utils import *
-from modules.file_utils import save_pkl, load_pkl
-from modules.resnet_custom import resnet50_baseline
-from modules.model_clam import CLAM_MB, CLAM_SB
-from torch.utils.data import DataLoader
-from scipy.stats import percentileofscore
-import torch.nn.functional as F
-import matplotlib.pyplot as plt
-from skimage.color import label2rgb
+
 import cv2 as cv
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import torch
+import torch.nn.functional as F
+import yaml
+from modules.file_utils import load_pkl, save_pkl
+from modules.model_clam import CLAM_MB, CLAM_SB
+from modules.resnet_custom import resnet50_baseline
+from modules.utils import *
+from PIL import Image
+from scipy.stats import percentileofscore
+from skimage.color import label2rgb
 from sklearn.metrics import accuracy_score, f1_score
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
 if __name__ == "__main__":
@@ -201,7 +203,12 @@ def compute_from_patches_overlap(
 
     # Load the dataset
     # Create dataset from the image patches
-    for index, image_file in enumerate(sorted(os.listdir(data_dir))):
+    for index, image_file in tqdm(
+        enumerate(sorted(os.listdir(data_dir))),
+        desc="Slides",
+        unit="slide",
+        leave=False,
+    ):
         # if index not in select_image:
         #     continue
         filename, ext = os.path.splitext(image_file)
@@ -234,12 +241,9 @@ def compute_from_patches_overlap(
             dataset.append([patch_tensor, coord])
 
         roi_loader = DataLoader(dataset=dataset, batch_size=count)
-        print("File:", filename)
 
         num_batches = len(roi_loader)
-        print(
-            "number of batches: ", len(roi_loader)
-        )  # len(roi_loader) = count / (batch_size)
+        # len(roi_loader) = count / (batch_size)
         mode = "w"
 
         attention_scores = []
@@ -325,7 +329,7 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
 
     print_network(model)
 
-    for split in splits:
+    for split in tqdm(splits, desc="Splits", unit="split"):
         print("Evaluating attentions scores for split_{}".format(split))
 
         save_path = os.path.join(
@@ -450,9 +454,9 @@ def draw_heatmaps(exp_code, cmap="coolwarm"):
 
                 raw_block = np.ones([256, 256])
                 color_block = cmap(raw_block * block_score)[:, :, :3]
-                heatmap_mask[
-                    x : x + patch_size[0], y : y + patch_size[1], :
-                ] = color_block.copy()
+                heatmap_mask[x : x + patch_size[0], y : y + patch_size[1], :] = (
+                    color_block.copy()
+                )
 
                 if index % 4 == 0:
                     plt.text(
