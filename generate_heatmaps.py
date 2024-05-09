@@ -154,7 +154,7 @@ if __name__ == "__main__":
     else:
         raise ValueError("Config file not found")
 
-    for split in args["splits"]:
+    for split in tqdm(args["splits"], desc="Split", unit="split"):
         heatmap_dict = load_pkl(
             os.path.join(
                 args["results_dir"],
@@ -169,7 +169,9 @@ if __name__ == "__main__":
         )
         os.makedirs(heatmap_dir, exist_ok=True)
 
-        for img_index in range(len(heatmap_dict)):
+        for img_index in tqdm(
+            range(len(heatmap_dict)), desc="Slides", unit="slide", leave=False
+        ):
             A = heatmap_dict[img_index]["attention_scores"][0]
             A = torch.Tensor(A)
             A = F.softmax(A, dim=0)
