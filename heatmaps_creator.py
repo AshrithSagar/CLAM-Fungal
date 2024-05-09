@@ -331,7 +331,7 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
 
     print_network(model)
 
-    for split in tqdm(splits, desc="Splits", unit="split"):
+    for split in tqdm(splits, desc="Splits", unit="split", leave=False):
         save_path = os.path.join(
             results_dir, exp_code, "splits_" + str(split), "heatmaps"
         )
