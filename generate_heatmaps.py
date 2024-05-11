@@ -143,6 +143,19 @@ def superimpose(background, overlay, alpha=0.4, blur=None):
     return superimposed_image
 
 
+def save_image(image, filepath, use_plt=False):
+    if not use_plt:
+        # Save an np.ndarray as a PIL.Image
+        Image.fromarray(image.astype(np.uint8)).save(filepath)
+    else:
+        # matplotlib figure
+        plt.clf()
+        plt.imshow(image)
+        plt.axis("off")
+        plt.savefig(filepath, bbox_inches="tight", pad_inches=0)
+        plt.close()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Visualise heatmaps")
     parser.add_argument("-c", "--config", type=str, help="Path to the config file")
@@ -205,8 +218,4 @@ if __name__ == "__main__":
             filename = os.path.join(
                 heatmap_dir, f"{image_name}_heatmap.{args['save_ext']}"
             )
-
-            plt.clf()
-            plt.imshow(heatmap)
-            plt.savefig(filename)
-            plt.close()
+            save_image(heatmap, filename, use_plt=args["use_plt"])
