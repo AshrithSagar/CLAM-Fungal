@@ -223,9 +223,7 @@ def compute_from_patches_overlap(
         dataset = []
         count = 0
         step = int(d * (1 - overlap))
-        grid = product(
-            range(0, h - h % d - d + 1, step), range(0, w - w % d - d + 1, step)
-        )
+        grid = product(range(0, h - d + 1, step), range(0, w - d + 1, step))
         for i, j in grid:
             box = (j, i, j + d, i + d)
             count += 1

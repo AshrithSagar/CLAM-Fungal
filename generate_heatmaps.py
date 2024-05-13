@@ -191,6 +191,7 @@ if __name__ == "__main__":
 
             percentiles = []
             scores = 1 - A.numpy()
+            scores = scores.squeeze()
             for score in scores:
                 percentile = percentileofscore(scores, score)
                 percentiles.append(percentile / 100)
