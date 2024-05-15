@@ -4,7 +4,9 @@ heatmaps:
   blur: null
   data_dir: null
   exp_code: null
+  heatmap_dict_name: null
   image_ext: null
+  invert_preds: null
   results_dir: null
   save_dir: null
   save_ext: null

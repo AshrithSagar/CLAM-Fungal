@@ -173,7 +173,7 @@ if __name__ == "__main__":
                 args["results_dir"],
                 args["exp_code"],
                 f"splits_{split}",
-                "heatmap_dict.pkl",
+                args["heatmap_dict_name"],
             )
         )
 
@@ -190,7 +190,9 @@ if __name__ == "__main__":
             A = F.softmax(A, dim=0)
 
             percentiles = []
-            scores = 1 - A.numpy()
+            scores = A.numpy()
+            if args["invert_preds"]:
+                scores = 1 - scores
             scores = scores.squeeze()
             for score in scores:
                 percentile = percentileofscore(scores, score)

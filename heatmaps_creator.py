@@ -61,6 +61,7 @@ if __name__ == "__main__":
     overlap = args["overlap"]
     show_labels = args["show_labels"]
     get_patch_acc = args["get_patch_acc"]
+    heatmap_dict_name = args["heatmap_dict_name"]
 
     ### Draw heatmaps config
     patch_size = args["patch_size"]
@@ -388,7 +389,7 @@ def generate_heatmap_dict(exp_code, use_overlap=True):
             )
 
         heatmap_dict_save = os.path.join(
-            results_dir, exp_code, "splits_" + str(split), "heatmap_dict.pkl"
+            results_dir, exp_code, "splits_" + str(split), heatmap_dict_name
         )
         save_pkl(heatmap_dict_save, heatmap_dict)
         print()
@@ -412,7 +413,7 @@ def draw_heatmaps(exp_code, cmap="coolwarm"):
 
         heatmap_dict = load_pkl(
             os.path.join(
-                results_dir, exp_code, "splits_" + str(split), "heatmap_dict.pkl"
+                results_dir, exp_code, "splits_" + str(split), heatmap_dict_name
             )
         )
 
@@ -517,7 +518,7 @@ def draw_heatmaps_overlap(exp_code, cmap="coolwarm"):
             avg_positive_sc_counter = 0
         heatmap_dict = load_pkl(
             os.path.join(
-                results_dir, exp_code, "splits_" + str(split), "heatmap_dict.pkl"
+                results_dir, exp_code, "splits_" + str(split), heatmap_dict_name
             )
         )
 

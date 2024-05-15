@@ -141,3 +141,4 @@ heatmaps_creator:
     use_overlap: True
     overlap: 0.5
     show_labels: False
+    heatmap_dict_name: null
