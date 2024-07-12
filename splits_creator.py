@@ -8,12 +8,12 @@ import random
 
 import numpy as np
 import yaml
+
 from modules.dataset_generic import (
     Generic_MIL_Dataset,
     Generic_WSI_Classification_Dataset,
     save_splits,
 )
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

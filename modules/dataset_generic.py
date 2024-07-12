@@ -16,10 +16,11 @@ import h5py
 import numpy as np
 import pandas as pd
 import torch
-from modules.file_utils import load_pkl
-from modules.utils import generate_split, nth
 from scipy import stats
 from torch.utils.data import Dataset
+
+from modules.file_utils import load_pkl
+from modules.utils import generate_split, nth
 
 
 def save_splits(

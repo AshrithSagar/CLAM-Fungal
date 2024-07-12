@@ -7,14 +7,15 @@ import os
 import numpy as np
 import pandas as pd
 import torch
-from modules.dataset_generic import save_splits
-from modules.model_clam import CLAM_MB, CLAM_SB
-from modules.model_mil import MIL_fc, MIL_fc_mc
-from modules.utils import *
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import auc as calc_auc
 from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve
 from sklearn.preprocessing import label_binarize
+
+from modules.dataset_generic import save_splits
+from modules.model_clam import CLAM_MB, CLAM_SB
+from modules.model_mil import MIL_fc, MIL_fc_mc
+from modules.utils import *
 
 
 class Accuracy_Logger(object):

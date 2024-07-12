@@ -16,10 +16,6 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 import yaml
-from modules.file_utils import load_pkl, save_pkl
-from modules.model_clam import CLAM_MB, CLAM_SB
-from modules.resnet_custom import resnet50_baseline
-from modules.utils import *
 from PIL import Image
 from scipy.stats import percentileofscore
 from skimage.color import label2rgb
@@ -27,6 +23,10 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from modules.file_utils import load_pkl, save_pkl
+from modules.model_clam import CLAM_MB, CLAM_SB
+from modules.resnet_custom import resnet50_baseline
+from modules.utils import *
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Visualise heatmaps")

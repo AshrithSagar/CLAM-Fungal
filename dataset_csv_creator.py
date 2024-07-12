@@ -3,10 +3,11 @@ dataset_csv_creator.py
 Create the dataset .csv file
 Warning: The file is overwritten, so please save before proceeding.
 """
-import os
-import yaml
-import argparse
 
+import argparse
+import os
+
+import yaml
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Dataset CSV creator")

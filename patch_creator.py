@@ -11,11 +11,11 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import yaml
-from modules.file_utils import load_pkl, save_pkl
 from PIL import Image
 from sklearn.datasets import load_sample_image
 from sklearn.feature_extraction import image
 
+from modules.file_utils import load_pkl, save_pkl
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Patchify images")

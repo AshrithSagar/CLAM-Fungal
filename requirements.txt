@@ -1,5 +1,5 @@
-torch==1.12
-torchvision
+future
 pandas
 tensorboardX
-future
+torch==1.12
+torchvision

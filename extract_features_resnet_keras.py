@@ -20,7 +20,6 @@ from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.utils import img_to_array
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Extract features using RESNET | Keras Implementation"

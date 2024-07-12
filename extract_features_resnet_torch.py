@@ -12,12 +12,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import yaml
-from modules.resnet_custom import resnet50_baseline
-from modules.utils import collate_features, print_network
 from PIL import Image
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from modules.resnet_custom import resnet50_baseline
+from modules.utils import collate_features, print_network
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract features using RESNET")

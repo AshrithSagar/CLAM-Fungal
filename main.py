@@ -15,6 +15,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import yaml
+from torch.utils.data import DataLoader, sampler
+
 from modules.core_utils import train
 from modules.dataset_generic import (
     Generic_MIL_Dataset,
@@ -22,7 +24,6 @@ from modules.dataset_generic import (
 )
 from modules.file_utils import load_pkl, save_pkl
 from modules.utils import *
-from torch.utils.data import DataLoader, sampler
 
 # Generic training settings
 # Configurations for WSI Training

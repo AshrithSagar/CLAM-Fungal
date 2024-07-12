@@ -15,11 +15,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from datasets.wsi_dataset import Wsi_Region
-from modules.file_utils import save_hdf5
-from modules.utils import *
 from PIL import Image
 from scipy.stats import percentileofscore
 from wsi_core.WholeSlideImage import WholeSlideImage
+
+from modules.file_utils import save_hdf5
+from modules.utils import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
